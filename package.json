@@ -1,0 +1,22 @@
+{
+  "name": "mongoengine-goodjson",
+  "version": "1.0.0",
+  "description": "Simpler JSON serializer/deserializer for MongoEngine",
+  "main": "gulpfile.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "MongoEngine",
+    "MongoDB",
+    "python"
+  ],
+  "author": "Hiroaki Yamamoto <hiroaki@hysoftware.net>",
+  "license": "MIT",
+  "devDependencies": {
+    "coffee-script": "^1.10.0",
+    "gulp": "^3.9.1",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.1.0"
+  }
+}
