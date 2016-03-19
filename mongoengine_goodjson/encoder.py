@@ -3,7 +3,7 @@
 
 import json
 from datetime import datetime
-from time import mktime
+from calendar import timegm
 
 try:
     from functools import singledispatch
@@ -36,9 +36,7 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(datetime)
         def conv_datetime(obj):
-            return int(
-                mktime(obj.timetuple())*1000 + obj.microsecond / 1000
-            )
+            return int(timegm(obj.timetuple())*1000 + obj.microsecond / 1000)
 
         @default.register(DBRef)
         def conv_dbref(obj):

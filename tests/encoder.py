@@ -51,11 +51,11 @@ class DatetimeEncodeTest(TestCase):
 
     def test_datetime(self):
         """datetime should be serialized into epoch millisecond"""
-        from time import mktime
+        from calendar import timegm
         self.assertEqual(
             self.encoder.default(self.now),
             int(
-                mktime(self.now.timetuple()) * 1000 +
+                timegm(self.now.timetuple()) * 1000 +
                 self.now.microsecond / 1000
             )
         )
