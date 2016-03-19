@@ -1,7 +1,17 @@
 # More human readable JSON serializer/de-serializer for MongoEngine
+[![Build Status]][Status Link]
+[![Coverage Status]][Coverage Link]
+[![Code Health]][Health Link]
+
+[Build Status]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson.svg?branch=master
+[Status Link]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson
+[Coverage Status]: https://coveralls.io/repos/github/hiroaki-yamamoto/mongoengine-goodjson/badge.svg?branch=master
+[Coverage Link]: https://coveralls.io/github/hiroaki-yamamoto/mongoengine-goodjson?branch=master
+[Code Health]: https://landscape.io/github/hiroaki-yamamoto/mongoengine-goodjson/master/landscape.svg?style=flat
+[Health Link]: https://landscape.io/github/hiroaki-yamamoto/mongoengine-goodjson/master
 
 ## Important Note
-This is under heavy development and it is not recommend to use it.
+This is under heavy development and it is not recommend to use this lib yet.
 
 ## License (MIT License)
 Copyright (c) 2016 Hiroaki Yamamoto
