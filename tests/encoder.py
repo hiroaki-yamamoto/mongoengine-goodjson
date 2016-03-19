@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+import re
 from unittest import TestCase
 try:
     from unittest.mock import patch
@@ -131,7 +132,6 @@ class RegexTestBase(TestCase):
 
     def setUp(self):
         """Setup function."""
-        import re
         self.encoder = GoodJSONEncoder()
         self.regex = re.compile("^[0-9]+$")
         self.expected_result = {
@@ -161,3 +161,12 @@ class BSONRegexWithoutFlagTest(RegexTestBase):
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.regex)
         )
+
+
+regex_flags = {
+    "ignore": re.IGNORECASE,
+    "locale": re.LOCALE,
+    "miltiline": re.MULTILINE,
+    "dotall": re.DOTALL,
+    "unicode":re.UNICODE, re.VERBOSE
+}
