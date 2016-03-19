@@ -43,9 +43,10 @@ class GoodJSONEncoder(json.JSONEncoder):
             doc = obj.as_doc()
             ret = {
                 "collection": doc["$ref"],
-                "id": self.default(doc["$id"]),
-                "db": doc["$db"]
+                "id": self.default(doc["$id"])
             }
+            if obj.database:
+                ret["db"] = doc["$db"]
             ret.update({
                 key: value
                 for (key, value) in doc.items()

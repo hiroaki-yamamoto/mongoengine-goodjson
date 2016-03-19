@@ -101,3 +101,26 @@ class DBRefEncodeWithDBTest(DBRefEncodingTestBase):
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.data)
         )
+
+
+class DBRefEncodeWithoutDBTest(DBRefEncodingTestBase):
+    """DBRef without external database encoding test."""
+
+    def setUp(self):
+        """Setup function."""
+        super(DBRefEncodeWithoutDBTest, self).setUp()
+        self.data = self.DBRef(
+            self.collection_name, self.doc_id,
+            **self.custom_argument
+        )
+        self.expected_result = {
+            "collection": self.collection_name,
+            "id": self.encoder.default(self.doc_id)
+        }
+        self.expected_result.update(self.custom_argument)
+
+    def test_dbref(self):
+        """DBRef test."""
+        self.assertDictEqual(
+            self.expected_result, self.encoder.default(self.data)
+        )
