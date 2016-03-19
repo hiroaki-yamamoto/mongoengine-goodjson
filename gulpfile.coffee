@@ -19,9 +19,7 @@ g.task "test", ->
     "echo 'Maintenancibility...'"
     "radon mi -nc mongoengine_goodjson"
     "echo 'Unit testing...'"
-    "export secret=\"test\""
     testCommand.join " "
-    "unset secret"
   ]
   if not process.env.CI
     commands.splice 0, 0, ". ../bin/activate"
