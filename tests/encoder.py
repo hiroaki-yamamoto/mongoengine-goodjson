@@ -124,3 +124,40 @@ class DBRefEncodeWithoutDBTest(DBRefEncodingTestBase):
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.data)
         )
+
+
+class RegexTestBase(TestCase):
+    """Regex Test Base class."""
+
+    def setUp(self):
+        """Setup function."""
+        import re
+        self.encoder = GoodJSONEncoder()
+        self.regex = re.compile("^[0-9]+$")
+        self.expected_result = {
+            "regex": self.regex.pattern
+        }
+
+
+class RegexNativeWithoutFlagTest(RegexTestBase):
+    """Native Regex test class."""
+
+    def test_regex(self):
+        self.assertDictEqual(
+            self.expected_result, self.encoder.default(self.regex)
+        )
+
+
+class BSONRegexWithoutFlagTest(RegexTestBase):
+    """SON-wrapped regex test class."""
+
+    def setUp(self):
+        """Setup function."""
+        from bson import Regex
+        super(BSONRegexWithoutFlagTest, self).setUp()
+        self.regex = Regex.from_native(self.regex)
+
+    def test_regex(self):
+        self.assertDictEqual(
+            self.expected_result, self.encoder.default(self.regex)
+        )

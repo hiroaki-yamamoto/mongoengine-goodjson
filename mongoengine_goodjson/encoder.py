@@ -10,7 +10,7 @@ try:
 except ImportError:
     from singledispatch import singledispatch
 
-from bson import ObjectId, DBRef
+from bson import ObjectId, DBRef, RE_TYPE, Regex
 
 
 class GoodJSONEncoder(json.JSONEncoder):
@@ -53,5 +53,12 @@ class GoodJSONEncoder(json.JSONEncoder):
                 if key[0] != "$"
             })
             return ret
+
+        @default.register(RE_TYPE)
+        @default.register(Regex)
+        def conv_regex(obj):
+            return {
+                "regex": obj.pattern
+            }
 
         return default(obj)
