@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+"""Encoder module."""
+
 import json
 from datetime import datetime
 from calendar import timegm
@@ -15,6 +17,7 @@ from bson import ObjectId, DBRef, RE_TYPE, Regex
 
 class GoodJSONEncoder(json.JSONEncoder):
     """JSON Encoder for human and MongoEngine."""
+
     def __init__(self):
         """Initialize the object."""
         super(GoodJSONEncoder, self).__init__()

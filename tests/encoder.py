@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+"""Encodig tests."""
+
 import re
 from unittest import TestCase
 try:
@@ -36,13 +38,13 @@ class ObjectIdEncodeTest(TestCase):
         self.oid = ObjectId()
 
     def test_object_id(self):
-        """encoder should return the object id as str"""
+        """encoder should return the object id as str."""
         result = self.encoder.default(self.oid)
         self.assertEqual(result, str(self.oid))
 
 
 class DatetimeEncodeTest(TestCase):
-    """datetime encoding test"""
+    """datetime encoding test."""
 
     def setUp(self):
         """Setup funciton."""
@@ -51,7 +53,7 @@ class DatetimeEncodeTest(TestCase):
         self.encoder = GoodJSONEncoder()
 
     def test_datetime(self):
-        """datetime should be serialized into epoch millisecond"""
+        """datetime should be serialized into epoch millisecond."""
         from calendar import timegm
         self.assertEqual(
             self.encoder.default(self.now),
@@ -98,7 +100,7 @@ class DBRefEncodeWithDBTest(DBRefEncodingTestBase):
         self.expected_result.update(self.custom_argument)
 
     def test_dbref(self):
-        """DBRef test."""
+        """The encoded dbref should be expected result."""
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.data)
         )
@@ -121,7 +123,7 @@ class DBRefEncodeWithoutDBTest(DBRefEncodingTestBase):
         self.expected_result.update(self.custom_argument)
 
     def test_dbref(self):
-        """DBRef test."""
+        """The encoded dbref should be expected result."""
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.data)
         )
@@ -143,6 +145,7 @@ class RegexNativeWithoutFlagTest(RegexTestBase):
     """Native Regex test class."""
 
     def test_regex(self):
+        """The encoded value should be the expected value."""
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.regex)
         )
@@ -158,6 +161,7 @@ class BSONRegexWithoutFlagTest(RegexTestBase):
         self.regex = Regex.from_native(self.regex)
 
     def test_regex(self):
+        """The encoded value should be the expected value."""
         self.assertDictEqual(
             self.expected_result, self.encoder.default(self.regex)
         )
@@ -168,5 +172,6 @@ regex_flags = {
     "locale": re.LOCALE,
     "miltiline": re.MULTILINE,
     "dotall": re.DOTALL,
-    "unicode":re.UNICODE, re.VERBOSE
+    "unicode": re.UNICODE,
+    "verbose": re.VERBOSE
 }
