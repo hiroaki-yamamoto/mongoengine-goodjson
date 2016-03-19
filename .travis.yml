@@ -1,0 +1,11 @@
+language: python
+sudo: false
+python:
+  - 3.5
+cache: pip
+install:
+  - pip install --user -r requirements.txt
+script:
+  - nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests
+after_success:
+  - coveralls
