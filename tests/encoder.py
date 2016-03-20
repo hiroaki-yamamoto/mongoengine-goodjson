@@ -129,8 +129,8 @@ class DBRefEncodeWithoutDBTest(DBRefEncodingTestBase):
         )
 
 
-class RegexTestBase(TestCase):
-    """Regex Test Base class."""
+class RegexNativeWithoutFlagTest(TestCase):
+    """Native Regex test class."""
 
     def setUp(self):
         """Setup function."""
@@ -140,18 +140,14 @@ class RegexTestBase(TestCase):
             "regex": self.regex.pattern
         }
 
-
-class RegexNativeWithoutFlagTest(RegexTestBase):
-    """Native Regex test class."""
-
     def test_regex(self):
         """The encoded value should be the expected value."""
-        self.assertDictEqual(
+        self.assertDictContainsSubset(
             self.expected_result, self.encoder.default(self.regex)
         )
 
 
-class BSONRegexWithoutFlagTest(RegexTestBase):
+class BSONRegexWithoutFlagTest(RegexNativeWithoutFlagTest):
     """SON-wrapped regex test class."""
 
     def setUp(self):
@@ -160,18 +156,78 @@ class BSONRegexWithoutFlagTest(RegexTestBase):
         super(BSONRegexWithoutFlagTest, self).setUp()
         self.regex = Regex.from_native(self.regex)
 
-    def test_regex(self):
-        """The encoded value should be the expected value."""
-        self.assertDictEqual(
-            self.expected_result, self.encoder.default(self.regex)
-        )
-
 
 regex_flags = {
-    "ignore": re.IGNORECASE,
-    "locale": re.LOCALE,
-    "miltiline": re.MULTILINE,
-    "dotall": re.DOTALL,
-    "unicode": re.UNICODE,
-    "verbose": re.VERBOSE
+    "i": re.IGNORECASE,
+    "l": re.LOCALE,
+    "m": re.MULTILINE,
+    "s": re.DOTALL,
+    "u": re.UNICODE,
+    "x": re.VERBOSE
 }
+
+for (flag_str, flag) in regex_flags.items():
+    class RegexNativeWithFlagTest(RegexNativeWithoutFlagTest):
+        """Native regex with flag test (individual)."""
+
+        def setUp(self):
+            """Setup class."""
+            super(RegexNativeWithFlagTest, self).setUp()
+            self.regex = re.compile(self.regex.pattern, flag)
+            self.actual_result = self.encoder.default(self.regex)
+
+        def test_regex(self):
+            """The encoded value should be expected value."""
+            self.assertDictContainsSubset(
+                self.expected_result, self.actual_result,
+            )
+
+        def test_flags(self):
+            """The flag should be proper."""
+            self.assertIn(flag_str, self.actual_result["flags"])
+
+    class BSONRegexWitFlagTest(RegexNativeWithFlagTest):
+        """BSON regex with flag test (individual)."""
+
+        def setUp(self):
+            """Setup class."""
+            super(BSONRegexWitFlagTest, self).setUp()
+            from bson import Regex
+            self.regex = Regex.from_native(self.regex)
+
+
+class RegexNativeWithAllFlagsTest(RegexNativeWithoutFlagTest):
+    """Native regex with flag test (ALL)."""
+
+    def setUp(self):
+        """Setup class."""
+        super(RegexNativeWithAllFlagsTest, self).setUp()
+        self.regex = re.compile(
+            self.regex.pattern,
+            re.IGNORECASE | re.LOCALE | re.MULTILINE |
+            re.DOTALL | re.UNICODE | re.VERBOSE
+        )
+        self.actual_result = self.encoder.default(self.regex)
+
+    def test_regex(self):
+        """The encoded value should be expected value."""
+        self.assertDictContainsSubset(
+            self.expected_result, self.actual_result,
+        )
+
+    def test_flags(self):
+        """The flag should be proper."""
+        flags = regex_flags.keys()
+        self.assertEqual(len(self.actual_result["flags"]), len(flags))
+        for flag in flags:
+            self.assertIn(flag, self.actual_result["flags"])
+
+
+class BSONRegexWitAllFlagsTest(RegexNativeWithAllFlagsTest):
+    """BSON regex with flag test (individual)."""
+
+    def setUp(self):
+        """Setup class."""
+        super(BSONRegexWitAllFlagsTest, self).setUp()
+        from bson import Regex
+        self.regex = Regex.from_native(self.regex)

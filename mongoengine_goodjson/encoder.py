@@ -4,6 +4,7 @@
 """Encoder module."""
 
 import json
+import re
 from datetime import datetime
 from calendar import timegm
 
@@ -60,8 +61,18 @@ class GoodJSONEncoder(json.JSONEncoder):
         @default.register(RE_TYPE)
         @default.register(Regex)
         def conv_regex(obj):
-            return {
-                "regex": obj.pattern
+            flags_map = {
+                "i": obj.flags & re.IGNORECASE,
+                "l": obj.flags & re.LOCALE,
+                "m": obj.flags & re.MULTILINE,
+                "s": obj.flags & re.DOTALL,
+                "u": obj.flags & re.UNICODE,
+                "x": obj.flags & re.VERBOSE
             }
+            flags = [key for (key, contains) in flags_map.items() if contains]
+            ret = {"regex": obj.pattern}
+            if flags:
+                ret["flags"] = ("").join(flags)
+            return ret
 
         return default(obj)
