@@ -10,7 +10,7 @@ dependencies = ["mongoengine"]
 print(sys.version_info)
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
-if sys.version_info < (3, 0):
+if sys.version_info < (3, 4):
     dependencies.append("singledispatch")
 
 setup(
