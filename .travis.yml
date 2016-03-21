@@ -6,7 +6,7 @@ python:
 cache: pip
 install:
   - pip install -r requirements.txt
-  - [ ${TRAVIS_PYTHON_VERSION} = "2.7" ] && pip install singledispatch
+  - if [ "${TRAVIS_PYTHON_VERSION}" = "2.7" ]; then pip install singledispatch; fi
 script:
   - "nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests"
 after_success:
