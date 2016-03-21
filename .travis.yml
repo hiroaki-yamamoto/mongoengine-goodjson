@@ -5,7 +5,9 @@ python:
 cache: pip
 install:
   - pip install -r requirements.txt
+before_script:
+  - coverage erase
 script:
-  - nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests
+  - tox
 after_success:
   - coveralls
