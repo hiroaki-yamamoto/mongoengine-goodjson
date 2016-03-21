@@ -2,12 +2,11 @@ language: python
 sudo: false
 python:
   - 3.5
+  - 2.7
 cache: pip
 install:
   - pip install -r requirements.txt
-before_script:
-  - coverage erase
 script:
-  - tox
+  - "nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests"
 after_success:
   - coveralls
