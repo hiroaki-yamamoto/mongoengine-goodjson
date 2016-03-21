@@ -9,7 +9,7 @@ python:
 cache: pip
 install:
   - pip install -r requirements.txt
-  - if [ "${TRAVIS_PYTHON_VERSION}" = "2.7" -o  "${TRAVIS_PYTHON_VERSION}" = "3.2" -o "${TRAVIS_PYTHON_VERSION}" = "3.3"]; then pip install singledispatch; fi
+  - if [ "${TRAVIS_PYTHON_VERSION}" = "2.7" -o  "${TRAVIS_PYTHON_VERSION}" = "3.2" -o "${TRAVIS_PYTHON_VERSION}" = "3.3" ]; then pip install singledispatch; fi
 script:
   - "nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests"
 after_success:
