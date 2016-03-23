@@ -1,10 +1,13 @@
 language: python
 sudo: false
+python:
+  - 3.5
+  - 2.7
 cache: pip
 install:
   - pip install -r requirements.txt
+  - if [ "${TRAVIS_PYTHON_VERSION}" = "2.7" ]; then pip install singledispatch; fi
 script:
-  - "tox"
+  - "nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests"
 after_success:
-  - "coverage combine python27.coverage python35.coverage"
   - coveralls
