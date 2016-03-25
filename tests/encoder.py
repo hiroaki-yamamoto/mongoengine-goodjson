@@ -231,3 +231,37 @@ class BSONRegexWitAllFlagsTest(RegexNativeWithAllFlagsTest):
         super(BSONRegexWitAllFlagsTest, self).setUp()
         from bson import Regex
         self.regex = Regex.from_native(self.regex)
+
+
+class MinKeyTest(TestCase):
+    """MinKey test."""
+
+    def setUp(self):
+        """Setup class."""
+        from bson.min_key import MinKey
+        self.encoder = GoodJSONEncoder()
+        self.data = MinKey()
+
+    def test_minkey(self):
+        """Minkey should be encoded."""
+        self.assertDictEqual(
+            {"minKey": True},
+            self.encoder.default(self.data)
+        )
+
+
+class MaxKeyTest(TestCase):
+    """MaxKey test."""
+
+    def setUp(self):
+        """Setup class."""
+        from bson.max_key import MaxKey
+        self.encoder = GoodJSONEncoder()
+        self.data = MaxKey()
+
+    def test_minkey(self):
+        """Minkey should be encoded."""
+        self.assertDictEqual(
+            {"maxKey": True},
+            self.encoder.default(self.data)
+        )

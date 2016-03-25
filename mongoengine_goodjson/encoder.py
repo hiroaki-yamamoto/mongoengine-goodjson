@@ -13,7 +13,7 @@ try:
 except ImportError:
     from singledispatch import singledispatch
 
-from bson import ObjectId, DBRef, RE_TYPE, Regex
+from bson import ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey
 
 
 class GoodJSONEncoder(json.JSONEncoder):
@@ -74,5 +74,13 @@ class GoodJSONEncoder(json.JSONEncoder):
             if flags:
                 ret["flags"] = ("").join(flags)
             return ret
+
+        @default.register(MinKey)
+        def conv_minkey(obj):
+            return {"minKey": True}
+
+        @default.register(MaxKey)
+        def conv_maxkey(obj):
+            return {"maxKey": True}
 
         return default(obj)
