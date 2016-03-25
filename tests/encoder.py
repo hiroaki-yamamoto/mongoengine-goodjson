@@ -10,6 +10,8 @@ try:
 except ImportError:
     from mock import patch
 
+from bson.py3compat import PY3
+
 from mongoengine_goodjson import GoodJSONEncoder
 
 
@@ -318,10 +320,46 @@ class BinaryTest(TestCase):
         self.test_str = "This is a test"
         self.expected = {
             "data": b64encode(self.test_str.encode()),
-            "type": BINARY_SUBTYPE
+            "type": "%02x" % BINARY_SUBTYPE
         }
         self.data = Binary(self.test_str.encode())
 
     def test_binary(self):
         """Binary data should be encoded properly."""
         self.assertDictEqual(self.expected, self.encoder.default(self.data))
+
+
+class UUIDTest(TestCase):
+    """UUID Test."""
+
+    def setUp(self):
+        """Setup class."""
+        from uuid import uuid5, NAMESPACE_DNS
+        self.encoder = GoodJSONEncoder()
+        self.data = uuid5(NAMESPACE_DNS, "This is a test")
+        self.expected = str(self.data)
+
+    def test_uuid(self):
+        """The uuid should converted into str."""
+        self.assertEqual(self.expected, self.encoder.default(self.data))
+
+
+if PY3:
+    class BytesTest(TestCase):
+        """Bytes test."""
+
+        def setUp(self):
+            """Setup class."""
+            from base64 import b64encode
+            self.encoder = GoodJSONEncoder()
+            self.data = b"This is a test."
+            self.expected = {
+                "data": b64encode(self.data),
+                "type": "00"
+            }
+
+        def test_bytes(self):
+            """The given bytes should be proper."""
+            self.assertDictEqual(
+                self.expected, self.encoder.default(self.data)
+            )

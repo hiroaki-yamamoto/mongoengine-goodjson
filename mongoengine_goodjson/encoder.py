@@ -6,8 +6,9 @@
 import json
 import re
 from base64 import b64encode
-from datetime import datetime
 from calendar import timegm
+from datetime import datetime
+from uuid import UUID
 
 try:
     from functools import singledispatch
@@ -15,7 +16,8 @@ except ImportError:
     from singledispatch import singledispatch
 
 from bson import (
-    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary
+    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary,
+    PY3
 )
 
 
@@ -38,6 +40,7 @@ class GoodJSONEncoder(json.JSONEncoder):
             super(GoodJSONEncoder, self).default(obj)
 
         @default.register(ObjectId)
+        @default.register(UUID)
         def objid(obj):
             return str(obj)
 
@@ -96,6 +99,11 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(Binary)
         def conv_bin(obj):
-            return {"data": b64encode(obj), "type": obj.subtype}
+            return {"data": b64encode(obj), "type": "%02x" % obj.subtype}
+
+        if PY3:
+            @default.register(bytes)
+            def conv_bytes(obj):
+                return {"data": b64encode(obj), "type": "00"}
 
         return default(obj)
