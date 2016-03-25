@@ -5,6 +5,7 @@
 
 import json
 import re
+from base64 import b64encode
 from datetime import datetime
 from calendar import timegm
 
@@ -14,7 +15,7 @@ except ImportError:
     from singledispatch import singledispatch
 
 from bson import (
-    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code
+    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary
 )
 
 
@@ -92,5 +93,9 @@ class GoodJSONEncoder(json.JSONEncoder):
         @default.register(Code)
         def conv_code(obj):
             return {"code": str(obj), "scope": obj.scope}
+
+        @default.register(Binary)
+        def conv_bin(obj):
+            return {"data": b64encode(obj), "type": obj.subtype}
 
         return default(obj)

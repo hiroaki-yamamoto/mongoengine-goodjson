@@ -304,3 +304,24 @@ class CodeTest(TestCase):
     def test_code(self):
         """Code should be expected value."""
         self.assertDictEqual(self.expected, self.encoder.default(self.data))
+
+
+class BinaryTest(TestCase):
+    """Binary test."""
+
+    def setUp(self):
+        """Setup class."""
+        from bson.binary import Binary, BINARY_SUBTYPE
+        from base64 import b64encode
+
+        self.encoder = GoodJSONEncoder()
+        self.test_str = "This is a test"
+        self.expected = {
+            "data": b64encode(self.test_str.encode()),
+            "type": BINARY_SUBTYPE
+        }
+        self.data = Binary(self.test_str.encode())
+
+    def test_binary(self):
+        """Binary data should be encoded properly."""
+        self.assertDictEqual(self.expected, self.encoder.default(self.data))
