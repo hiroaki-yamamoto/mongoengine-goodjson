@@ -14,7 +14,7 @@ except ImportError:
     from singledispatch import singledispatch
 
 from bson import (
-    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp
+    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code
 )
 
 
@@ -87,9 +87,10 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(Timestamp)
         def conv_timestamp(obj):
-            return {
-                "time": obj.time,
-                "inc": obj.inc
-            }
+            return {"time": obj.time, "inc": obj.inc}
+
+        @default.register(Code)
+        def conv_code(obj):
+            return {"code": str(obj), "scope": obj.scope}
 
         return default(obj)

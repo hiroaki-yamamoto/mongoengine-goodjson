@@ -278,11 +278,29 @@ class TimeStampTest(TestCase):
         from random import randint
         self.expected = {
             "time": timegm(datetime.utcnow().timetuple()),
-            "inc": randint(0, 4294967296-1)
+            "inc": randint(0, 4294967295)
         }
         self.encoder = GoodJSONEncoder()
         self.data = Timestamp(**self.expected)
 
     def test_timestamp(self):
         """The timestamp should be expected value."""
+        self.assertDictEqual(self.expected, self.encoder.default(self.data))
+
+
+class CodeTest(TestCase):
+    """Code test."""
+
+    def setUp(self):
+        """Setup class."""
+        from bson.code import Code
+        self.encoder = GoodJSONEncoder()
+        self.expected = {
+            "code": "console.log('HAAAAAAAAHHHH!!!')",
+            "scope": {"data": "test"}
+        }
+        self.data = Code(**self.expected)
+
+    def test_code(self):
+        """Code should be expected value."""
         self.assertDictEqual(self.expected, self.encoder.default(self.data))
