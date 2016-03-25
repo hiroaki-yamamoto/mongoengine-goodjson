@@ -260,8 +260,29 @@ class MaxKeyTest(TestCase):
         self.data = MaxKey()
 
     def test_minkey(self):
-        """Minkey should be encoded."""
+        """Maxkey should be encoded."""
         self.assertDictEqual(
             {"maxKey": True},
             self.encoder.default(self.data)
         )
+
+
+class TimeStampTest(TestCase):
+    """Timestamp test."""
+
+    def setUp(self):
+        """Setup class."""
+        from bson.timestamp import Timestamp
+        from datetime import datetime
+        from calendar import timegm
+        from random import randint
+        self.expected = {
+            "time": timegm(datetime.utcnow().timetuple()),
+            "inc": randint(0, 4294967296-1)
+        }
+        self.encoder = GoodJSONEncoder()
+        self.data = Timestamp(**self.expected)
+
+    def test_timestamp(self):
+        """The timestamp should be expected value."""
+        self.assertDictEqual(self.expected, self.encoder.default(self.data))

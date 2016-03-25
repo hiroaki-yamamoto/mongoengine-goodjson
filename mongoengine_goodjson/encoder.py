@@ -13,7 +13,9 @@ try:
 except ImportError:
     from singledispatch import singledispatch
 
-from bson import ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey
+from bson import (
+    ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp
+)
 
 
 class GoodJSONEncoder(json.JSONEncoder):
@@ -82,5 +84,12 @@ class GoodJSONEncoder(json.JSONEncoder):
         @default.register(MaxKey)
         def conv_maxkey(obj):
             return {"maxKey": True}
+
+        @default.register(Timestamp)
+        def conv_timestamp(obj):
+            return {
+                "time": obj.time,
+                "inc": obj.inc
+            }
 
         return default(obj)
