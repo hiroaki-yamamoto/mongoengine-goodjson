@@ -26,14 +26,12 @@ g.task "test", ->
         codeErr = new Error errStr + " code: #{code}"
         notify.onError("<%= error.message %>")(codeErr)
         defer.reject codeErr
-        return
       if signal isnt null
         signalErr = new Error errStr + " signal: #{signal}"
         notify.onError("<%= error.message %>")(signalErr)
         defer.reject signalErr
-        return
       defer.resolve()
-      defer.promise
+    defer.promise
   q.fcall(
     ->
       console.log ("Cheking PEP8 Syntax...").green

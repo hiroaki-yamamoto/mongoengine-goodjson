@@ -45,3 +45,32 @@ class ObjectIdDecodeTest(TestCase):
         """Given data should be decoded properly."""
         result = json.loads(self.data, object_hook=self.hook)
         self.assertDictEqual(self.expected_data, result)
+
+
+class DBRefDecodeTest(TestCase):
+    """DBRef Test."""
+
+    def setUp(self):
+        """Setup class."""
+        import json
+        from bson import DBRef, ObjectId
+
+        class Source(db.Document):
+            pass
+
+        class Model(db.Document):
+            src = db.ReferenceField(Source, dbref=True)
+
+        self.src_cls = Source
+        self.model_cls = Model
+        self.src_id = ObjectId()
+        self.data = json.dumps({
+            "src": {"collection": "source", "id": str(self.src_id)}
+        })
+        self.expected_data = {"src": DBRef("source", self.src_id)}
+        self.hook = generate_object_hook(self.model_cls)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)
