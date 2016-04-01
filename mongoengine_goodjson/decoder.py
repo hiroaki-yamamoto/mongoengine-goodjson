@@ -3,6 +3,8 @@
 
 """Human-readable JSON decoder for MongoEngine."""
 
+from datetime import datetime, timedelta
+
 import bson
 import mongoengine as db
 from mongoengine.base import BaseField
@@ -36,6 +38,13 @@ def generate_object_hook(cls):
                         database=obj.get("database")
                     )
                 }
+
+        @decode.register(db.DateTimeField)
+        def decode_datetime(fldtype, name, obj):
+            result = datetime.utcfromtimestamp(
+                int(obj / 1000)
+            ) + timedelta(milliseconds=int(obj % 1000))
+            return {name: result}
 
         if set(dct.keys()).issubset(set(fields.keys())) and \
                 len(dct.keys()) < 2:

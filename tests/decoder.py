@@ -17,8 +17,8 @@ class NoneFieldsTest(TestCase):
     def setUp(self):
         """Setup class."""
         self.hook = generate_object_hook(None)
-        self.data = "{\"user\": \"56f63a716a8dec7705f36409\"}"
         self.expected_data = {"user": "56f63a716a8dec7705f36409"}
+        self.data = json.dumps(self.expected_data)
 
     def test_hook(self):
         """Given data should be decoded properly."""
@@ -38,7 +38,7 @@ class ObjectIdDecodeTest(TestCase):
 
         self.model_cls = TestModel
         self.hook = generate_object_hook(self.model_cls)
-        self.data = "{\"user\": \"56f63a716a8dec7705f36409\"}"
+        self.data = json.dumps({"user": "56f63a716a8dec7705f36409"})
         self.expected_data = {"user": ObjectId("56f63a716a8dec7705f36409")}
 
     def test_hook(self):
@@ -52,7 +52,6 @@ class DBRefDecodeTest(TestCase):
 
     def setUp(self):
         """Setup class."""
-        import json
         from bson import DBRef, ObjectId
 
         class Source(db.Document):
@@ -68,6 +67,34 @@ class DBRefDecodeTest(TestCase):
             "src": {"collection": "source", "id": str(self.src_id)}
         })
         self.expected_data = {"src": DBRef("source", self.src_id)}
+        self.hook = generate_object_hook(self.model_cls)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)
+
+
+class DateDecodeTest(TestCase):
+    """DateTime Test."""
+
+    def setUp(self):
+        """Setup test."""
+        from datetime import datetime, timedelta
+        from calendar import timegm
+
+        class DateTime(db.Document):
+            date = db.DateTimeField()
+
+        self.model_cls = DateTime
+        now = datetime.utcnow()
+        epoch_mil = int(timegm(now.timetuple())*1000 + now.microsecond / 1000)
+        self.data = json.dumps({"date": epoch_mil})
+        self.expected_data = {
+            "date": datetime.utcfromtimestamp(
+                        int(epoch_mil / 1000)
+                    ) + timedelta(milliseconds=int(epoch_mil % 1000))
+        }
         self.hook = generate_object_hook(self.model_cls)
 
     def test_hook(self):
