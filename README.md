@@ -14,8 +14,8 @@
 This is under heavy development and it is not recommend to use this lib yet.
 
 ## Not implemented list
-The following types are partially implemented because there isn't any
-corresponding field on MongoEngine:
+The following types are partially implemented because there aren't any
+corresponding fields on MongoEngine:
 
 Type|Encoder|Decoder
 ----|--------|-------
