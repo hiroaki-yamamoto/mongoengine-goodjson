@@ -319,7 +319,7 @@ class BinaryTest(TestCase):
         self.encoder = GoodJSONEncoder()
         self.test_str = "This is a test"
         self.expected = {
-            "data": b64encode(self.test_str.encode()),
+            "data": b64encode(self.test_str.encode()).decode(),
             "type": "%02x" % BINARY_SUBTYPE
         }
         self.data = Binary(self.test_str.encode())
@@ -354,7 +354,7 @@ if PY3:
             self.encoder = GoodJSONEncoder()
             self.data = b"This is a test."
             self.expected = {
-                "data": b64encode(self.data),
+                "data": b64encode(self.data).decode(),
                 "type": "00"
             }
 

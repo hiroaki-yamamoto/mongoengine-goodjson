@@ -176,9 +176,45 @@ class DateTimeUnknownDecodeTest(TestCase):
         self.hook = generate_object_hook(self.model_cls)
 
     def test_hook(self):
-        """The result of decode should be correct."""
-        with self.assertRaises(NotImplementedError) as e:
+        """The hook should raise TypeError."""
+        with self.assertRaises(TypeError) as e:
             json.loads(self.data, object_hook=self.hook)
         self.assertEqual(
             str(e.exception), "This type (dict) is not supported"
         )
+
+
+class BinaryDecodeTest(TestCase):
+    """Binary format test."""
+
+    def setUp(self):
+        """Setup test."""
+        from base64 import b64encode, b64decode
+        from bson.binary import Binary, BINARY_SUBTYPE
+
+        class BinaryTest(db.Document):
+            text = db.BinaryField()
+
+        self.model_cls = BinaryTest
+        self.data = {
+            "text": {
+                "data": b64encode(
+                    ("This is a test").encode("utf-8")
+                ).decode(),
+                "type": "%02x" % BINARY_SUBTYPE
+            }
+        }
+        self.expected_data = {
+            "text": Binary(
+                b64decode(self.data["text"]["data"]),
+                int(self.data["text"]["type"], 16)
+            )
+        }
+        self.data = json.dumps(self.data)
+
+        self.hook = generate_object_hook(BinaryTest)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)

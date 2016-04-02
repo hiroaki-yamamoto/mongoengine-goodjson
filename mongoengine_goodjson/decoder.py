@@ -3,6 +3,7 @@
 
 """Human-readable JSON decoder for MongoEngine."""
 
+from base64 import b64decode
 from datetime import datetime, timedelta
 
 import bson
@@ -46,7 +47,7 @@ def generate_object_hook(cls):
 
             @singledispatch
             def parse_datetime(obj):
-                raise NotImplementedError(
+                raise TypeError(
                     ("This type ({}) is not supported").format(
                         type(obj).__name__
                     )
@@ -70,6 +71,14 @@ def generate_object_hook(cls):
                 pass
 
             return parse_datetime(obj)
+
+        @decode.register(db.BinaryField)
+        def decode_binary(fldtype, name, obj):
+            return {
+                name: bson.Binary(
+                    b64decode(obj["data"]), subtype=int(obj["type"], 16)
+                )
+            }
 
         if set(dct.keys()).issubset(set(fields.keys())) and \
                 len(dct.keys()) < 2:

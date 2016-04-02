@@ -13,6 +13,19 @@
 ## Important Note
 This is under heavy development and it is not recommend to use this lib yet.
 
+## Not implemented list
+The following types are partially implemented because there isn't any
+corresponding field on MongoEngine:
+
+Type|Encoder|Decoder
+----|--------|-------
+Regex|:white_check_mark:|:x:
+MinKey|:white_check_mark:|:x:
+MaxKey|:white_check_mark:|:x:
+TimeStamp|:white_check_mark:|:x:
+Code|:white_check_mark:|:x:
+
+
 ## License (MIT License)
 Copyright (c) 2016 Hiroaki Yamamoto
 

@@ -99,11 +99,14 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(Binary)
         def conv_bin(obj):
-            return {"data": b64encode(obj), "type": "%02x" % obj.subtype}
+            return {
+                "data": b64encode(obj).decode(),
+                "type": "%02x" % obj.subtype
+            }
 
         if PY3:
             @default.register(bytes)
             def conv_bytes(obj):
-                return {"data": b64encode(obj), "type": "00"}
+                return {"data": b64encode(obj).decode(), "type": "00"}
 
         return default(obj)
