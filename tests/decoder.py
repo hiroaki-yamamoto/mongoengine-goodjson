@@ -218,3 +218,27 @@ class BinaryDecodeTest(TestCase):
         """The result of decode should be correct."""
         result = json.loads(self.data, object_hook=self.hook)
         self.assertDictEqual(self.expected_data, result)
+
+
+class UUIDDecodeTest(TestCase):
+    """UUID decode test."""
+
+    def setUp(self):
+        """Setup test."""
+        from uuid import uuid5, NAMESPACE_DNS
+
+        class UUIDModel(db.Document):
+            uuid = db.UUIDField()
+
+        self.model_cls = UUIDModel
+        uuid = uuid5(NAMESPACE_DNS, "This is a test")
+        self.expected_data = {
+            "uuid": uuid
+        }
+        self.data = json.dumps({"uuid": str(uuid)})
+        self.hook = generate_object_hook(UUIDModel)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)

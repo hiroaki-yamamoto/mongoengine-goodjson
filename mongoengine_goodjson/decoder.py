@@ -5,6 +5,7 @@
 
 from base64 import b64decode
 from datetime import datetime, timedelta
+from uuid import UUID
 
 import bson
 from dateutil.parser import parse
@@ -79,6 +80,10 @@ def generate_object_hook(cls):
                     b64decode(obj["data"]), subtype=int(obj["type"], 16)
                 )
             }
+
+        @decode.register(db.UUIDField)
+        def decode_uuid(fldtype, name, obj):
+            return {name: UUID(obj)}
 
         if set(dct.keys()).issubset(set(fields.keys())) and \
                 len(dct.keys()) < 2:
