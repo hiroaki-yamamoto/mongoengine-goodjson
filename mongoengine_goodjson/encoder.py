@@ -41,7 +41,7 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(ObjectId)
         @default.register(UUID)
-        def objid(obj):
+        def conv_objid(obj):
             return str(obj)
 
         @default.register(datetime)
@@ -100,13 +100,37 @@ class GoodJSONEncoder(json.JSONEncoder):
         @default.register(Binary)
         def conv_bin(obj):
             return {
-                "data": b64encode(obj).decode(),
+                "data": b64encode(obj).decode("utf-8"),
                 "type": obj.subtype
             }
 
         if PY3:
             @default.register(bytes)
             def conv_bytes(obj):
-                return {"data": b64encode(obj).decode(), "type": 0}
+                return {"data": b64encode(obj).decode("utf-8"), "type": 0}
 
         return default(obj)
+
+    def encode(self, o, **kwargs):
+        """encode."""
+
+        # I appologize that I wrote this bad code.
+        # The reason why I wrote this code is because Binary class inherits
+        # bytes. bytes is the same of str in python2, but byte is treated as
+        # "binary" type. If I can lock into python3, this encode function is
+        # not needed. However, this code is used on the both of python3 and
+        # python2. Therefore, needs to convert Binary instance into the
+        # corresponding dict first...
+        #
+        # In addition, I think there are other types that have compatibility
+        # problem like above. (Of course, pull request is appreciated)
+        @singledispatch
+        def check(obj):
+            return obj
+
+        @check.register(Binary)
+        def conv_type(obj):
+            return self.default(obj)
+
+        ret = {key: check(value) for (key, value) in o.items()}
+        return super(GoodJSONEncoder, self).encode(ret, **kwargs)

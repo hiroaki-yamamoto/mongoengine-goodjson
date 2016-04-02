@@ -17,14 +17,12 @@ class Document(db.Document):
     def to_json(self, *args, **kwargs):
         """Encode to human-readable json."""
         use_db_field = kwargs.pop('use_db_field', True)
-        if "cls" not in kwargs or len(args) < 5:
-            kwargs["cls"] = GoodJSONEncoder
         data = self.to_mongo(use_db_field)
+        if "cls" not in kwargs and len(args) < 5:
+            kwargs["cls"] = GoodJSONEncoder
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
-        return json.dumps(
-            data, *args, **kwargs
-        )
+        return json.dumps(data, *args, **kwargs)
 
 
 class EmbeddedDocument(db.EmbeddedDocument):
@@ -35,9 +33,7 @@ class EmbeddedDocument(db.EmbeddedDocument):
     def to_json(self, *args, **kwargs):
         """Encode to human-readable json."""
         use_db_field = kwargs.pop('use_db_field', True)
-        if "cls" not in kwargs or len(args) < 5:
+        if "cls" not in kwargs and len(args) < 5:
             kwargs["cls"] = GoodJSONEncoder
         data = self.to_mongo(use_db_field)
-        return json.dumps(
-            data, *args, **kwargs
-        )
+        return json.dumps(data, *args, **kwargs)

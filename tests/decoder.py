@@ -200,7 +200,7 @@ class BinaryDecodeTest(TestCase):
             "text": {
                 "data": b64encode(
                     ("This is a test").encode("utf-8")
-                ).decode(),
+                ).decode("utf-8"),
                 "type": BINARY_SUBTYPE
             }
         }
