@@ -75,6 +75,34 @@ class DBRefDecodeTest(TestCase):
         self.assertDictEqual(self.expected_data, result)
 
 
+class OidBasedReferenceDecodeTest(TestCase):
+    """Object ID based reference decode test."""
+
+    def setUp(self):
+        """Setup class."""
+        from bson import ObjectId
+
+        class Source(db.Document):
+            pass
+
+        class Model(db.Document):
+            src = db.ReferenceField(Source)
+
+        self.src_cls = Source
+        self.model_cls = Model
+        self.src_id = ObjectId()
+        self.data = json.dumps({
+            "src": str(self.src_id)
+        })
+        self.expected_data = {"src": self.src_id}
+        self.hook = generate_object_hook(self.model_cls)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)
+
+
 class DateTimeEpochMillisecDecodeTest(TestCase):
     """DateTime epoch milliseconds Test."""
 

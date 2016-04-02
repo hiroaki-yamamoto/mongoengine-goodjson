@@ -28,7 +28,7 @@ def generate_object_hook(cls):
 
         @singledispatch
         def decode(field_type, field_name, obj):
-            return {field_name: field_type.to_python(dct[field_name])}
+            return {field_name: field_type.to_python(obj)}
 
         @decode.register(db.ReferenceField)
         def deocde_reference(field_type, field_name, obj):
@@ -39,6 +39,7 @@ def generate_object_hook(cls):
                         database=obj.get("database")
                     )
                 }
+            return {field_name: bson.ObjectId(obj)}
 
         @decode.register(db.DateTimeField)
         def decode_datetime(fldtype, name, obj):
