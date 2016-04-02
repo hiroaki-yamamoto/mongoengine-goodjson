@@ -6,6 +6,7 @@
 from datetime import datetime, timedelta
 
 import bson
+from dateutil.parser import parse
 import mongoengine as db
 from mongoengine.base import BaseField
 
@@ -41,10 +42,33 @@ def generate_object_hook(cls):
 
         @decode.register(db.DateTimeField)
         def decode_datetime(fldtype, name, obj):
-            result = datetime.utcfromtimestamp(
-                int(obj / 1000)
-            ) + timedelta(milliseconds=int(obj % 1000))
-            return {name: result}
+
+            @singledispatch
+            def parse_datetime(obj):
+                raise NotImplementedError(
+                    ("This type ({}) is not supported").format(
+                        type(obj).__name__
+                    )
+                )
+
+            @parse_datetime.register(int)
+            def parse_int(obj):
+                result = datetime.utcfromtimestamp(
+                    int(obj / 1000)
+                ) + timedelta(milliseconds=int(obj % 1000))
+                return {name: result}
+
+            @parse_datetime.register(str)
+            def parse_str(obj):
+                result = parse(obj)
+                return {name: result}
+
+            try:
+                parse_datetime.register(unicode)(parse_str)  # noqa
+            except NameError:
+                pass
+
+            return parse_datetime(obj)
 
         if set(dct.keys()).issubset(set(fields.keys())) and \
                 len(dct.keys()) < 2:

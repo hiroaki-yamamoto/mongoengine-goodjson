@@ -5,12 +5,14 @@
 import sys
 from setuptools import setup, find_packages
 
-dependencies = ["mongoengine"]
+dependencies = ["mongoengine", "dateutils"]
 
-print(sys.version_info)
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
-if sys.version_info < (3, 4):
+
+try:
+    from functools import singledispatch
+except ImportError:
     dependencies.append("singledispatch")
 
 setup(

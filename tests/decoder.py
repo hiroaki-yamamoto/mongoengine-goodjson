@@ -75,8 +75,8 @@ class DBRefDecodeTest(TestCase):
         self.assertDictEqual(self.expected_data, result)
 
 
-class DateDecodeTest(TestCase):
-    """DateTime Test."""
+class DateTimeEpochMillisecDecodeTest(TestCase):
+    """DateTime epoch milliseconds Test."""
 
     def setUp(self):
         """Setup test."""
@@ -101,3 +101,56 @@ class DateDecodeTest(TestCase):
         """The result of decode should be correct."""
         result = json.loads(self.data, object_hook=self.hook)
         self.assertDictEqual(self.expected_data, result)
+
+
+class DateTimeISODecodeTest(TestCase):
+    """DateTime ISO format Test."""
+
+    def setUp(self):
+        """Setup test."""
+        from datetime import datetime
+        from dateutil.parser import parse
+
+        class DateTime(db.Document):
+            date = db.DateTimeField()
+
+        self.model_cls = DateTime
+        now = datetime.utcnow()
+        self.data = json.dumps({"date": now.isoformat()})
+        self.expected_data = {"date": parse(now.isoformat())}
+        self.hook = generate_object_hook(self.model_cls)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)
+
+
+class DateTimeUnknownDecodeTest(TestCase):
+    """DateTime unknown format Test."""
+
+    def setUp(self):
+        """Setup test."""
+        from datetime import datetime
+
+        class DateTime(db.Document):
+            date = db.DateTimeField()
+
+        self.model_cls = DateTime
+        now = datetime.utcnow()
+
+        # This format shouldn't be supported.
+        self.data = json.dumps({"date": {
+            "year": now.year,
+            "month": now.month,
+            "date": now.day
+        }})
+        self.hook = generate_object_hook(self.model_cls)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        with self.assertRaises(NotImplementedError) as e:
+            json.loads(self.data, object_hook=self.hook)
+        self.assertEqual(
+            str(e.exception), "This type (dict) is not supported"
+        )
