@@ -24,9 +24,9 @@ from bson import (
 class GoodJSONEncoder(json.JSONEncoder):
     """JSON Encoder for human and MongoEngine."""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Initialize the object."""
-        super(GoodJSONEncoder, self).__init__()
+        super(GoodJSONEncoder, self).__init__(*args, **kwargs)
 
     def default(self, obj):
         """
@@ -101,12 +101,12 @@ class GoodJSONEncoder(json.JSONEncoder):
         def conv_bin(obj):
             return {
                 "data": b64encode(obj).decode(),
-                "type": "%02x" % obj.subtype
+                "type": obj.subtype
             }
 
         if PY3:
             @default.register(bytes)
             def conv_bytes(obj):
-                return {"data": b64encode(obj).decode(), "type": "00"}
+                return {"data": b64encode(obj).decode(), "type": 0}
 
         return default(obj)

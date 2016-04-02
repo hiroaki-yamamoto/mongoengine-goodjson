@@ -77,7 +77,7 @@ def generate_object_hook(cls):
         def decode_binary(fldtype, name, obj):
             return {
                 name: bson.Binary(
-                    b64decode(obj["data"]), subtype=int(obj["type"], 16)
+                    b64decode(obj["data"]), subtype=obj["type"]
                 )
             }
 

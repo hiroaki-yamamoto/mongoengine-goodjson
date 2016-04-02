@@ -320,7 +320,7 @@ class BinaryTest(TestCase):
         self.test_str = "This is a test"
         self.expected = {
             "data": b64encode(self.test_str.encode()).decode(),
-            "type": "%02x" % BINARY_SUBTYPE
+            "type": BINARY_SUBTYPE
         }
         self.data = Binary(self.test_str.encode())
 
@@ -355,7 +355,7 @@ if PY3:
             self.data = b"This is a test."
             self.expected = {
                 "data": b64encode(self.data).decode(),
-                "type": "00"
+                "type": 0
             }
 
         def test_bytes(self):

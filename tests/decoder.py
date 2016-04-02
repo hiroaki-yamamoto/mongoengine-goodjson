@@ -201,13 +201,13 @@ class BinaryDecodeTest(TestCase):
                 "data": b64encode(
                     ("This is a test").encode("utf-8")
                 ).decode(),
-                "type": "%02x" % BINARY_SUBTYPE
+                "type": BINARY_SUBTYPE
             }
         }
         self.expected_data = {
             "text": Binary(
                 b64decode(self.data["text"]["data"]),
-                int(self.data["text"]["type"], 16)
+                self.data["text"]["type"]
             )
         }
         self.data = json.dumps(self.data)

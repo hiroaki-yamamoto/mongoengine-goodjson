@@ -4,5 +4,10 @@
 """JSON serializer/deserializer for humans and MongoEngine."""
 
 from .encoder import GoodJSONEncoder
+from .decoder import generate_object_hook
+from .document import Document, EmbeddedDocument
 
-__all__ = ("GoodJSONEncoder", )
+__all__ = (
+    "GoodJSONEncoder", "generate_object_hook",
+    "Document", "EmbeddedDocument"
+)
