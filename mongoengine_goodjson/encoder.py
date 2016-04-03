@@ -3,6 +3,7 @@
 
 """Encoder module."""
 
+import collections
 import json
 import re
 from base64 import b64encode
@@ -131,5 +132,10 @@ class GoodJSONEncoder(json.JSONEncoder):
         def conv_type(obj):
             return self.default(obj)
 
-        ret = {key: check(value) for (key, value) in o.items()}
+        ret = {
+            key: check(value) for (key, value) in o.items()
+        } if isinstance(o, dict) else [
+            check(value) for value in o
+        ] if not isinstance(o, str) and \
+            isinstance(o, collections.Iterable) else o
         return super(GoodJSONEncoder, self).encode(ret, **kwargs)

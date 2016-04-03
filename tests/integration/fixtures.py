@@ -25,18 +25,47 @@ user = User(
     ]
 )
 user.pk = ObjectId()
+users = [
+    User(
+        name="Test man %d" % c1, email="test%d@example.com" % c1,
+        address=[
+            Address(
+                street=("Test street %d %d" % (c1, c2)),
+                city=("Test city %d %d" % (c1, c2)),
+                state=("Test state %d %d" % (c1, c2))
+            ) for c2 in range(3)
+        ]
+    ) for c1 in range(3)
+]
+for user in users:
+    user.pk = ObjectId()
 user_dict = {
     u"id": str(user.pk),
     u"name": user.name,
     u"email": user.email,
     u"address": [
         {
-            u"street": "Test street %d" % counter,
-            u"city": "Test city %d" % counter,
-            u"state": "Test state %d" % counter
-        } for counter in range(3)
+            u"street": address.street,
+            u"city": address.city,
+            u"state": address.state
+        } for address in user.address
     ]
 }
+
+users_dict = [
+    {
+        u"id": str(user.pk),
+        u"name": user.name,
+        u"email": user.email,
+        u"address": [
+            {
+                u"street": address.street,
+                u"city": address.city,
+                u"state": address.state
+            } for address in user.address
+        ]
+    } for user in users
+]
 
 email = Email(email="test@example.com")
 email_dict_id = {"id": email.pk}

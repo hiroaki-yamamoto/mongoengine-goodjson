@@ -9,6 +9,7 @@ import mongoengine as db
 from bson import SON
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
+from .queryset import QuerySet
 
 
 class Helper(object):
@@ -37,10 +38,16 @@ class Helper(object):
 class Document(Helper, db.Document):
     """Document implementing human-readable JSON serializer."""
 
-    meta = {"abstract": True}
+    meta = {
+        "abstract": True,
+        "queryset_class": QuerySet
+    }
 
 
 class EmbeddedDocument(Helper, db.EmbeddedDocument):
     """EmbeddedDocument implementing human-readable JSON serializer."""
 
-    meta = {"abstract": True}
+    meta = {
+        "abstract": True,
+        "queryset_class": QuerySet
+    }

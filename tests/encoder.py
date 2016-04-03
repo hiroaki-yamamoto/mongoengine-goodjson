@@ -25,9 +25,15 @@ class NormalStuffEncodingTest(TestCase):
 
     @patch("json.JSONEncoder.default")
     def test_json_encoder(self, default):
-        """The default json encoder should be called."""
+        """The default json default function should be called."""
         self.encoder.default(self.data)
         default.assert_called_once_with(self.data)
+
+    @patch("json.JSONEncoder.encode")
+    def test_json_encode_class(self, encode):
+        """The default json encode function should be called."""
+        self.encoder.encode(self.data)
+        encode.assert_called_once_with(self.data)
 
 
 class ObjectIdEncodeTest(TestCase):
