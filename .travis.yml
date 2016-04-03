@@ -1,16 +1,27 @@
 language: python
 python:
   - 3.5
+addons:
+  apt-get:
+    - "pandoc"
 services:
-  - mongodb
+  - "mongodb"
 sudo: false
-cache: pip
+cache: "pip"
 install:
-  - pip install -r requirements.txt
+  - "pip install -r requirements.txt"
 script:
   - "flake8 mongoengine_goodjson tests"
   - "radon cc -nc mongoengine_goodjson"
   - "tox"
 after_success:
   - "coverage combine python27.coverage python35.coverage"
-  - coveralls
+  - "coveralls"
+  - "pandoc --from=markdown --to=rst -o README.rst README.md"
+deploy:
+  provider: "pypi"
+  user: "hyamamoto"
+  password:
+    secure: "L8ik4iu4E5n+4uujfYqz3TMIcNYbw91pNKVA5AFJubT/oOB1Rp/tE9RSKxzdXq7DG5Rw44mH5GiyJ8pVfEeqMa2ftN1fWRV89pTIp34VLujUXw8msnAoGYVnaZqbx7slLJkfLUJOHlL4RIo+n8lZ7bWgoL1Kw3E0xJ1f98aACRBfqBXcjXudc2UOU/P/U3lqecE9LM3sSv7pxuFdhFh9HSxmGzRYE3wME9QXdzEvq78ebfB9D2fdZ+ZY2iu8a3BSJnG++iQcdjQUx81E5jly1Cr1sMgMUxvLEEg3/wTGZbdWgjdkKvmhHbKbZE7l1Sp8tHxaC2rjEHgC59KBMt5lcKDjqmLoqb4QLyhDEtM4cw9bXpoEPM6lgnXOYGxgH1cnVDg/99O+dMgfaRmY6vLfJKUCIZjPnjd+aXgX2ayapGt3lTyvy5t1lK0267uStNVYw8Gv6xKlWOUuNU8w+25HRKnXd5HHmEM0UHVWNtXVuZ0iQndINb+tbleatSnTkMZZlCNE5/0OJpf9Ci60HQI35ysMvviVGR4wLvuJLuG3qGEO1XwPr28G9m+RorSFMgEc5G8c+A+8VQ2EC29V72OjFWUykDYmGXFMoL79Wl8YDqpdmdBL9CHcxj4TaHF9/92BdeyMMcrfMsuZvWTvGjgTB+xqOSoosdxQj1XtVTNyRSM="
+  on:
+    tags: true
