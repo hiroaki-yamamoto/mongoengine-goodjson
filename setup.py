@@ -17,7 +17,7 @@ except ImportError:
 
 setup(
     name="mongoengine_goodjson",
-    version="0.0.0",
+    version="0.8.1",
     packages=find_packages(exclude=["tests"]),
     install_requires=dependencies,
     zip_safe=False,
@@ -28,7 +28,7 @@ setup(
     keywords="json mongoengine mongodb",
     url="https://github.com/hiroaki-yamamoto/mongoengine-goodjson",
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.5"
