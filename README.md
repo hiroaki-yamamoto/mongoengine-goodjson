@@ -34,7 +34,7 @@ is weired at some fields:
 The points are 2 points:
 
 * `_id` might be not wanted because jslint disagrees `_` character unless
-  declaring `jsling nomen:true`
+  declaring `jslint nomen:true`
 * There are sub-fields such `$oid` and `$date`. These fields are known as
   [MongoDB Extended JSON]. However, considering MongoEngine is ODM and
   therefore it has schema-definition methods, the fields shouldn't have the
@@ -160,6 +160,17 @@ The following document types are not implemented yet:
 
 Btw I don't think above documents implementations are needed because they can
 be handled by using multiple-inheritance. If you couldn't do it, post issue or PR.
+
+## Contribute
+This scirpt is coded on TDD. i.e. Writing a test that fails, and then write
+the actual code to pass the test. Therefore, `virtualenv`, `nose` and `tox`
+will be needed to code this script. In addtion, you will need to have
+[MongoDB] installed and it must be running on the computer to run the tests.
+
+In addition, you can use [gulp] to watch the file changes.
+
+[MongoDB]: https://www.mongodb.org/
+[gulp]: http://gulpjs.com/
 
 ## License (MIT License)
 Copyright (c) 2016 Hiroaki Yamamoto
