@@ -159,7 +159,7 @@ The following document types are not implemented yet:
 * `MapReduceDocument`
 
 Btw I don't think above documents implementations are needed because they can
-be handled by using multiple-inheritance. If you couldn't post issue or PR.
+be handled by using multiple-inheritance. If you couldn't do it, post issue or PR.
 
 ## License (MIT License)
 Copyright (c) 2016 Hiroaki Yamamoto
