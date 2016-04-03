@@ -1,10 +1,6 @@
 language: python
 python:
   - 3.5
-addons:
-  apt:
-    packages:
-      - "pandoc"
 services:
   - "mongodb"
 sudo: false
@@ -18,13 +14,3 @@ script:
 after_success:
   - "coverage combine python27.coverage python35.coverage"
   - "coveralls"
-  - "pandoc --from=markdown --to=rst -o README.rst README.md"
-deploy:
-  provider: "pypi"
-  user:
-    secure: "f6Yeb49GA0K3uqd8wM/K5fl3X3kOdbYuILw7TgF35vL4kVS8uCqOzmryavdbYH7tEt3VUNfK4aZ75vkwm+U0eAgPigzSuTPKg/N1q+ASip9H6cVTI3FYoVZXAv3HlNMObvnjLHn+/eVnVOKUkenFtAMModaeIGheXLLuGVGeAN6cOxTS6M/VawYzGcJ9TwRxjkwOYJoy1bZkd0HAEFK/CFKt/ZUhOjsOuBOZTpFB21PBlTzovVY4itHD+kENtgtlVb+pIDJBOFvn60FfE99nqdqh46hClLue6NYZqVCIZcYVbLBSnQ2w63MzjjNAexWNkPTwV3q7sLD/JgrPD5Y6uw3nTzrFTSYGpOdHa78EHckYNo1dRsirc+FqnDQerer0rotUTc/R1UG9kp3Bzlv8WEbeMcPAfVIeWbuOOzqChG3c1JH01je9QDBvN8gOJXZmw2vS0Fac6KZLf1HLy4fFCHDgsKBKnyuGKHsClepHSPM7mbiAzRoos7/L2Kj+XHUrD1hhSWpmZb3lVNYpunvBbtyB/ri4TuxxG1PQmZK9taVEG00VD1fOWFXYl40ImJ2Pl0i3lrnbi1gbEsR0syESu2K7sqejQYMswrRyzuWmDN6RQSck/em+22ppmG14pTPTb99jyzkwbaeWrvyFifbAD+7zoKlL47YYKlcnHxJB9xM="
-  password:
-    secure: "M+2kuq4IUjsJM/fj53NE6u67b4UUX8Sv+0W+oPNlrrFCCbfW5VHNocx8e75L+m/P8lRoYXofEz6i1qlF8HqC2TLGqpiZYVl7MYnHjvJ3SATp33+CVrv7Bk55e1jVaVi8Yc++wijkUGSkP9lNseeREAu2+kryhWTfF6iC/AaLkeVKO9sixnZKnK1TEXjUuK52WzbUzFZuLROPvjxc4zhcyeoC5dynOQKR7epxB5BR+ThNjIwPcaMnQGCvw9dC7OtT4VIDpfx/w7onkb/HIu6NOMpGJmNQirowu087B5X6pKfm+bIjURIYZbE6+f2o8v9HGRGfoNC/1BCYMoUdiBElwoI+UET8cP2DGLsIXxBwlUgaM+//Q+UMhdRhKv5hpx3MmzS5uLMvERbNrHe/XSwr3V+K29cHJJelARmrohuGNLykzS/XOaNdJd0IfhWoMih8UPsTck6jcZ4wShuFkP5sBE7t53apwlVSSRfR8Xz+Img0CNs0ObuZsd4CcaNK6pHb943Hdbyzp1LfmEBMOtsDh2ewTuxmqQwBWH6jHiyxqxwS7dKMDJk8Zi1u1lM6BXX0ewiy3KC5paDmq5RHzXvi04hthJcgLLBr1WvPHppo++ZJzy1X0Ijhu1qrQrkNxU2FJeqHDMqzlxGMetufGEHCmgH2IwiXhmPdYhDDYI7bsso="
-  on:
-    repo: "hiroaki-yamamoto/mongoengine-goodjson"
-    tags: true
