@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 dependencies = ["mongoengine", "dateutils"]
 desc = "More human readable JSON serializer/de-serializer for MongoEngine"
-version = "0.8.3"
+version = "0.8.4"
 
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
@@ -18,7 +18,7 @@ except ImportError:
     dependencies.append("singledispatch")
 
 try:
-    with open('README.md') as readme:
+    with open('README.rst') as readme:
         long_desc = readme.read()
 except Exception:
     long_desc = None
