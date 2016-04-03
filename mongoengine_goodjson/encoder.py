@@ -113,7 +113,6 @@ class GoodJSONEncoder(json.JSONEncoder):
 
     def encode(self, o, **kwargs):
         """encode."""
-
         # I appologize that I wrote this bad code.
         # The reason why I wrote this code is because Binary class inherits
         # bytes. bytes is the same of str in python2, but byte is treated as

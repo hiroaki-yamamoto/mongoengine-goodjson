@@ -53,3 +53,35 @@ class ToJSONTest(TestCase):
         dumps.assert_called_once_with(
             self.emb_model.to_mongo(True), cls=GoodJSONEncoder
         )
+
+
+class FromJSONTest(TestCase):
+    """object hook generation invocation test."""
+
+    def setUp(self):
+        """Setup the class."""
+        import json
+
+        class TestDocument(Document):
+            title = db.StringField()
+
+        class TestEmbeddedDocument(EmbeddedDocument):
+            title = db.StringField()
+
+        self.model_cls = TestDocument
+        self.emb_cls = TestEmbeddedDocument
+        self.data = json.dumps({"title": "Test"})
+
+    @patch("mongoengine_goodjson.document.generate_object_hook")
+    def test_document(self, hook_mock):
+        """Document.from_json should call generate_object_hook."""
+        hook_mock.return_value = lambda x: {"title": "Test"}
+        self.model_cls.from_json(self.data)
+        hook_mock.assert_called_once_with(self.model_cls)
+
+    @patch("mongoengine_goodjson.document.generate_object_hook")
+    def test_embdoc(self, hook_mock):
+        """EmbeddedDocument.from_json should call generate_object_hook."""
+        hook_mock.return_value = lambda x: {"title": "Test"}
+        self.emb_cls.from_json(self.data)
+        hook_mock.assert_called_once_with(self.emb_cls)
