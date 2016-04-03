@@ -146,15 +146,15 @@ corresponding fields on MongoEngine:
 +-------------+------------------------+---------+
 | Type        | Encoder                | Decoder |
 +=============+========================+=========+
-| Regex       | ::white\_check\_mark:: | ::x::   |
+| Regex       | \:white\_check\_mark\: | \:x\:   |
 +-------------+------------------------+---------+
-| MinKey      | ::white\_check\_mark:: | ::x::   |
+| MinKey      | \:white\_check\_mark\: | \:x\:   |
 +-------------+------------------------+---------+
-| MaxKey      | ::white\_check\_mark:: | ::x::   |
+| MaxKey      | \:white\_check\_mark\: | \:x\:   |
 +-------------+------------------------+---------+
-| TimeStamp   | ::white\_check\_mark:: | ::x::   |
+| TimeStamp   | \:white\_check\_mark\: | \:x\:   |
 +-------------+------------------------+---------+
-| Code        | ::white\_check\_mark:: | ::x::   |
+| Code        | \:white\_check\_mark\: | \:x\:   |
 +-------------+------------------------+---------+
 
 The following document types are not implemented yet:
