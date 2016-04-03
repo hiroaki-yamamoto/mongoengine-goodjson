@@ -3,17 +3,14 @@
 
 """Integration tests."""
 
-from base64 import b64encode
-from calendar import timegm
-from datetime import datetime
 import json
 from unittest import TestCase
-from uuid import uuid5, NAMESPACE_DNS
 
-from bson import ObjectId
-from bson.binary import Binary
-import mongoengine as db
-from mongoengine_goodjson import Document, EmbeddedDocument
+from .schema import User, Article, Email
+from .fixtures import (
+    user, user_dict, article, article_dict,
+    email, email_dict_id, email_dict_email
+)
 
 try:
     str = unicode
@@ -21,153 +18,70 @@ except NameError:
     pass
 
 
-class Address(EmbeddedDocument):
-    """Test data."""
-
-    street = db.StringField()
-    city = db.StringField()
-    state = db.StringField()
-
-
-class User(Document):
-    """Test data."""
-
-    name = db.StringField()
-    email = db.EmailField()
-    address = db.EmbeddedDocumentListField(Address)
-
-
-class Article(Document):
-    """Test data."""
-
-    user = db.ReferenceField(User)
-    title = db.StringField()
-    date = db.DateTimeField()
-    body = db.BinaryField()
-    uuid = db.UUIDField()
-
-
-class ToJSONIntegrationTest(TestCase):
-    """Good JSON Encoder Data test."""
+class ToJSONNormalIntegrationTest(TestCase):
+    """Good JSON Encoder Normal Data test."""
 
     def setUp(self):
         """Setup the class."""
         self.maxDiff = None
-        self.now = datetime.utcnow()
         self.user_cls = User
-        self.user = User(
-            name="Test man", email="test@example.com",
-            address=[
-                Address(
-                    street=("Test street %d" % counter),
-                    city=("Test city %d" % counter),
-                    state=("Test state %d" % counter)
-                ) for counter in range(3)
-            ]
-        )
-        self.user.pk = ObjectId()
+        self.user = user
         self.article_cls = Article
-        self.article = Article(
-            user=self.user, title="Test Tile", date=self.now,
-            body=Binary(b"\x00\x01\x02\x03\x04"),
-            uuid=uuid5(NAMESPACE_DNS, "This is a test")
-        )
-        self.article.pk = ObjectId()
-        self.user_expected_data = {
-            u"id": str(self.user.pk),
-            u"name": self.user.name,
-            u"email": self.user.email,
-            u"address": [
-                {
-                    u"street": "Test street %d" % counter,
-                    u"city": "Test city %d" % counter,
-                    u"state": "Test state %d" % counter
-                } for counter in range(3)
-            ]
-        }
-        self.article_expected_data = {
-            u"id": str(self.article.pk),
-            u"user": self.user_expected_data["id"],
-            u"title": self.article.title,
-            u"date": int(
-                timegm(self.article.date.timetuple())*1000 +
-                self.article.date.microsecond / 1000
-            ),
-            u"body": {
-                u"data": str(b64encode(self.article.body).decode("utf-8")),
-                u"type": self.article.body.subtype
-            },
-            u"uuid": str(self.article.uuid)
-        }
+        self.article = article
+        self.user_dict = user_dict
+        self.article_dict = article_dict
 
-    def test_user_data(self):
+    def test_encode_user_data(self):
         """User model should be encoded properly."""
         result = json.loads(self.user.to_json())
-        self.assertDictEqual(self.user_expected_data, result)
+        self.assertDictEqual(self.user_dict, result)
 
-    def test_article_data(self):
+    def test_encode_article_data(self):
         """Article model should be encoded properly."""
         result = json.loads(self.article.to_json())
-        self.assertDictEqual(self.article_expected_data, result)
+        self.assertDictEqual(self.article_dict, result)
+
+    def test_decode_user_data(self):
+        """The decoded user data should be self.ser."""
+        user = self.user_cls.from_json(json.dumps(self.user_dict))
+        self.assertIs(type(user), self.user_cls)
+        self.assertDictEqual(self.user.to_mongo(), user.to_mongo())
+
+    def test_decode_article_data(self):
+        """The decoded user data should be self.expected_user."""
+        article = self.article_cls.from_json(json.dumps(self.article_dict))
+        self.assertIs(type(article), self.article_cls)
+        self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
 
 
-class FromJSONIntegrationTest(TestCase):
-    """Good JSON Decoder Data test."""
+class PrimaryKeyNotOidTest(TestCase):
+    """Good JSON encoder/decoder email as primary key test."""
 
     def setUp(self):
         """Setup the class."""
-        self.maxDiff = None
-        self.now = datetime.utcnow()
-        self.user_cls = User
-        self.expected_user = User(
-            name="Test man", email="test@example.com",
-            address=[
-                Address(
-                    street=("Test street %d" % counter),
-                    city=("Test city %d" % counter),
-                    state=("Test state %d" % counter)
-                ) for counter in range(3)
-            ]
-        )
-        self.expected_user.pk = ObjectId()
-        self.user_data = json.dumps({
-            u"id": str(self.expected_user.pk),
-            u"name": self.expected_user.name,
-            u"email": self.expected_user.email,
-            u"address": [
-                {
-                    u"street": "Test street %d" % counter,
-                    u"city": "Test city %d" % counter,
-                    u"state": "Test state %d" % counter
-                } for counter in range(3)
-            ]
-        })
+        self.email = email
+        self.data_id = email_dict_id
+        self.data_email = email_dict_email
 
-        self.article_cls = Article
-        self.expected_article = Article(
-            user=self.expected_user, title="Test Tile", date=self.now,
-            body=Binary(b"\x00\x01\x02\x03\x04"),
-            uuid=uuid5(NAMESPACE_DNS, "This is a test")
-        )
-        self.expected_article.pk = ObjectId()
-        self.article_data = json.dumps({
-            u"id": str(self.expected_article.pk),
-            u"user": str(self.expected_user.pk),
-            u"title": self.expected_article.title,
-            u"date": int(
-                timegm(self.expected_article.date.timetuple())*1000 +
-                self.expected_article.date.microsecond / 1000
-            ),
-            u"body": {
-                u"data": str(
-                    b64encode(self.expected_article.body).decode("utf-8")
-                ),
-                u"type": self.expected_article.body.subtype
-            },
-            u"uuid": str(self.expected_article.uuid)
-        })
+    def test_encode(self):
+        """Email document should be encoded properly."""
+        result = json.loads(self.email.to_json())
+        self.assertDictEqual(self.data_id, result)
 
-    def test_user_data(self):
-        """The decoded user data should be self.expected_user."""
-        user = self.user_cls.from_json(self.user_data).to_mongo()
-        self.assertDictEqual(self.expected_user.to_mongo(), user)
+    def test_decode_id(self):
+        """
+        Email document should be decoded from json properly.
+
+        This test is in the case that email is at "id" field.
+        """
+        result = Email.from_json(json.dumps(self.data_id)).to_mongo()
+        self.assertDictEqual(self.email.to_mongo(), result)
+
+    def test_decode_email(self):
+        """
+        Email document should be decoded from json properly.
+
+        This test is in the case that email is at "email" field.
+        """
+        result = Email.from_json(json.dumps(self.data_email)).to_mongo()
+        self.assertDictEqual(self.email.to_mongo(), result)

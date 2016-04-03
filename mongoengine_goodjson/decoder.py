@@ -27,7 +27,6 @@ def generate_object_hook(cls):
     }
 
     def object_hook(dct):
-
         @singledispatch
         def decode(field_type, field_name, obj):
             return {field_name: field_type.to_python(obj)}
@@ -85,11 +84,10 @@ def generate_object_hook(cls):
         def decode_uuid(fldtype, name, obj):
             return {name: UUID(obj)}
 
-        if set(dct.keys()).issubset(set(fields.keys())) and \
-                len(dct.keys()) < 2:
-            name = list(dct.keys())[0]
-            value = dct[name]
-            fldtype = fields[name]
-            return decode(fldtype, name, value)
+        if set(dct.keys()).issubset(set(fields.keys())):
+            for (name, fldtype) in fields.items():
+                value = dct.get(name)
+                if value:
+                    dct.update(decode(fldtype, name, value))
         return dct
     return object_hook

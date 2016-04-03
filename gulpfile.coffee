@@ -3,6 +3,7 @@ g = require "gulp"
 notify = require "gulp-notify"
 childProcess = require "child_process"
 q = require "q"
+rimraf = require "rimraf"
 
 g.task "test", ->
   spawnInEnv = (command) ->
@@ -49,6 +50,12 @@ g.task "test", ->
       console.log ("Unit testing...").green
       spawnInEnv "nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests"
   )
+
+g.task "clean", ->
+  q.all [
+    q.nfcall rimraf, "**/__pycache__"
+    q.nfcall rimraf, "!(__pycache__)/**.pyc"
+  ]
 
 g.task "default", ->
   g.watch [
