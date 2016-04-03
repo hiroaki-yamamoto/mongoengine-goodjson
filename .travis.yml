@@ -2,8 +2,9 @@ language: python
 python:
   - 3.5
 addons:
-  apt-get:
-    - "pandoc"
+  apt:
+    packages:
+      - "pandoc"
 services:
   - "mongodb"
 sudo: false
