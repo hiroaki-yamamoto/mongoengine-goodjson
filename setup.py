@@ -17,7 +17,7 @@ except ImportError:
 
 setup(
     name="mongoengine_goodjson",
-    version="0.8.1",
+    version="0.8.2",
     packages=find_packages(exclude=["tests"]),
     install_requires=dependencies,
     zip_safe=False,
