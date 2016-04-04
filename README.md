@@ -13,11 +13,11 @@
 ## What This?
 This script havs MongoEngine Document json serialization more-natural.
 
-## Why you invent?
+## Why this invented?
 
-When you use [MongoEngine] and create RESTful API, sometimes you might want to
-serialize the data from the db into JSON. However, the generated JSON
-is weired at some fields:
+When you MongoEngine to create something (e.g. RESTful API), sometimes you
+might want to serialize the data from the db into JSON. However, the generated
+JSON is weired at some fields:
 
 ```JSON
 {
@@ -33,7 +33,7 @@ is weired at some fields:
 
 The points are 2 points:
 
-* `_id` might be not wanted because jslint disagrees `_` character unless
+* `_id` might not be wanted because jslint disagrees `_` character unless
   declaring `jslint nomen:true`
 * There are sub-fields such `$oid` and `$date`. These fields are known as
   [MongoDB Extended JSON]. However, considering MongoEngine is ODM and
@@ -112,7 +112,7 @@ def get_user(self):
 
 ## How to use it
 
-Generally You can define the document as usual, but you might want to inherits
+Generally you can define the document as usual, but you might want to inherits
 `mongoengnie_goodjson.Document` or `mongoengnie_goodjson.EmbeddedDocument`.
 
 Here is the example:

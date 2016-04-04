@@ -116,10 +116,10 @@ class GoodJSONEncoder(json.JSONEncoder):
         # I appologize that I wrote this bad code.
         # The reason why I wrote this code is because Binary class inherits
         # bytes. bytes is the same of str in python2, but byte is treated as
-        # "binary" type. If I can lock into python3, this encode function is
-        # not needed. However, this code is used on the both of python3 and
-        # python2. Therefore, needs to convert Binary instance into the
-        # corresponding dict first...
+        # "binary" type in python3. If I can lock into python3, this encode
+        # function is not needed. However, this code is used on the both
+        # of python3 and python2. Therefore, needs to convert Binary
+        # instance into the corresponding dict first...
         #
         # In addition, I think there are other types that have compatibility
         # problem like above. (Of course, pull request is appreciated)
