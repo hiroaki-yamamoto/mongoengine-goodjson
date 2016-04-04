@@ -61,14 +61,9 @@ class DatetimeEncodeTest(TestCase):
         self.encoder = GoodJSONEncoder()
 
     def test_datetime(self):
-        """datetime should be serialized into epoch millisecond."""
-        from calendar import timegm
+        """datetime should be serialized into ISOFormat."""
         self.assertEqual(
-            self.encoder.default(self.now),
-            int(
-                timegm(self.now.timetuple()) * 1000 +
-                self.now.microsecond / 1000
-            )
+            self.encoder.default(self.now), self.now.isoformat()
         )
 
 

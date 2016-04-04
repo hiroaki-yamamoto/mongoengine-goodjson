@@ -4,7 +4,6 @@
 """Fixtures for integration tests."""
 
 from base64 import b64encode
-from calendar import timegm
 from datetime import datetime, timedelta
 from uuid import uuid5, NAMESPACE_DNS
 
@@ -93,10 +92,7 @@ article_dict = {
     u"id": str(article.pk),
     u"user": user_dict["id"],
     u"title": article.title,
-    u"date": int(
-        timegm(article.date.timetuple())*1000 +
-        article.date.microsecond / 1000
-    ),
+    u"date": article.date.isoformat(),
     u"body": {
         u"data": str(b64encode(article.body).decode("utf-8")),
         u"type": article.body.subtype

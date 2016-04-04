@@ -7,7 +7,6 @@ import collections
 import json
 import re
 from base64 import b64encode
-from calendar import timegm
 from datetime import datetime
 from uuid import UUID
 
@@ -47,7 +46,7 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(datetime)
         def conv_datetime(obj):
-            return int(timegm(obj.timetuple())*1000 + obj.microsecond / 1000)
+            return obj.isoformat()
 
         @default.register(DBRef)
         def conv_dbref(obj):
