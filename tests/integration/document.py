@@ -8,7 +8,7 @@ from unittest import TestCase
 
 from .schema import User, Article, Email
 from .fixtures import (
-    user, user_dict, article, article_dict,
+    user, user_dict, article, article_dict, article_dict_epoch,
     email, email_dict_id, email_dict_email
 )
 
@@ -30,6 +30,7 @@ class ToJSONNormalIntegrationTest(TestCase):
         self.article = article
         self.user_dict = user_dict
         self.article_dict = article_dict
+        self.article_dict_epoch = article_dict_epoch
 
     def test_encode_user_data(self):
         """User model should be encoded properly."""
@@ -41,6 +42,11 @@ class ToJSONNormalIntegrationTest(TestCase):
         result = json.loads(self.article.to_json())
         self.assertDictEqual(self.article_dict, result)
 
+    def test_encode_article_data_epoch_flag(self):
+        """Article model should be encoded properly (Epoch flag is on)."""
+        result = json.loads(self.article.to_json(epoch_mode=True))
+        self.assertDictEqual(self.article_dict_epoch, result)
+
     def test_decode_user_data(self):
         """The decoded user data should be self.ser."""
         user = self.user_cls.from_json(json.dumps(self.user_dict))
@@ -50,6 +56,14 @@ class ToJSONNormalIntegrationTest(TestCase):
     def test_decode_article_data(self):
         """The decoded user data should be self.expected_user."""
         article = self.article_cls.from_json(json.dumps(self.article_dict))
+        self.assertIs(type(article), self.article_cls)
+        self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
+
+    def test_decode_article_data_epoch(self):
+        """The decoded user data should be self.expected_user."""
+        article = self.article_cls.from_json(
+            json.dumps(self.article_dict_epoch)
+        )
         self.assertIs(type(article), self.article_cls)
         self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
 

@@ -5,6 +5,7 @@
 
 from base64 import b64encode
 from datetime import datetime, timedelta
+from calendar import timegm
 from uuid import uuid5, NAMESPACE_DNS
 
 from bson import ObjectId, Binary
@@ -110,3 +111,8 @@ article_dict = {
         }
     }
 }
+article_dict_epoch = article_dict.copy()
+article_dict_epoch["date"] = int(
+    (timegm(article.date.timetuple()) * 1000) +
+    (article.date.microsecond / 1000)
+)

@@ -8,6 +8,7 @@ import json
 import re
 from base64 import b64encode
 from datetime import datetime
+from calendar import timegm
 from uuid import UUID
 
 try:
@@ -24,8 +25,17 @@ from bson import (
 class GoodJSONEncoder(json.JSONEncoder):
     """JSON Encoder for human and MongoEngine."""
 
-    def __init__(self, *args, **kwargs):
-        """Initialize the object."""
+    def __init__(self, epoch_mode=False, *args, **kwargs):
+        """
+        Initialize the object.
+
+        Parameters:
+            epoch_mode: Set True if you want to serialize datetime into epoch
+                millisecond. By default, this parameter is set to False, which
+                means the serializer serializes datetime into ISO-formatted
+                string.
+        """
+        self.epoch_mode = epoch_mode
         super(GoodJSONEncoder, self).__init__(*args, **kwargs)
 
     def default(self, obj):
@@ -46,6 +56,11 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         @default.register(datetime)
         def conv_datetime(obj):
+            if self.epoch_mode:
+                return int(
+                    (timegm(obj.timetuple()) * 1000) +
+                    ((obj.microsecond) / 1000)
+                )
             return obj.isoformat()
 
         @default.register(DBRef)
