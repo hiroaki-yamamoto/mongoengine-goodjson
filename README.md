@@ -16,8 +16,8 @@ This script havs MongoEngine Document json serialization more-natural.
 ## Why this invented?
 
 When you MongoEngine to create something (e.g. RESTful API), sometimes you
-might want to serialize the data from the db into JSON. However, the generated
-JSON is weired at some fields:
+might want to serialize the data from the db into JSON, but some fields
+are weird and not suitable for frontend/api:
 
 ```JSON
 {
@@ -52,7 +52,7 @@ To solve the problems, the generated data should be like this:
 }
 ```
 
-Making above structure possible by doing re-mapping, but if we do it on
+Making above structure can be possible by doing re-mapping, but if we do it on
 [API's controller object], the code might get super-dirty:
 
 ```Python
