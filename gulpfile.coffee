@@ -48,7 +48,15 @@ g.task "test", ->
   ).then(
     ->
       console.log ("Unit testing...").green
-      spawnInEnv "nosetests --with-coverage --cover-erase --cover-package=mongoengine_goodjson --all tests"
+      spawnInEnv "tox"
+  ).then(
+    ->
+      console.log ("Combine the coverage").green
+      spawnInEnv "coverage combine python27.coverage python35.coverage"
+  ).then(
+    ->
+      console.log ("Coverage Report").green
+      spawnInEnv "coverage report"
   )
 
 g.task "clean", ->
