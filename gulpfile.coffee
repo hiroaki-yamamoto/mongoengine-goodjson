@@ -56,7 +56,7 @@ g.task "test", ->
   ).then(
     ->
       console.log ("Coverage Report").green
-      spawnInEnv "coverage report"
+      spawnInEnv "coverage report -m"
   )
 
 g.task "clean", ->

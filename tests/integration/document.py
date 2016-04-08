@@ -9,8 +9,9 @@ from unittest import TestCase
 from .schema import User, Article, Email
 from .fixtures import (
     user, user_dict, article, article_dict, article_dict_epoch,
-    email, email_dict_id, email_dict_email
+    email, email_dict_id, email_dict_email, relations
 )
+from ..connection_case import DBConBase
 
 try:
     str = unicode
@@ -99,3 +100,17 @@ class PrimaryKeyNotOidTest(TestCase):
         """
         result = Email.from_json(json.dumps(self.data_email)).to_mongo()
         self.assertDictEqual(self.email.to_mongo(), result)
+
+
+# class FollowReferenceCheck(DBConBase):
+#     """Follow reference check."""
+#
+#     def setUp(self):
+#         """Setup class."""
+#         super(FollowReferenceCheck, self).setUp()
+#         self.relations = relations.copy()
+#         for relation in self.relations:
+#             relation.save()
+#         self.relations[0].relations = [
+#             relation for relation in self.relation[1:]
+#         ]

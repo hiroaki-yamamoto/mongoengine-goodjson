@@ -26,6 +26,11 @@ class ToJSONTest(TestCase):
         class TestEmbeddedDocument(EmbeddedDocument):
             title = db.StringField()
 
+        class TestFollowReference(Document):
+            reference = db.ReferenceField("self")
+
+        self.reference_model = TestFollowReference()
+
         self.model_cls = TestDocument
         self.model = TestDocument(title="Test")
         self.model.pk = ObjectId()

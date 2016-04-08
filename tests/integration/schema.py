@@ -51,3 +51,11 @@ class Article(Document):
     date = db.DateTimeField()
     body = db.BinaryField()
     uuid = db.UUIDField()
+
+
+class Relationship(Document):
+    """Test schema."""
+
+    name = db.StringField()
+    relation = db.ListField(db.ReferenceField("self"))
+    best = db.ReferenceField("self")

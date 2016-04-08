@@ -10,7 +10,10 @@ from uuid import uuid5, NAMESPACE_DNS
 
 from bson import ObjectId, Binary
 
-from .schema import User, Address, Article, Email, ArticleMetaData, Seller
+from .schema import (
+    User, Address, Article, Email, ArticleMetaData, Seller,
+    Relationship
+)
 
 now = datetime.utcnow()
 
@@ -116,3 +119,8 @@ article_dict_epoch["date"] = int(
     (timegm(article.date.timetuple()) * 1000) +
     (article.date.microsecond / 1000)
 )
+
+relations = [
+    Relationship(name=("Test Example {}").format(counter))
+    for counter in range(4)
+]
