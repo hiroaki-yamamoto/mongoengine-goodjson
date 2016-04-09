@@ -15,7 +15,7 @@ This script havs MongoEngine Document json serialization more-natural.
 
 ## Why this invented?
 
-When you MongoEngine to create something (e.g. RESTful API), sometimes you
+Using MongoEngine to create something (e.g. RESTful API), sometimes you
 might want to serialize the data from the db into JSON, but some fields
 are weird and not suitable for frontend/api:
 
