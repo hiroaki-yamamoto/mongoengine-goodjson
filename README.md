@@ -2,6 +2,7 @@
 [![Build Status]][Status Link]
 [![Coverage Status]][Coverage Link]
 [![Code Health]][Health Link]
+[![PyPI version]][PyPI link]
 
 [Build Status]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson.svg?branch=master
 [Status Link]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson
@@ -9,6 +10,8 @@
 [Coverage Link]: https://coveralls.io/github/hiroaki-yamamoto/mongoengine-goodjson?branch=master
 [Code Health]: https://landscape.io/github/hiroaki-yamamoto/mongoengine-goodjson/master/landscape.svg?style=flat
 [Health Link]: https://landscape.io/github/hiroaki-yamamoto/mongoengine-goodjson/master
+[PyPI version]: https://badge.fury.io/py/mongoengine_goodjson.svg
+[PyPI link]: https://badge.fury.io/py/mongoengine_goodjson
 
 ## What This?
 This script havs MongoEngine Document json serialization more-natural.
