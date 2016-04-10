@@ -33,14 +33,14 @@ def generate_object_hook(cls):
 
         @decode.register(db.ReferenceField)
         def deocde_reference(field_type, field_name, obj):
-            if field_type.dbref:
-                return {
-                    field_name: bson.DBRef(
+            return {
+                field_name: field_type.to_python(
+                    bson.DBRef(
                         obj["collection"], bson.ObjectId(obj["id"]),
                         database=obj.get("database")
-                    )
-                }
-            return {field_name: bson.ObjectId(obj)}
+                    ) if field_type.dbref else obj
+                )
+            }
 
         @decode.register(db.DateTimeField)
         def decode_datetime(fldtype, name, obj):

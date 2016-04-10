@@ -88,6 +88,26 @@ class Helper(object):
         if "object_hook" not in kwargs:
             kwargs["object_hook"] = hook
         dct = json.loads(json_str, *args, **kwargs)
+        for fldname, fld in cls.__dict__.items():
+            target = fld
+            if not isinstance(target, (db.ReferenceField, db.ListField)):
+                continue
+
+            islist = isinstance(target, db.ListField)
+            value = dct.get(fldname)
+            if islist:
+                target = target.field
+            dct.update({
+                fldname: (
+                    target.document_type_obj(_created=False, **(value.id))
+                ) if isinstance(value, dict) else [
+                    target.document_type_obj(
+                        _created=False, **(v.id)
+                    ) for v in value
+                ] if isinstance(value, list) else value
+            })
+            from pprint import pprint
+            pprint(dct)
         return cls._from_son(SON(dct))
 
 

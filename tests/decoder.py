@@ -4,7 +4,7 @@
 """Human-readable JSON Decoder test cases for MongoEngine."""
 
 import json
-from unittest import TestCase
+from unittest import TestCase, skip
 
 import mongoengine as db
 
@@ -80,7 +80,7 @@ class OidBasedReferenceDecodeTest(TestCase):
 
     def setUp(self):
         """Setup class."""
-        from bson import ObjectId
+        from bson import ObjectId, DBRef
 
         class Source(db.Document):
             pass
@@ -94,7 +94,9 @@ class OidBasedReferenceDecodeTest(TestCase):
         self.data = json.dumps({
             "src": str(self.src_id)
         })
-        self.expected_data = {"src": self.src_id}
+        self.expected_data = {
+            "src": DBRef("source", self.src_id)
+        }
         self.hook = generate_object_hook(self.model_cls)
 
     def test_hook(self):
@@ -237,6 +239,51 @@ class UUIDDecodeTest(TestCase):
         }
         self.data = json.dumps({"uuid": str(uuid)})
         self.hook = generate_object_hook(UUIDModel)
+
+    def test_hook(self):
+        """The result of decode should be correct."""
+        result = json.loads(self.data, object_hook=self.hook)
+        self.assertDictEqual(self.expected_data, result)
+
+
+@skip("This test is skipeed because it might be un-needed.")
+class FollowedReferenceDecodeTest(TestCase):
+    """Reference decode test."""
+
+    def setUp(self):
+        """Setup test."""
+        from bson import ObjectId
+
+        class ReferenceModel(db.Document):
+            references = db.ListField(db.ReferenceField("self"))
+            best = db.ReferenceField("self")
+
+        root_id = ObjectId()
+        self.expected_data = {
+            "id": root_id,
+            "references": [
+                ReferenceModel(
+                    id=ObjectId(),
+                    references=[ReferenceModel(id=ObjectId())],
+                    best=ReferenceModel(id=root_id)
+                )
+            ]
+        }
+        self.data = json.dumps({
+            "id": str(self.expected_data["id"]),
+            "references": [
+                {
+                    "id": str(root_reference["id"]),
+                    "references": [
+                        {
+                            "id": str(child_reference["id"])
+                        } for child_reference in root_reference["references"]
+                    ],
+                    "best": str(root_reference.best["id"])
+                } for root_reference in self.expected_data["references"]
+            ]
+        })
+        self.hook = generate_object_hook(ReferenceModel)
 
     def test_hook(self):
         """The result of decode should be correct."""
