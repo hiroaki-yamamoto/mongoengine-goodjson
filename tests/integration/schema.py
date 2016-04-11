@@ -6,34 +6,7 @@ import mongoengine as db
 from mongoengine_goodjson import Document, EmbeddedDocument
 
 
-class EqualityBase(object):
-    """Equality base."""
-
-    def __eq__(self, other):
-        """Check equality."""
-        return all([
-            self[fldname] == other[fldname]
-            for fldname in self
-        ]) and len(other) == len(self)
-
-    def __ne__(self, other):
-        """Check inequality."""
-        return not (self == other)
-
-
-class EqualityDocumentBase(EqualityBase, Document):
-    """Test schema."""
-
-    meta = {"abstract": True}
-
-
-class EqualityEmbeddedDocumentBase(EqualityBase, EmbeddedDocument):
-    """Test schema."""
-
-    meta = {"abstract": True}
-
-
-class Address(EqualityEmbeddedDocumentBase):
+class Address(EmbeddedDocument):
     """Test schema."""
 
     street = db.StringField()
@@ -41,7 +14,7 @@ class Address(EqualityEmbeddedDocumentBase):
     state = db.StringField()
 
 
-class User(EqualityDocumentBase):
+class User(Document):
     """Test schema."""
 
     name = db.StringField()
@@ -49,27 +22,27 @@ class User(EqualityDocumentBase):
     address = db.EmbeddedDocumentListField(Address)
 
 
-class Email(EqualityDocumentBase):
+class Email(Document):
     """Test schema."""
 
     email = db.EmailField(primary_key=True)
 
 
-class Seller(EqualityEmbeddedDocumentBase):
+class Seller(EmbeddedDocument):
     """Test schema."""
 
     name = db.StringField()
     address = db.EmbeddedDocumentField(Address)
 
 
-class ArticleMetaData(EqualityEmbeddedDocumentBase):
+class ArticleMetaData(EmbeddedDocument):
     """Test schema."""
 
     price = db.IntField()
     seller = db.EmbeddedDocumentField(Seller)
 
 
-class Article(EqualityDocumentBase):
+class Article(Document):
     """Test schema."""
 
     user = db.ReferenceField(User)
@@ -80,7 +53,7 @@ class Article(EqualityDocumentBase):
     uuid = db.UUIDField()
 
 
-class Reference(EqualityDocumentBase):
+class Reference(Document):
     """Test schema."""
 
     name = db.StringField()

@@ -11,7 +11,7 @@ from .fixtures import (
     user, user_dict, article, article_dict, article_dict_epoch,
     email, email_dict_id, email_dict_email, reference, reference_dict
 )
-# from ..connection_case import DBConBase
+from ..connection_case import DBConBase
 
 try:
     str = unicode
@@ -32,9 +32,6 @@ class ToJSONNormalIntegrationTest(TestCase):
         self.user_dict = user_dict
         self.article_dict = article_dict
         self.article_dict_epoch = article_dict_epoch
-        self.reference_cls = Reference
-        self.reference = reference
-        self.reference_dict = reference_dict
 
     def test_encode_user_data(self):
         """User model should be encoded properly."""
@@ -50,11 +47,6 @@ class ToJSONNormalIntegrationTest(TestCase):
         """Article model should be encoded properly (Epoch flag is on)."""
         result = json.loads(self.article.to_json(epoch_mode=True))
         self.assertDictEqual(self.article_dict_epoch, result)
-
-    def test_encode_follow_reference_data(self):
-        """reference data should follow ReferenceField."""
-        result = json.loads(self.reference.to_json(follow_reference=True))
-        self.assertEqual(self.reference_dict, result)
 
     def test_decode_user_data(self):
         """The decoded user data should be self.user."""
@@ -76,11 +68,41 @@ class ToJSONNormalIntegrationTest(TestCase):
         self.assertIs(type(article), self.article_cls)
         self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
 
+
+class FollowReferenceTest(DBConBase):
+    """Good JSON follow reference encoder/decoder test."""
+
+    def setUp(self):
+        """Setup function."""
+        self.maxDiff = None
+        self.reference_cls = Reference
+        self.reference = reference
+        self.reference_dict = reference_dict
+
+    def test_encode_follow_reference_data(self):
+        """reference data should follow ReferenceField."""
+        result = json.loads(self.reference.to_json(follow_reference=True))
+        self.assertEqual(self.reference_dict, result)
+
     def test_decode_reference(self):
         """The decoded reference data should be self.reference."""
         result = self.reference_cls.from_json(
             json.dumps(self.reference_dict)
         )
+        self.assertIs(type(result), self.reference_cls)
+        self.assertEqual(result.id, self.reference.id)
+        self.assertEqual(result.name, self.reference.name)
+        self.assertListEqual(self.reference.references, result.references)
+
+    def test_actual_check(self):
+        """The actually saved document should be correct as expected."""
+        result = self.reference_cls.from_json(
+            json.dumps(self.reference_dict)
+        )
+        result.save(cascade=True)
+        result = self.reference_cls.objects.get()
+        print(result.to_mongo())
+
         self.assertIs(type(result), self.reference_cls)
         self.assertEqual(result.id, self.reference.id)
         self.assertEqual(result.name, self.reference.name)

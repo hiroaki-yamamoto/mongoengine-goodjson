@@ -121,8 +121,8 @@ article_dict_epoch["date"] = int(
 
 reference = Reference(pk=ObjectId(), name="test", references=[article])
 reference_dict = {
-    "id": str(reference.id),
-    "name": "test",
-    "references": [article_dict.copy()]
+    u"id": str(reference.id),
+    u"name": u"test",
+    u"references": [article_dict.copy()]
 }
 reference_dict["references"][0]["user"] = user_dict.copy()

@@ -5,8 +5,13 @@
 
 import json
 
+try:
+    from functools import singledispatch
+except ImportError:
+    from singledispatch import singledispatch
+
 import mongoengine as db
-from bson import SON
+from bson import SON, ObjectId
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .queryset import QuerySet
@@ -88,27 +93,52 @@ class Helper(object):
         if "object_hook" not in kwargs:
             kwargs["object_hook"] = hook
         dct = json.loads(json_str, *args, **kwargs)
+        from_son_result = cls._from_son(SON(dct))
+
+        @singledispatch
+        def normalize_reference(ref_id, fld):
+            """Normalize Reference."""
+            return ref_id
+
+        @normalize_reference.register(dict)
+        def normalize_reference_dict(ref_id, fld):
+            """Normalize Reference for dict."""
+            doc = None
+            try:
+                doc = fld.document_type_obj.objects(
+                    pk=ObjectId(ref_id.get("id"))
+                ).get()
+                for (doc_key, doc_value) in ref_id.items():
+                    setattr(doc, doc_key, doc_value)
+                doc = fld.to_python(doc)
+            except db.DoesNotExist:
+                doc = fld.document_type_obj(**ref_id)
+            return doc
+
+        @normalize_reference.register(list)
+        def normalize_reference_list(ref_id, fld):
+            """Normalize Reference for list."""
+            return [
+                normalize_reference(ref.id, fld) for ref in ref_id
+            ]
+
         for fldname, fld in cls.__dict__.items():
             target = fld
             if not isinstance(target, (db.ReferenceField, db.ListField)):
                 continue
-
-            islist = isinstance(target, db.ListField)
-            value = dct.get(fldname)
-            if islist:
+            if isinstance(target, db.ListField):
                 target = target.field
-            dct.update({
-                fldname: (
-                    target.document_type_obj(_created=False, **(value.id))
-                ) if isinstance(value, dict) else [
-                    target.document_type_obj(
-                        _created=False, **(v.id)
-                    ) for v in value
-                ] if isinstance(value, list) else value
-            })
-            from pprint import pprint
-            pprint(dct)
-        return cls._from_son(SON(dct))
+
+            if not isinstance(target, db.ReferenceField):
+                continue
+
+            value = dct.get(fldname)
+            setattr(
+                from_son_result, fldname, normalize_reference(
+                    getattr(value, "id", value), target
+                )
+            )
+        return from_son_result
 
 
 class Document(Helper, db.Document):
