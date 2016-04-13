@@ -51,3 +51,10 @@ class Article(Document):
     date = db.DateTimeField()
     body = db.BinaryField()
     uuid = db.UUIDField()
+
+
+class Reference(Document):
+    """Test schema."""
+
+    name = db.StringField()
+    references = db.ListField(db.ReferenceField(Article))

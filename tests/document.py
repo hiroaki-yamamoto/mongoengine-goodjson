@@ -10,9 +10,9 @@ import mongoengine as db
 from mongoengine_goodjson import GoodJSONEncoder, Document, EmbeddedDocument
 
 try:
-    from unittest.mock import patch
+    from unittest.mock import patch, MagicMock, call
 except ImportError:
-    from mock import patch
+    from mock import patch, MagicMock, call
 
 
 class ToJSONTest(TestCase):
@@ -20,14 +20,31 @@ class ToJSONTest(TestCase):
 
     def setUp(self):
         """Setup the class."""
+        class SelfReferenceDocument(Document):
+            name = db.StringField()
+            reference = db.ReferenceField("self")
+
         class TestDocument(Document):
             title = db.StringField()
+            references = db.ListField(
+                db.ReferenceField(SelfReferenceDocument)
+            )
 
         class TestEmbeddedDocument(EmbeddedDocument):
             title = db.StringField()
 
+        self.references = [
+            SelfReferenceDocument(
+                pk=ObjectId(), name=("test {}").format(counter)
+            ) for counter in range(3)
+        ]
+        for (index, srd) in enumerate(self.references):
+            srd.reference = self.references[
+                (index + 1) % len(self.references)
+            ]
+            srd.to_json = MagicMock(side_effect=srd.to_json)
         self.model_cls = TestDocument
-        self.model = TestDocument(title="Test")
+        self.model = TestDocument(title="Test", references=self.references)
         self.model.pk = ObjectId()
 
         self.emb_cls = TestEmbeddedDocument
@@ -35,7 +52,8 @@ class ToJSONTest(TestCase):
 
         self.model.to_mongo = self.emb_model.to_mongo = lambda x: {
             "id": self.model.pk,
-            "title": "Test"
+            "title": "Test",
+            "references": [str(srd.pk) for srd in self.references]
         }
 
     @patch("json.dumps")
@@ -53,6 +71,36 @@ class ToJSONTest(TestCase):
         dumps.assert_called_once_with(
             self.emb_model.to_mongo(True), cls=GoodJSONEncoder
         )
+
+    def test_followreference(self):
+        """self.references.to_json should be called 3 times for each."""
+        self.model.to_json(follow_reference=True)
+        for (index, reference) in enumerate(self.references):
+            self.assertEqual(
+                reference.to_json.call_count, 3,
+                ("Reference {} should call to_json 3 times").format(index)
+            )
+            reference.to_json.assert_has_calls([
+                call(
+                    cls=GoodJSONEncoder, follow_reference=True,
+                    use_db_field=True, max_depth=3, current_depth=counter
+                ) for counter in range(1, 4)
+            ], any_order=True)
+
+    def test_followreference_max_15(self):
+        """self.references.to_json should be called 15 times for each."""
+        self.model.to_json(follow_reference=True, max_depth=15)
+        for (index, reference) in enumerate(self.references):
+            self.assertEqual(
+                reference.to_json.call_count, 15,
+                ("Reference {} should call to_json 15 times").format(index)
+            )
+            reference.to_json.assert_has_calls([
+                call(
+                    cls=GoodJSONEncoder, follow_reference=True,
+                    use_db_field=True, max_depth=15, current_depth=counter
+                ) for counter in range(1, 16)
+            ], any_order=True)
 
 
 class FromJSONTest(TestCase):

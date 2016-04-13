@@ -10,7 +10,9 @@ from uuid import uuid5, NAMESPACE_DNS
 
 from bson import ObjectId, Binary
 
-from .schema import User, Address, Article, Email, ArticleMetaData, Seller
+from .schema import (
+    User, Address, Article, Email, ArticleMetaData, Seller, Reference
+)
 
 now = datetime.utcnow()
 
@@ -116,3 +118,11 @@ article_dict_epoch["date"] = int(
     (timegm(article.date.timetuple()) * 1000) +
     (article.date.microsecond / 1000)
 )
+
+reference = Reference(pk=ObjectId(), name="test", references=[article])
+reference_dict = {
+    u"id": str(reference.id),
+    u"name": u"test",
+    u"references": [article_dict.copy()]
+}
+reference_dict["references"][0]["user"] = user_dict.copy()

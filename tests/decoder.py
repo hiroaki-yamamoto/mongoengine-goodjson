@@ -80,7 +80,7 @@ class OidBasedReferenceDecodeTest(TestCase):
 
     def setUp(self):
         """Setup class."""
-        from bson import ObjectId
+        from bson import ObjectId, DBRef
 
         class Source(db.Document):
             pass
@@ -94,7 +94,9 @@ class OidBasedReferenceDecodeTest(TestCase):
         self.data = json.dumps({
             "src": str(self.src_id)
         })
-        self.expected_data = {"src": self.src_id}
+        self.expected_data = {
+            "src": DBRef("source", self.src_id)
+        }
         self.hook = generate_object_hook(self.model_cls)
 
     def test_hook(self):

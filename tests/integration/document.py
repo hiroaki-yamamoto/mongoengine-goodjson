@@ -6,11 +6,12 @@
 import json
 from unittest import TestCase
 
-from .schema import User, Article, Email
+from .schema import User, Article, Email, Reference
 from .fixtures import (
     user, user_dict, article, article_dict, article_dict_epoch,
-    email, email_dict_id, email_dict_email
+    email, email_dict_id, email_dict_email, reference, reference_dict
 )
+from ..connection_case import DBConBase
 
 try:
     str = unicode
@@ -48,24 +49,50 @@ class ToJSONNormalIntegrationTest(TestCase):
         self.assertDictEqual(self.article_dict_epoch, result)
 
     def test_decode_user_data(self):
-        """The decoded user data should be self.ser."""
+        """The decoded user data should be self.user."""
         user = self.user_cls.from_json(json.dumps(self.user_dict))
         self.assertIs(type(user), self.user_cls)
         self.assertDictEqual(self.user.to_mongo(), user.to_mongo())
 
     def test_decode_article_data(self):
-        """The decoded user data should be self.expected_user."""
+        """The decoded user data should be self.user."""
         article = self.article_cls.from_json(json.dumps(self.article_dict))
         self.assertIs(type(article), self.article_cls)
         self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
 
     def test_decode_article_data_epoch(self):
-        """The decoded user data should be self.expected_user."""
+        """The decoded user data should be self.article."""
         article = self.article_cls.from_json(
             json.dumps(self.article_dict_epoch)
         )
         self.assertIs(type(article), self.article_cls)
         self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
+
+
+class FollowReferenceTest(DBConBase):
+    """Good JSON follow reference encoder/decoder test."""
+
+    def setUp(self):
+        """Setup function."""
+        self.maxDiff = None
+        self.reference_cls = Reference
+        self.reference = reference
+        self.reference_dict = reference_dict
+
+    def test_encode_follow_reference_data(self):
+        """reference data should follow ReferenceField."""
+        result = json.loads(self.reference.to_json(follow_reference=True))
+        self.assertEqual(self.reference_dict, result)
+
+    def test_decode_reference(self):
+        """The decoded reference data should be self.reference."""
+        result = self.reference_cls.from_json(
+            json.dumps(self.reference_dict)
+        )
+        self.assertIs(type(result), self.reference_cls)
+        self.assertEqual(result.id, self.reference.id)
+        self.assertEqual(result.name, self.reference.name)
+        self.assertListEqual(self.reference.references, result.references)
 
 
 class PrimaryKeyNotOidTest(TestCase):
