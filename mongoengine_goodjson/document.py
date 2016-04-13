@@ -11,7 +11,7 @@ except ImportError:
     from singledispatch import singledispatch
 
 import mongoengine as db
-from bson import SON, ObjectId
+from bson import SON
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .queryset import QuerySet
@@ -98,22 +98,12 @@ class Helper(object):
         @singledispatch
         def normalize_reference(ref_id, fld):
             """Normalize Reference."""
-            return ref_id
+            return fld.to_python(ref_id)
 
         @normalize_reference.register(dict)
         def normalize_reference_dict(ref_id, fld):
             """Normalize Reference for dict."""
-            doc = None
-            try:
-                doc = fld.document_type_obj.objects(
-                    pk=ObjectId(ref_id.get("id"))
-                ).get()
-                for (doc_key, doc_value) in ref_id.items():
-                    setattr(doc, doc_key, doc_value)
-                doc = fld.to_python(doc)
-            except db.DoesNotExist:
-                doc = fld.document_type_obj(**ref_id)
-            return doc
+            return fld.to_python(ref_id["id"])
 
         @normalize_reference.register(list)
         def normalize_reference_list(ref_id, fld):

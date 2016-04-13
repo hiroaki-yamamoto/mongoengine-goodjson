@@ -94,20 +94,6 @@ class FollowReferenceTest(DBConBase):
         self.assertEqual(result.name, self.reference.name)
         self.assertListEqual(self.reference.references, result.references)
 
-    def test_actual_check(self):
-        """The actually saved document should be correct as expected."""
-        result = self.reference_cls.from_json(
-            json.dumps(self.reference_dict)
-        )
-        result.save(cascade=True)
-        result = self.reference_cls.objects.get()
-        print(result.to_mongo())
-
-        self.assertIs(type(result), self.reference_cls)
-        self.assertEqual(result.id, self.reference.id)
-        self.assertEqual(result.name, self.reference.name)
-        self.assertListEqual(self.reference.references, result.references)
-
 
 class PrimaryKeyNotOidTest(TestCase):
     """Good JSON encoder/decoder email as primary key test."""
