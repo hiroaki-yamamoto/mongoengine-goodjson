@@ -20,6 +20,7 @@ from bson import (
     ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary,
     PY3
 )
+from bson.py3compat import text_type
 
 
 class GoodJSONEncoder(json.JSONEncoder):
@@ -52,7 +53,7 @@ class GoodJSONEncoder(json.JSONEncoder):
         @default.register(ObjectId)
         @default.register(UUID)
         def conv_objid(obj):
-            return str(obj)
+            return text_type(obj)
 
         @default.register(datetime)
         def conv_datetime(obj):

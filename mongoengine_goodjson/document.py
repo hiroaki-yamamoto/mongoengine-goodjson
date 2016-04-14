@@ -11,7 +11,7 @@ except ImportError:
     from singledispatch import singledispatch
 
 import mongoengine as db
-from bson import SON
+from bson import SON, DBRef
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .queryset import QuerySet
@@ -29,23 +29,36 @@ class Helper(object):
             target = fld.field if is_list else fld
 
             if isinstance(target, db.ReferenceField):
-                value = [
-                    json.loads(
-                        doc.to_json(
+                value = None
+                if is_list:
+                    value = []
+                    for doc in getattr(self, fldname, []):
+                        value.append(json.loads((
+                            target.document_type.objects(
+                                id=doc.id
+                            ).get() if isinstance(doc, DBRef) else doc
+                        ).to_json(
+                            follow_reference=True,
+                            max_depth=max_depth,
+                            current_depth=current_depth + 1,
+                            use_db_field=use_db_field,
+                            *args, **kwargs
+                        )))
+                else:
+                    doc = getattr(self, fldname)
+                    value = json.loads(
+                        (
+                            target.document_type.objects(
+                                id=doc.id
+                            ).get() if isinstance(doc, DBRef) else doc
+                        ).to_json(
                             follow_reference=True,
                             max_depth=max_depth,
                             current_depth=current_depth + 1,
                             use_db_field=use_db_field,
                             *args, **kwargs
                         )
-                    ) for doc in self[fldname]
-                ] if is_list else json.loads(self[fldname].to_json(
-                    follow_reference=True,
-                    max_depth=max_depth,
-                    current_depth=current_depth + 1,
-                    use_db_field=use_db_field,
-                    *args, **kwargs
-                ))
+                    )
                 if value is not None:
                     ret.update({fldname: value})
         return ret

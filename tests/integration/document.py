@@ -82,7 +82,7 @@ class FollowReferenceTest(DBConBase):
     def test_encode_follow_reference_data(self):
         """reference data should follow ReferenceField."""
         result = json.loads(self.reference.to_json(follow_reference=True))
-        self.assertEqual(self.reference_dict, result)
+        self.assertDictEqual(self.reference_dict, result)
 
     def test_decode_reference(self):
         """The decoded reference data should be self.reference."""
@@ -93,6 +93,20 @@ class FollowReferenceTest(DBConBase):
         self.assertEqual(result.id, self.reference.id)
         self.assertEqual(result.name, self.reference.name)
         self.assertListEqual(self.reference.references, result.references)
+
+    def test_actual_data_store(self):
+        """Actually data store."""
+        for ref in self.reference.references:
+            ref.user.save()
+            ref.save()
+        self.reference.save(cascade=True)
+        result = json.loads(
+            self.reference_cls.objects(
+                id=self.reference.id
+            ).get().to_json(follow_reference=True)
+        )
+        print(self.reference_dict)
+        self.assertDictEqual(self.reference_dict, result)
 
 
 class PrimaryKeyNotOidTest(TestCase):

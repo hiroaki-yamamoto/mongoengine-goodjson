@@ -13,16 +13,11 @@ from ..connection_case import DBConBase
 class UserSerializationDesrializationTest(DBConBase):
     """User serialization / deserialization integration test."""
 
-    @classmethod
-    def setUpClass(cls):
-        """Setup database connection."""
-        super(UserSerializationDesrializationTest, cls).setUpClass()
-        for user_el in users:
-            user_el.save()
-
     def setUp(self):
         """Setup."""
         self.maxDiff = None
+        for user_el in users:
+            user_el.save()
 
     def test_encode(self):
         """The data should be encoded properly."""
