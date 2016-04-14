@@ -231,7 +231,7 @@ to generate the Document with Referenced Document like Embedded Document:
 ```
 
 Making this format can be done by making Document.objects query for each
-reference. However, doing it, the code would also dirty:
+reference. However, doing it, the code would be also dirty:
 
 ```Python
 def output_references():
@@ -245,9 +245,9 @@ def output_references():
   # ...And what if there are references in the referenced document??
 ```
 
-To avoid this annoying problem, this script added new function called
-`Follow Reference`. To use it, you can just set `follow_reference=True`
-on serialization:
+To avoid this annoying problem, this script has new function called
+`Follow Reference` since 0.9. To use it, you can just set
+`follow_reference=True` on serialization:
 
 ```Python
 def output_references():
@@ -255,9 +255,9 @@ def output_references():
   return jsonify(json.loads(user.to_json(follow_reference=True)))
 ```
 
-Also, Setting `follow_reference=True`, `Document.to_json` checks the reference
-recursively until the depth is reached 3rd depth. To change the maximum
-recursion depth, you can set the value you want to `max_depth`:
+Note that setting `follow_reference=True`, `Document.to_json` checks the
+reference recursively until the depth is reached 3rd depth. To change the
+maximum recursion depth, you can set the value you want to `max_depth`:
 
 ```Python
 def output_references():
