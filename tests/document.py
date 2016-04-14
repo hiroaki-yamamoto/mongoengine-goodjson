@@ -8,11 +8,24 @@ from unittest import TestCase
 from bson import ObjectId
 import mongoengine as db
 from mongoengine_goodjson import GoodJSONEncoder, Document, EmbeddedDocument
+from mongoengine_goodjson.document import Helper
 
 try:
     from unittest.mock import patch, MagicMock, call
 except ImportError:
     from mock import patch, MagicMock, call
+
+
+class DocumentInhertCheck(TestCase):
+    """Document and EmbeddedDocument should inhert Helper."""
+
+    def test_document(self):
+        """Document should inhert Helper."""
+        self.assertTrue(issubclass(Document, Helper))
+
+    def test_emb_document(self):
+        """EmbeddedDocument should inhert Helper."""
+        self.assertTrue(issubclass(EmbeddedDocument, Helper))
 
 
 class ToJSONTest(TestCase):
@@ -30,9 +43,6 @@ class ToJSONTest(TestCase):
                 db.ReferenceField(SelfReferenceDocument)
             )
 
-        class TestEmbeddedDocument(EmbeddedDocument):
-            title = db.StringField()
-
         self.references = [
             SelfReferenceDocument(
                 pk=ObjectId(), name=("test {}").format(counter)
@@ -44,13 +54,17 @@ class ToJSONTest(TestCase):
             ]
             srd.to_json = MagicMock(side_effect=srd.to_json)
         self.model_cls = TestDocument
-        self.model = TestDocument(title="Test", references=self.references)
-        self.model.pk = ObjectId()
+        self.model = TestDocument(
+            pk=ObjectId(), title="Test", references=self.references
+        )
+        self.model.to_mongo = MagicMock(
+            return_value={
+                "id": self.model.id, "title": self.model.title,
+                "references": self.references
+            }
+        )
 
-        self.emb_cls = TestEmbeddedDocument
-        self.emb_model = TestEmbeddedDocument(title="Test")
-
-        self.model.to_mongo = self.emb_model.to_mongo = lambda x: {
+        self.model.to_mongo = lambda x: {
             "id": self.model.pk,
             "title": "Test",
             "references": [str(srd.pk) for srd in self.references]
@@ -62,14 +76,6 @@ class ToJSONTest(TestCase):
         self.model.to_json()
         dumps.assert_called_once_with(
             self.model.to_mongo(True), cls=GoodJSONEncoder
-        )
-
-    @patch("json.dumps")
-    def test_embdocument(self, dumps):
-        """self.emb_model.to_json should call encode function."""
-        self.emb_model.to_json()
-        dumps.assert_called_once_with(
-            self.emb_model.to_mongo(True), cls=GoodJSONEncoder
         )
 
     def test_followreference(self):
@@ -113,11 +119,7 @@ class FromJSONTest(TestCase):
         class TestDocument(Document):
             title = db.StringField()
 
-        class TestEmbeddedDocument(EmbeddedDocument):
-            title = db.StringField()
-
         self.model_cls = TestDocument
-        self.emb_cls = TestEmbeddedDocument
         self.data = json.dumps({"title": "Test"})
 
     @patch("mongoengine_goodjson.document.generate_object_hook")
@@ -126,10 +128,3 @@ class FromJSONTest(TestCase):
         hook_mock.return_value = lambda x: {"title": "Test"}
         self.model_cls.from_json(self.data)
         hook_mock.assert_called_once_with(self.model_cls)
-
-    @patch("mongoengine_goodjson.document.generate_object_hook")
-    def test_embdoc(self, hook_mock):
-        """EmbeddedDocument.from_json should call generate_object_hook."""
-        hook_mock.return_value = lambda x: {"title": "Test"}
-        self.emb_cls.from_json(self.data)
-        hook_mock.assert_called_once_with(self.emb_cls)
