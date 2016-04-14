@@ -143,6 +143,128 @@ class User(gj.Document):
     address = db.EmbeddedDocumentListField(Address)
 ```
 
+## Feature: Follow Reference
+Adding documents with `ReferenceField`, the fields are serialized as ObjectId
+by default:
+
+`model.py`
+```Python
+import mongoengine as db
+import mongoengine_goodjson as gj
+
+
+class Book(gj.Document):
+  """Book information model."""
+
+  name = db.StringField(required=True)
+  isbn = db.StringField(required=True)
+  author = db.StringField(required=True)
+  publisher = db.StringField(required=True)
+  publish_date = db.DateTimeField(required=True)
+
+
+class User(gj.Document):
+  firstname = db.StringField(required=True)
+  lastname = db.StringField(required=True)
+  books_bought = db.ListField(db.ReferenceField(Book))
+  favorite_one = db.ReferenceField(Book)
+```
+
+`The example of generated output`
+```JSON
+{
+  "id": "570ee9d1fec55e755db82129",
+  "firstname": "James",
+  "lastname": "Smith",
+  "books_bought": [
+    "570eea0afec55e755db8212a",
+    "570eea0bfec55e755db8212b",
+    "570eea0bfec55e755db8212c"
+  ],
+  "favorite_one": "570eea0bfec55e755db8212b"
+}
+```
+
+This seems to be good deal for `Reference Field`, but sometimes you might want
+to generate the Document with Referenced Document like Embedded Document:
+
+```JSON
+{
+  "id": "570ee9d1fec55e755db82129",
+  "firstname": "James",
+  "lastname": "Smith",
+  "books_bought": [
+    {
+      "id": "570eea0afec55e755db8212a",
+      "name": "ドグラ・マグラ (上)",
+      "author": "夢野 久作",
+      "publisher": "角川文庫",
+      "publish_date": "1976-10-01",
+      "isbn": "978-4041366035"
+    },
+    {
+      "id": "570eea0bfec55e755db8212b",
+      "name": "ドグラ・マグラ (下)",
+      "author": "夢野 久作",
+      "publisher": "角川文庫",
+      "publish_date": "1976-10-01",
+      "isbn": "978-4041366042"
+    },
+    {
+      "id": "570eea0bfec55e755db8212c",
+      "name": "The Voynich Manuscript: Full Color Photographic Edition",
+      "author": "Unknown",
+      "publisher": "FQ Publishing",
+      "publish_date": "2015-01-17",
+      "isbn": "978-1599865553"
+    }
+  ],
+  "favorite_one": {
+    "id": "570eea0bfec55e755db8212b",
+    "name": "ドグラ・マグラ (下)",
+    "author": "夢野 久作",
+    "publisher": "角川文庫",
+    "publish_date": "1976-10-01",
+    "isbn": "978-4041366042"
+  }
+}
+```
+
+Making this format can be done by making Document.objects query for each
+reference. However, doing it, the code would also dirty:
+
+```Python
+def output_references():
+  user = User.objects(pk=ObjectId("570ee9d1fec55e755db82129")).get()
+  user_dct = json.loads(user.to_json())
+  user_dct["books"] = [
+    json.loads(book.to_json()) for book in user.books_bought
+  ]
+  user_dct["favorite_one"] = json.loads(user.favorite_one.to_json())
+  return jsonify(user_dct)
+  # ...And what if there are references in the referenced document??
+```
+
+To avoid this annoying problem, this script added new function called
+`Follow Reference`. To use it, you can just set `follow_reference=True`
+on serialization:
+
+```Python
+def output_references():
+  user = User.objects(pk=ObjectId("570ee9d1fec55e755db82129")).get()
+  return jsonify(json.loads(user.to_json(follow_reference=True)))
+```
+
+Also, Setting `follow_reference=True`, `Document.to_json` checks the reference
+recursively until the depth is reached 3rd depth. To change the maximum
+recursion depth, you can set the value you want to `max_depth`:
+
+```Python
+def output_references():
+  user = User.objects(pk=ObjectId("570ee9d1fec55e755db82129")).get()
+  return jsonify(json.loads(user.to_json(follow_reference=True, max_depth=5)))
+```
+
 ## Not implemented list
 The following types are partially implemented because there aren't any
 corresponding fields on MongoEngine:
@@ -162,7 +284,13 @@ The following document types are not implemented yet:
 * `MapReduceDocument`
 
 Btw I don't think above documents implementations are needed because they can
-be handled by using multiple-inheritance. If you couldn't do it, post issue or PR.
+be handled by using multiple-inheritance. If you couldn't do it, post issue or
+PR.
+
+### FollowReference Decoder
+Since 0.9, this script supports Follow Reference, but it doesn't support
+decoder. Passing "followed reference" dict to ReferenceField, it recognized
+`id` field only. This behavior will be fixed at 0.10.
 
 ## Contribute
 This scirpt is coded on TDD. i.e. Writing a test that fails, and then write
