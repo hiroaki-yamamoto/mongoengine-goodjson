@@ -47,7 +47,7 @@ class Helper(object):
                             *args, **kwargs
                         )))
                 else:
-                    doc = getattr(self, fldname)
+                    doc = getattr(self, fldname, None)
                     value = json.loads(
                         (
                             target.document_type.objects(
@@ -60,7 +60,7 @@ class Helper(object):
                             use_db_field=use_db_field,
                             *args, **kwargs
                         )
-                    )
+                    ) if doc else doc
                 if value is not None:
                     ret.update({fldname: value})
         return ret
