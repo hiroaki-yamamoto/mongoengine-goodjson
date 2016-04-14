@@ -14,7 +14,7 @@
 [PyPI link]: https://badge.fury.io/py/mongoengine_goodjson
 
 ## What This?
-This script havs MongoEngine Document json serialization more-natural.
+This script has MongoEngine Document json serialization more-natural.
 
 ## Why this invented?
 
