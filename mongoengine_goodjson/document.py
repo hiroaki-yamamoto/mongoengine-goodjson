@@ -28,7 +28,9 @@ class Helper(object):
             is_list = isinstance(fld, db.ListField)
             target = fld.field if is_list else fld
 
-            if isinstance(target, db.ReferenceField):
+            if isinstance(target, (
+                db.ReferenceField, db.EmbeddedDocumentField
+            )):
                 value = None
                 if is_list:
                     value = []
