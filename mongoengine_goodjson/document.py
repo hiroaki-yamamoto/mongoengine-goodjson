@@ -113,7 +113,7 @@ class Helper(object):
         @singledispatch
         def normalize_reference(ref_id, fld):
             """Normalize Reference."""
-            return fld.to_python(ref_id)
+            return ref_id and fld.to_python(ref_id) or None
 
         @normalize_reference.register(dict)
         def normalize_reference_dict(ref_id, fld):
