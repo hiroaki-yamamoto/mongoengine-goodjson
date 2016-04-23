@@ -26,3 +26,13 @@ class FollowReferenceField(db.ReferenceField):
             *args, **kwsrgs: Any arguments to be passed to ReferenceField.
         """
         super(FollowReferenceField, self).__init__(*args, **kwargs)
+
+    def to_mongo(self, document):
+        """
+        Convert to python-typed dict.
+
+        Parameters:
+            document: The document.
+        """
+        if document.pk is None:
+            self.error("The referenced document needs ID.")
