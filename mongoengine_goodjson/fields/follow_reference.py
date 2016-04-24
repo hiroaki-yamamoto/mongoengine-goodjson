@@ -24,7 +24,11 @@ class FollowReferenceField(db.ReferenceField):
 
         Parameters:
             *args, **kwsrgs: Any arguments to be passed to ReferenceField.
+        Keyword Arguments:
+            id_check: Set false to disable id check. By default, this value is
+                True
         """
+        self.id_check = kwargs.pop("id_check", True)
         super(FollowReferenceField, self).__init__(*args, **kwargs)
 
     def to_mongo(self, document):
@@ -34,5 +38,5 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             document: The document.
         """
-        if document.pk is None:
+        if document.pk is None and self.id_check:
             self.error("The referenced document needs ID.")

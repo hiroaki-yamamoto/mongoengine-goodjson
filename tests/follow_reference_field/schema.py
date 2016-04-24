@@ -22,3 +22,9 @@ class IDCheckDocument(db.Document):
     """
 
     ref = gj.FollowReferenceField(ReferencedDocument)
+
+
+class DisabledIDCheckDocument(db.Document):
+    """Test document disabling id check."""
+
+    ref = gj.FollowReferenceField(ReferencedDocument, id_check=False)
