@@ -10,7 +10,7 @@ try:
 except ImportError:
     from mock import patch
 
-from bson import DBRef, ObjectId
+from bson import DBRef, ObjectId, SON
 
 from .schema import (
     DisabledIDCheckDocument, IDCheckDocument, ReferencedDocument
@@ -52,21 +52,26 @@ class FollowReferenceFieldNonDocumentCheckTest(TestCase):
 
     def setUp(self):
         """Setup."""
+        self._id = ObjectId()
         self.doc = IDCheckDocument(
-            ref=DBRef("referenced_document", ObjectId())
+            ref=DBRef("referenced_document", self._id)
         )
         self.disabled_check = DisabledIDCheckDocument(
-            ref=DBRef("referenced_document", ObjectId())
+            ref=DBRef("referenced_document", self._id)
         )
 
     @patch("mongoengine.ReferenceField.to_mongo")
     def test_doc_check_enabled_idcheck(self, to_mongo):
         """ReferenceField.to_mongo should be called."""
-        self.doc.to_mongo()
+        to_mongo.return_value = self._id
+        ret_value = self.doc.to_mongo()
         self.assertTrue(to_mongo.called)
+        self.assertDictEqual(SON({"ref": self._id}), ret_value)
 
     @patch("mongoengine.ReferenceField.to_mongo")
     def test_doc_check_enabled_nonidcheck(self, to_mongo):
         """ReferenceField.to_mongo should be called."""
-        self.disabled_check.to_mongo()
+        to_mongo.return_value = self._id
+        ret_value = self.disabled_check.to_mongo()
         self.assertTrue(to_mongo.called)
+        self.assertDictEqual(SON({"ref": self._id}), ret_value)
