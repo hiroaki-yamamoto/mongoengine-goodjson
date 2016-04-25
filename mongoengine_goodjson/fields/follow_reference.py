@@ -31,12 +31,15 @@ class FollowReferenceField(db.ReferenceField):
         self.id_check = kwargs.pop("id_check", True)
         super(FollowReferenceField, self).__init__(*args, **kwargs)
 
-    def to_mongo(self, document):
+    def to_mongo(self, document, **kwargs):
         """
         Convert to python-typed dict.
 
         Parameters:
             document: The document.
         """
-        if document.pk is None and self.id_check:
-            self.error("The referenced document needs ID.")
+        if isinstance(document, db.Document):
+            if document.pk is None and self.id_check:
+                self.error("The referenced document needs ID.")
+        else:
+            super(FollowReferenceField, self).to_mongo(document, **kwargs)
