@@ -38,10 +38,14 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             document: The document.
         """
+        ret = document
         if isinstance(document, db.Document):
             if document.pk is None and self.id_check:
                 self.error("The referenced document needs ID.")
         else:
-            return super(
-                FollowReferenceField, self
-            ).to_mongo(document, **kwargs)
+            ret = self.document_type.objects(
+                pk=super(
+                    FollowReferenceField, self
+                ).to_mongo(document, **kwargs)
+            ).get()
+        return ret.to_mongo()
