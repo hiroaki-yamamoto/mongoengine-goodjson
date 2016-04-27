@@ -4,6 +4,7 @@
 """Follow Reference Field code."""
 
 import mongoengine as db
+from ..document import Document
 
 
 class FollowReferenceField(db.ReferenceField):
@@ -51,7 +52,10 @@ class FollowReferenceField(db.ReferenceField):
                     FollowReferenceField, self
                 ).to_mongo(document, **kwargs)
             ).get()
-        return ret.to_mongo()
+        ret = ret.to_mongo()
+        if "_id" in ret and issubclass(self.document_type, Document):
+            ret["id"] = ret.pop("_id", None)
+        return ret
 
     def to_python(self, value):
         """

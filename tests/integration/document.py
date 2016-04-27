@@ -6,7 +6,10 @@
 import json
 from unittest import TestCase
 
-from .schema import User, Article, Email, Reference
+from .schema import (
+    User, Article, Email, Reference, UserReferenceNoAutoSave,
+    UserReferenceDisabledIDCheck
+)
 from .fixtures import (
     user, user_dict, article, article_dict, article_dict_epoch,
     email, email_dict_id, email_dict_email, reference, reference_dict
@@ -140,3 +143,42 @@ class PrimaryKeyNotOidTest(TestCase):
         """
         result = Email.from_json(json.dumps(self.data_email)).to_mongo()
         self.assertDictEqual(self.email.to_mongo(), result)
+
+
+class FollowReferenceFieldTest(DBConBase):
+    """Follow reference field integration tests."""
+
+    def setUp(self):
+        """Setup."""
+        self.RefDoc = User
+        self.Doc = UserReferenceNoAutoSave
+        self.DocNoIDCheck = UserReferenceDisabledIDCheck
+        self.ref_doc = self.RefDoc(name="Test")
+        self.doc = self.Doc()
+        self.non_id_check_doc = self.DocNoIDCheck()
+
+    def test_serialization_with_save(self):
+        """The serializer should follow the referenced doc."""
+        self.ref_doc.save()
+        self.doc.ref = self.ref_doc
+        self.doc.save()
+        result = json.loads(self.doc.to_json())
+        self.assertDictEqual({
+            u"id": str(self.doc.pk),
+            u"ref": {
+                u"id": str(self.ref_doc.pk),
+                u"name": self.ref_doc.name,
+                u"address": []
+            }
+        }, result)
+
+    def test_serialization_without_save(self):
+        """The serializer should follow the referenced doc (no ID check)."""
+        self.non_id_check_doc.ref = self.ref_doc
+        result = json.loads(self.non_id_check_doc.to_json())
+        self.assertDictEqual({
+            u"ref": {
+                u"name": self.ref_doc.name,
+                u"address": []
+            }
+        }, result)

@@ -89,16 +89,17 @@ class Helper(object):
 
         if "cls" not in kwargs:
             kwargs["cls"] = GoodJSONEncoder
+
         data = self.to_mongo(use_db_field)
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
 
-        if follow_reference and (
-            current_depth < max_depth or max_depth is None
-        ):
+        if follow_reference and \
+                (current_depth < max_depth or max_depth is None):
             data.update(self._follow_reference(
                 max_depth, current_depth, use_db_field, *args, **kwargs
             ))
+
         return json.dumps(data, *args, **kwargs)
 
     @classmethod

@@ -3,7 +3,9 @@
 """Schema samples for integration tests."""
 
 import mongoengine as db
-from mongoengine_goodjson import Document, EmbeddedDocument
+from mongoengine_goodjson import (
+    Document, EmbeddedDocument, FollowReferenceField
+)
 
 
 class Address(EmbeddedDocument):
@@ -20,6 +22,24 @@ class User(Document):
     name = db.StringField()
     email = db.EmailField()
     address = db.EmbeddedDocumentListField(Address)
+
+
+class UserReferenceNoAutoSave(Document):
+    """Test schema."""
+
+    ref = FollowReferenceField(User)
+
+
+class UserReferenceDisabledIDCheck(Document):
+    """Test schema."""
+
+    ref = FollowReferenceField(User, id_check=False)
+
+
+class UserReferenceAutoSave(Document):
+    """Test schema."""
+
+    ref = FollowReferenceField(User, autosave=True)
 
 
 class Email(Document):
