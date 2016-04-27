@@ -25,10 +25,13 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             *args, **kwsrgs: Any arguments to be passed to ReferenceField.
         Keyword Arguments:
-            id_check: Set false to disable id check. By default, this value is
+            id_check: Set False to disable id check. By default, this value is
                 True
+            autosave: Set True to save/update the referenced document when
+                to_python is called.
         """
         self.id_check = kwargs.pop("id_check", True)
+        self.autosave = kwargs.pop("autosave", False)
         super(FollowReferenceField, self).__init__(*args, **kwargs)
 
     def to_mongo(self, document, **kwargs):
@@ -49,3 +52,15 @@ class FollowReferenceField(db.ReferenceField):
                 ).to_mongo(document, **kwargs)
             ).get()
         return ret.to_mongo()
+
+    def to_python(self, value):
+        """
+        Convert to python-based object.
+
+        Parameters:
+            value: The python-typed document.
+        """
+        ret = super(FollowReferenceField, self).to_python(value)
+        if self.autosave:
+            ret.save()
+        return ret

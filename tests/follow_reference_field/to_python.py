@@ -40,3 +40,29 @@ class FollowReferenceFieldWithoutIDTest(TestCase):
         """Setup function."""
         self.RefDoc = ReferencedDocument
         self.ref_doc = self.RefDoc(name="Test")
+
+    @patch("mongoengine.ReferenceField.to_python")
+    def test_super_function_call(self, to_python):
+        """ReferenceField.to_python should be called."""
+        gj.FollowReferenceField(self.RefDoc).to_python(self.ref_doc)
+        self.assertTrue(to_python.called)
+
+
+class FollowReferenceFieldAutoSaveTest(TestCase):
+    """Unit test for auto save functionality."""
+
+    def setUp(self):
+        """Setup function."""
+        self.RefDoc = ReferencedDocument
+        self.ref_doc = self.RefDoc(name="Test")
+
+    @patch("mongoengine.ReferenceField.to_python")
+    @patch("mongoengine.Document.save")
+    def test_save_not_call(self, save, to_python):
+        """gj.Document.save should be called if autosave is True."""
+        to_python.return_value = self.ref_doc
+        gj.FollowReferenceField(
+            self.RefDoc, autosave=True
+        ).to_python(self.ref_doc)
+        self.assertTrue(save.called)
+        self.assertTrue(to_python.called)
