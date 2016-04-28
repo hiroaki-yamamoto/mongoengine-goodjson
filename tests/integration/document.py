@@ -6,6 +6,8 @@
 import json
 from unittest import TestCase
 
+from bson import ObjectId
+
 from .schema import (
     User, Article, Email, Reference, UserReferenceNoAutoSave,
     UserReferenceDisabledIDCheck
@@ -156,6 +158,14 @@ class FollowReferenceFieldTest(DBConBase):
         self.ref_doc = self.RefDoc(name="Test")
         self.doc = self.Doc()
         self.non_id_check_doc = self.DocNoIDCheck()
+        self.data = {
+            u"id": str(ObjectId()),
+            u"ref": {
+                u"id": str(ObjectId()),
+                u"name": self.ref_doc.name,
+                u"address": []
+            }
+        }
 
     def test_serialization_with_save(self):
         """The serializer should follow the referenced doc."""
@@ -182,3 +192,12 @@ class FollowReferenceFieldTest(DBConBase):
                 u"address": []
             }
         }, result)
+
+    def test_deserialization_without_autosave(self):
+        """The deserializer should work (no autosave)."""
+        result = self.Doc.from_json(json.dumps(self.data))
+        self.assertIsInstance(result, self.Doc)
+
+    def test_deserialization_with_autosave(self):
+        """The deserializer should work (autosave)."""
+        raise NotImplementedError("Not Implemented...")

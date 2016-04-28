@@ -3,6 +3,7 @@
 
 """Follow Reference Field code."""
 
+import json
 import mongoengine as db
 from ..document import Document
 
@@ -64,7 +65,10 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             value: The python-typed document.
         """
-        ret = super(FollowReferenceField, self).to_python(value)
+        clone = value
+        if isinstance(value, dict):
+            clone = self.document_type.from_json(json.dumps(value))
+        ret = super(FollowReferenceField, self).to_python(clone)
         if self.autosave:
             ret.save()
         return ret
