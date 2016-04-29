@@ -69,6 +69,6 @@ class FollowReferenceField(db.ReferenceField):
         if isinstance(value, dict):
             clone = self.document_type.from_json(json.dumps(value))
         ret = super(FollowReferenceField, self).to_python(clone)
-        if self.autosave:
+        if self.autosave and isinstance(ret, db.Document):
             ret.save()
         return ret

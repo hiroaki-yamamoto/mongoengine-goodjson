@@ -10,7 +10,7 @@ from bson import ObjectId
 
 from .schema import (
     User, Article, Email, Reference, UserReferenceNoAutoSave,
-    UserReferenceDisabledIDCheck
+    UserReferenceAutoSave, UserReferenceDisabledIDCheck
 )
 from .fixtures import (
     user, user_dict, article, article_dict, article_dict_epoch,
@@ -154,10 +154,12 @@ class FollowReferenceFieldTest(DBConBase):
         """Setup."""
         self.RefDoc = User
         self.Doc = UserReferenceNoAutoSave
+        self.AutoSaveDoc = UserReferenceAutoSave
         self.DocNoIDCheck = UserReferenceDisabledIDCheck
         self.ref_doc = self.RefDoc(name="Test")
         self.doc = self.Doc()
         self.non_id_check_doc = self.DocNoIDCheck()
+        self.autosave_doc = self.AutoSaveDoc()
         self.data = {
             u"id": str(ObjectId()),
             u"ref": {
@@ -200,4 +202,5 @@ class FollowReferenceFieldTest(DBConBase):
 
     def test_deserialization_with_autosave(self):
         """The deserializer should work (autosave)."""
-        raise NotImplementedError("Not Implemented...")
+        result = self.AutoSaveDoc.from_json(json.dumps(self.data))
+        self.assertDictEqual(self.data, json.loads(result.to_json()))
