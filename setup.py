@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 dependencies = ["mongoengine", "dateutils"]
 desc = "More human readable JSON serializer/de-serializer for MongoEngine"
-version = "0.9.4"
+version = "0.10.0"
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
 
@@ -36,7 +36,7 @@ setup(
     keywords="json mongoengine mongodb",
     url="https://github.com/hiroaki-yamamoto/mongoengine-goodjson",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.5"
