@@ -42,7 +42,7 @@ The points are 2 points:
   [MongoDB Extended JSON]. However, considering MongoEngine is ODM and
   therefore it has schema-definition methods, the fields shouldn't have the
   special fields. In particular problems, you might get
-  `No such property $oid on undefined` error when you handle above generated
+  `No such property $oid of undefined` error when you handle above generated
   data on frontend.
 
 To solve the problems, the generated data should be like this:
@@ -265,6 +265,38 @@ def output_references():
   return jsonify(json.loads(user.to_json(follow_reference=True, max_depth=5)))
 ```
 
+## Feature: FollowReferenceField
+This script also provides a field that supports serialization of the reference
+with `follow_reference=True`. Unlike `ReferenceField`, this field supports
+deserialization and automatic-save.
+
+To use this field, you can just simply declare the field as usual. For example,
+like this:
+
+```Python
+import mongoengine as db
+import mongoengine_goodjson as gj
+
+
+class User(gj.Document):
+  """User info."""
+  name = db.StringField()
+  email = db.EmailField()
+
+class DetailedProfile(gj.Document):
+  """Detail profile of the user."""
+  # FollowReferenceField without auto-save
+  user = gj.FollowReferenceField(User)
+  yob = db.DateTimeField()
+  # FollowReferenceField with auto-save
+  partner = gj.FollowReferenceField(User, autosave=True)
+```
+
+### Important Note when use FollowReferenceField
+Currently, FollowReferenceField doesn't support the limit of recursion.
+Therefore, **don't implement self-reference document and/or loop-reference
+document.**
+
 ## Not implemented list
 The following types are partially implemented because there aren't any
 corresponding fields on MongoEngine:
@@ -288,9 +320,10 @@ be handled by using multiple-inheritance. If you couldn't do it, post issue or
 PR.
 
 ### FollowReference Decoder
-Since 0.9, this script supports Follow Reference, but it doesn't support
+~~Since 0.9, this script supports Follow Reference, but it doesn't support
 decoder. Passing "followed reference" dict to ReferenceField, it recognized
-`id` field only. This behavior will be fixed at 0.10.
+`id` field only. This behavior will be fixed at 0.10.~~
+Use `FollowReferenceField`.
 
 ## Contribute
 This scirpt is coded on TDD. i.e. Writing a test that fails, and then write
