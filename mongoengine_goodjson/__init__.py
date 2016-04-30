@@ -7,8 +7,10 @@ from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .document import Document, EmbeddedDocument
 from .queryset import QuerySet
+from .fields import FollowReferenceField
 
 __all__ = (
     "GoodJSONEncoder", "generate_object_hook",
-    "Document", "EmbeddedDocument", "QuerySet"
+    "Document", "EmbeddedDocument", "QuerySet",
+    "FollowReferenceField"
 )
