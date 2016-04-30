@@ -30,7 +30,7 @@ class FollowReferenceFieldWithIDTest(TestCase):
     def test_super_function_call(self, to_python):
         """ReferenceField.to_python should be called."""
         gj.FollowReferenceField(self.RefDoc).to_python(self.ref_doc)
-        self.assertTrue(to_python.called)
+        self.assertEqual(to_python.call_count, 1)
 
 
 class FollowReferenceFieldWithoutIDTest(TestCase):
@@ -45,7 +45,7 @@ class FollowReferenceFieldWithoutIDTest(TestCase):
     def test_super_function_call(self, to_python):
         """ReferenceField.to_python should be called."""
         gj.FollowReferenceField(self.RefDoc).to_python(self.ref_doc)
-        self.assertTrue(to_python.called)
+        self.assertEqual(to_python.call_count, 1)
 
 
 class FollowReferenceFieldAutoSaveTest(TestCase):
@@ -54,7 +54,7 @@ class FollowReferenceFieldAutoSaveTest(TestCase):
     def setUp(self):
         """Setup function."""
         self.RefDoc = ReferencedDocument
-        self.ref_doc = self.RefDoc(name="Test")
+        self.ref_doc = {"name": "Test"}
 
     @patch("mongoengine.ReferenceField.to_python")
     @patch("mongoengine.Document.save")
@@ -64,5 +64,5 @@ class FollowReferenceFieldAutoSaveTest(TestCase):
         gj.FollowReferenceField(
             self.RefDoc, autosave=True
         ).to_python(self.ref_doc)
-        self.assertTrue(save.called)
-        self.assertTrue(to_python.called)
+        self.assertEqual(save.call_count, 1)
+        self.assertEqual(to_python.call_count, 1)

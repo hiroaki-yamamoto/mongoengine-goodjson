@@ -53,7 +53,7 @@ class FollowReferenceField(db.ReferenceField):
                     FollowReferenceField, self
                 ).to_mongo(document, **kwargs)
             ).get()
-        ret = ret.to_mongo()
+        ret = ret.to_mongo(**kwargs)
         if "_id" in ret and issubclass(self.document_type, Document):
             ret["id"] = ret.pop("_id", None)
         return ret
@@ -67,8 +67,10 @@ class FollowReferenceField(db.ReferenceField):
         """
         clone = value
         if isinstance(value, dict):
-            clone = self.document_type.from_json(json.dumps(value))
+            clone = self.document_type.from_json(
+                json.dumps(value), created="id" not in value
+            )
+            if self.autosave:
+                clone.save()
         ret = super(FollowReferenceField, self).to_python(clone)
-        if self.autosave and isinstance(ret, db.Document):
-            ret.save()
         return ret

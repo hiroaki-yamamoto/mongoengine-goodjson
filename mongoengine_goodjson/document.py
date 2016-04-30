@@ -103,13 +103,22 @@ class Helper(object):
         return json.dumps(data, *args, **kwargs)
 
     @classmethod
-    def from_json(cls, json_str, *args, **kwargs):
-        """Decode from human-readable json."""
+    def from_json(cls, json_str, created=False, *args, **kwargs):
+        """
+        Decode from human-readable json.
+
+        Parameters:
+            json_str: JSON string that should be passed to the serialized
+            created: a parameter that is passed to cls._from_son.
+            *args, **kwargs: Any additional arguments that is passed to
+                json.loads.
+        """
+        from .fields import FollowReferenceField
         hook = generate_object_hook(cls)
         if "object_hook" not in kwargs:
             kwargs["object_hook"] = hook
         dct = json.loads(json_str, *args, **kwargs)
-        from_son_result = cls._from_son(SON(dct))
+        from_son_result = cls._from_son(SON(dct), created=created)
 
         @singledispatch
         def normalize_reference(ref_id, fld):
@@ -129,20 +138,16 @@ class Helper(object):
             ]
 
         for fldname, fld in cls.__dict__.items():
-            target = fld
-            if not isinstance(target, (db.ReferenceField, db.ListField)):
-                continue
-            if isinstance(target, db.ListField):
-                target = target.field
+            target = fld.field if isinstance(fld, db.ListField) else fld
 
-            if not isinstance(target, db.ReferenceField):
+            if not isinstance(target, db.ReferenceField) or \
+                    isinstance(target, FollowReferenceField):
                 continue
 
             value = dct.get(fldname)
             setattr(
-                from_son_result, fldname, normalize_reference(
-                    getattr(value, "id", value), target
-                )
+                from_son_result, fldname,
+                normalize_reference(getattr(value, "id", value), target)
             )
         return from_son_result
 

@@ -169,6 +169,12 @@ class FollowReferenceFieldTest(DBConBase):
             }
         }
 
+    def tearDown(self):
+        """Teardown class."""
+        self.Doc.drop_collection()
+        self.AutoSaveDoc.drop_collection()
+        self.DocNoIDCheck.drop_collection()
+
     def test_serialization_with_save(self):
         """The serializer should follow the referenced doc."""
         self.ref_doc.save()
