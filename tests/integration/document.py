@@ -204,7 +204,7 @@ class FollowReferenceFieldTest(DBConBase):
     def test_deserialization_without_autosave(self):
         """The deserializer should work (no autosave)."""
         result = self.Doc.from_json(json.dumps(self.data))
-        self.assertIsInstance(result, self.Doc)
+        self.assertDictEqual(self.data, json.loads(result.to_json()))
 
     def test_deserialization_with_autosave(self):
         """The deserializer should work (autosave)."""
