@@ -22,15 +22,18 @@ class Helper(object):
 
     def _follow_reference(self, max_depth, current_depth,
                           use_db_field, *args, **kwargs):
+        from .fields import FollowReferenceField
         ret = {}
         for fldname in self:
             fld = self._fields.get(fldname)
             is_list = isinstance(fld, db.ListField)
             target = fld.field if is_list else fld
 
-            if isinstance(target, (
-                db.ReferenceField, db.EmbeddedDocumentField
-            )):
+            if all([
+                isinstance(
+                    target, (db.ReferenceField, db.EmbeddedDocumentField)
+                ), not isinstance(target, FollowReferenceField)
+            ]):
                 value = None
                 if is_list:
                     value = []

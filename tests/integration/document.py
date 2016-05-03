@@ -201,6 +201,19 @@ class FollowReferenceFieldTest(DBConBase):
             }
         }, result)
 
+    def test_serialization_with_follow_reference_true(self):
+        """The serializer should work properly."""
+        self.non_id_check_doc.ref = self.ref_doc
+        result = json.loads(
+            self.non_id_check_doc.to_json(follow_reference=True)
+        )
+        self.assertDictEqual({
+            u"ref": {
+                u"name": self.ref_doc.name,
+                u"address": []
+            }
+        }, result)
+
     def test_deserialization_without_autosave(self):
         """The deserializer should work (no autosave)."""
         result = self.Doc.from_json(json.dumps(self.data))
