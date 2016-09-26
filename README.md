@@ -336,7 +336,7 @@ def get_json_obj(*q, **query):
 
 def get_json_list(*q, **query):
     # You can also get JSON serialized text from QuerySet.
-    return Exclude.objects(*q, **query).get()
+    return Exclude.objects(*q, **query).to_json()
 
 
 # Decoding is also simple.
