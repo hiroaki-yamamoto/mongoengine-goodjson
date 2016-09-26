@@ -24,7 +24,7 @@ class DocumentInhertCheck(TestCase):
         self.assertTrue(issubclass(Document, Helper))
 
     def test_emb_document(self):
-        """EmbeddedDocument should inhert Helper."""
+        """Embedded Document should inhert Helper."""
         self.assertTrue(issubclass(EmbeddedDocument, Helper))
 
 

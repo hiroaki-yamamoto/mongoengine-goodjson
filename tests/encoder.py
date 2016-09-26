@@ -46,7 +46,7 @@ class ObjectIdEncodeTest(TestCase):
         self.oid = ObjectId()
 
     def test_object_id(self):
-        """encoder should return the object id as str."""
+        """Encoder should return the object id as str."""
         result = self.encoder.default(self.oid)
         self.assertEqual(result, str(self.oid))
 
@@ -61,7 +61,7 @@ class DatetimeISOEncodeTest(TestCase):
         self.encoder = GoodJSONEncoder()
 
     def test_datetime(self):
-        """datetime should be serialized into ISOFormat."""
+        """Datetime should be serialized into ISOFormat."""
         self.assertEqual(
             self.encoder.default(self.now), self.now.isoformat()
         )
@@ -77,7 +77,7 @@ class DatetimeEpochEncodeTest(TestCase):
         self.encoder = GoodJSONEncoder(epoch_mode=True)
 
     def test_datetime(self):
-        """datetime should be serialized into ISOFormat."""
+        """Datetime should be serialized into ISOFormat."""
         from calendar import timegm
         self.assertEqual(
             self.encoder.default(self.now),

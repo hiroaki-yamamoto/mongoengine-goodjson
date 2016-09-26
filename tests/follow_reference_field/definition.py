@@ -9,10 +9,10 @@ import mongoengine as db
 
 
 class FolowReferenceFieldDefinitionTest(TestCase):
-    """FollowReferenceField should be defined."""
+    """Follow Reference Field should be defined."""
 
     def test_definition(self):
-        """FollowReferenceField should inherit BaseField."""
+        """Follow Reference Field should inherit BaseField."""
         self.assertTrue(
             issubclass(gj.FollowReferenceField, db.ReferenceField)
         )

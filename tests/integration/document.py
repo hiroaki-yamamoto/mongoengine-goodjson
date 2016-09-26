@@ -124,7 +124,7 @@ class FollowReferenceTest(DBConBase):
         self.reference_dict = reference_dict
 
     def test_encode_follow_reference_data(self):
-        """reference data should follow ReferenceField."""
+        """Reference data should follow ReferenceField."""
         result = json.loads(self.reference.to_json(follow_reference=True))
         self.assertDictEqual(self.reference_dict, result)
 
