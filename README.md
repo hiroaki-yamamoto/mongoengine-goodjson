@@ -297,6 +297,57 @@ Currently, FollowReferenceField doesn't support the limit of recursion.
 Therefore, **don't implement self-reference document and/or loop-reference
 document.**
 
+## Feature 2: Exclude fields from JSON serialization/deserialization
+
+Sometimes you might want to exclude fields from JSON serialization, but to do
+so, you might need to decode JSON-serialized string, pop the key, then,
+serialize the dict object again. Since 0.11, metadata `exclude_to_json`,
+`exclude_from_json`, and `exclude_json` are available and they behave like
+the following:
+
+* Setting Truthy value to `exclude_to_json`, the corresponding field is omitted
+  from JSON encoding. Note that this excludes fields JSON encoding only.
+* Setting Truthy value to `exclude_from_json`, the corresponding field is omitted
+  from JSON decoding. Note that this excludes fields JSON decoding only.
+* Setting Truhy value to `exclude_json`, the corresponding field is omitted from
+  JSON encoding and decoding.
+
+### Example
+To use the exclusion, you can just put exclude metadata like this:
+
+```python
+import mongoengine_goodjson as gj
+import mongoengine as db
+
+
+class ExclusionModel(gj.Document):
+    """Example Model."""
+    to_json_exclude = db.StringField(exclude_to_json=True)
+    from_json_exclude = db.IntField(exclude_from_json=True)
+    json_exclude = db.StringField(exclude_json=True)
+    required = db.StringField(required=True)
+
+
+def get_json_obj(*q, **query):
+    model = Exclude.objects(*q, **query).get()
+    # Just simply call to_json :)
+    return model.to_json()
+
+
+def get_json_list(*q, **query):
+    # You can also get JSON serialized text from QuerySet.
+    return Exclude.objects(*q, **query).get()
+
+
+# Decoding is also simple.
+def get_obj_from_json(json_text):
+  return Exclude.from_json(json_text)
+
+
+def get_list_from_json(json_text):
+  return Exclude.objects.from_json(json_text)
+```
+
 ## Not implemented list
 The following types are partially implemented because there aren't any
 corresponding fields on MongoEngine:
