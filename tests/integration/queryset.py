@@ -5,6 +5,9 @@
 
 import json
 
+import mongoengine_goodjson as gj
+import mongoengine as db
+
 from .schema import User
 from .fixtures import users, users_dict
 from ..connection_case import DBConBase
@@ -28,3 +31,70 @@ class UserSerializationDesrializationTest(DBConBase):
         """The data should be decoded properly."""
         result = User.objects.from_json(json.dumps(users_dict))
         self.assertListEqual(users, result)
+
+
+class QuerySetJSONExclusionTest(DBConBase):
+    """JSON exclusion test (Queryset version)."""
+
+    def setUp(self):
+        """Setup."""
+        class ExclusionModel(gj.Document):
+            to_json_exclude = db.StringField(exclude_to_json=True)
+            from_json_exclude = db.IntField(exclude_from_json=True)
+            json_exclude = db.StringField(exclude_json=True)
+            required = db.StringField(required=True)
+
+        self.cls = ExclusionModel
+        self.test_data = []
+        for counter in range(3):
+            data_el = {
+                "to_json_exclude": ("To JSON Exclusion {}").format(counter),
+                "from_json_exclude": counter,
+                "json_exclude": ("JSON Exclusion {}").format(counter),
+                "required": ("Required {}").format(counter)
+            }
+            model = self.cls(**data_el)
+            model.save()
+            self.test_data.append(data_el)
+
+    def test_encode(self):
+        """to_json_exclude and json_exclude shouldn't be in the result."""
+        result = json.loads(self.cls.objects.to_json())
+        for index, item in enumerate(result):
+            self.assertNotIn(
+                "to_json_exclude", item,
+                ("to_json_exclude found at index {}").format(index)
+            )
+            self.assertNotIn(
+                "json_exclude", item,
+                ("json_exclude found at index {}").format(index)
+            )
+            self.assertIn(
+                "from_json_exclude", item,
+                ("from_json_exclude not found at index {}").format(index)
+            )
+            self.assertIn(
+                "required", item,
+                ("required not found at index {}").format(index)
+            )
+
+    def test_decode(self):
+        """from_json_exclude and json_exclude shouldn't put into the model."""
+        models = self.cls.objects.from_json(json.dumps(self.test_data))
+        for index, model in enumerate(models):
+            self.assertIsNone(
+                model.json_exclude,
+                ("json_exclude found at index {}").format(index)
+            )
+            self.assertIsNone(
+                model.from_json_exclude,
+                ("from_json_exclude found at index {}").format(index)
+            )
+            self.assertIsNotNone(
+                model.to_json_exclude,
+                ("to_json_exclude not found at index {}").format(index)
+            )
+            self.assertIsNotNone(
+                model.required,
+                ("required not found at index {}").format(index)
+            )

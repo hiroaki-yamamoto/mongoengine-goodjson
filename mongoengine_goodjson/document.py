@@ -97,6 +97,13 @@ class Helper(object):
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
 
+        for name, fld in self._fields.items():
+            if any([
+                getattr(fld, "exclude_to_json", None),
+                getattr(fld, "exclude_json", None)
+            ]):
+                data.pop(name, None)
+
         if follow_reference and \
                 (current_depth < max_depth or max_depth is None):
             data.update(self._follow_reference(
@@ -121,6 +128,12 @@ class Helper(object):
         if "object_hook" not in kwargs:
             kwargs["object_hook"] = hook
         dct = json.loads(json_str, *args, **kwargs)
+        for name, fld in cls._fields.items():
+            if any([
+                getattr(fld, "exclude_from_json", None),
+                getattr(fld, "exclude_json", None)
+            ]):
+                dct.pop(name, None)
         from_son_result = cls._from_son(SON(dct), created=created)
 
         @singledispatch
@@ -140,7 +153,7 @@ class Helper(object):
                 normalize_reference(ref.id, fld) for ref in ref_id
             ]
 
-        for fldname, fld in cls.__dict__.items():
+        for fldname, fld in cls._fields.items():
             target = fld.field if isinstance(fld, db.ListField) else fld
 
             if not isinstance(target, db.ReferenceField) or \
