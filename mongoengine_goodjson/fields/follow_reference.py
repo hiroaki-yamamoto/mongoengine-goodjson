@@ -43,6 +43,10 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             document: The document.
         """
+        if not getattr(self, "$$good_json$$", None):
+            return super(FollowReferenceField, self).to_mongo(
+                document, **kwargs
+            )
         ret = document
         if isinstance(document, db.Document):
             if document.pk is None and self.id_check:

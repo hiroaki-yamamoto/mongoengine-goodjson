@@ -24,7 +24,10 @@ class FollowReferenceFieldIDCheckTest(TestCase):
     def setUp(self):
         """Setup function."""
         self.referenced_doc = ReferencedDocument(name="hi")
-        self.idcheck_doc = IDCheckDocument(ref=self.referenced_doc)
+        self.idcheck_doc = IDCheckDocument(
+            enable_gj=True,
+            ref=self.referenced_doc
+        )
 
     @patch("mongoengine_goodjson.FollowReferenceField.error")
     def test_id_error(self, error):
@@ -46,7 +49,9 @@ class FollowReferenceFieldDisabledIDCheckTest(TestCase):
     def setUp(self):
         """Setup function."""
         self.referenced_doc = ReferencedDocument(name="hi")
-        self.doc = DisabledIDCheckDocument(ref=self.referenced_doc)
+        self.doc = DisabledIDCheckDocument(
+            ref=self.referenced_doc, enable_gj=True
+        )
 
     @patch("mongoengine_goodjson.FollowReferenceField.error")
     def test_id(self, error):
@@ -69,7 +74,7 @@ class FollowReferenceFieldNonDocumentCheckTest(TestCase):
         self._id = ObjectId()
         self.doc = IDCheckDocument(ref=DBRef("referenced_document", self._id))
         self.disabled_check = DisabledIDCheckDocument(
-            ref=DBRef("referenced_document", self._id)
+            enable_gj=True, ref=DBRef("referenced_document", self._id)
         )
 
     @patch("mongoengine.ReferenceField.to_mongo")
@@ -103,6 +108,7 @@ class FollowReferenceFieldReturnValueTest(DBConBase):
         self.referenced_doc.save()
         self.doc = IDCheckDocument(ref=self.referenced_doc)
         self.ref_doc = IDCheckDocument(
+            enable_gj=True,
             ref=DBRef("referenced_document", self.referenced_doc.pk)
         )
 

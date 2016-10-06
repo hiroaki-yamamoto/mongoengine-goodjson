@@ -68,6 +68,16 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
+    def begin_goodjson(self):
+        """Enable GoodJSON Flag."""
+        for fld in self._fields.values():
+            setattr(fld, "$$good_json$$", True)
+
+    def end_goodjson(self):
+        """Stop GoodJSON Flag."""
+        for fld in self._fields.values():
+            setattr(fld, "$$good_json$$", None)
+
     def to_json(self, *args, **kwargs):
         """
         Encode to human-readable json.
@@ -93,6 +103,8 @@ class Helper(object):
         if "cls" not in kwargs:
             kwargs["cls"] = GoodJSONEncoder
 
+        self.begin_goodjson()
+
         data = self.to_mongo(use_db_field)
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
@@ -109,6 +121,8 @@ class Helper(object):
             data.update(self._follow_reference(
                 max_depth, current_depth, use_db_field, *args, **kwargs
             ))
+
+        self.end_goodjson()
 
         return json.dumps(data, *args, **kwargs)
 
