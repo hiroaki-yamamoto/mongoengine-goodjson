@@ -3,12 +3,13 @@
 
 """Queryset integration tests."""
 
+import copy
 import json
 
 import mongoengine_goodjson as gj
 import mongoengine as db
 
-from .schema import User
+from .schema import User, UserReferenceNoAutoSave
 from .fixtures import users, users_dict
 from ..connection_case import DBConBase
 
@@ -19,7 +20,7 @@ class UserSerializationDesrializationTest(DBConBase):
     def setUp(self):
         """Setup."""
         self.maxDiff = None
-        for user_el in users:
+        for user_el in copy.deepcopy(users):
             user_el.save()
 
     def test_encode(self):
@@ -98,3 +99,30 @@ class QuerySetJSONExclusionTest(DBConBase):
                 model.required,
                 ("required not found at index {}").format(index)
             )
+
+
+class FollowReferenceQueryTest(DBConBase):
+    """FollowReferenceQuery Test."""
+
+    def setUp(self):
+        """Setup."""
+        self.maxDiff = None
+        self.users = users
+        self.data_users = users_dict
+        self.refs = []
+        self.data_ref_users = []
+
+        for (index, user) in enumerate(copy.deepcopy(users)):
+            user.save()
+            ref = UserReferenceNoAutoSave(ref=user)
+            ref.save()
+            self.refs.append(ref)
+            self.data_ref_users.append({
+                u"id": str(ref.id),
+                u"ref": self.data_users[index]
+            })
+
+    def test_to_json(self):
+        """The document referenced by the field should be referenced."""
+        result = json.loads(UserReferenceNoAutoSave.objects.to_json())
+        self.assertListEqual(result, self.data_ref_users)

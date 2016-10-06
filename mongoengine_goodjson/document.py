@@ -70,11 +70,14 @@ class Helper(object):
 
     def begin_goodjson(self):
         """Enable GoodJSON Flag."""
+        setattr(self, "$$good_json$$", True)
         for fld in self._fields.values():
             setattr(fld, "$$good_json$$", True)
 
     def end_goodjson(self):
         """Stop GoodJSON Flag."""
+        setattr(self, "$$good_json$$", None)
+        delattr(self, "$$good_json$$")
         for fld in self._fields.values():
             setattr(fld, "$$good_json$$", None)
 
