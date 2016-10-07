@@ -24,8 +24,12 @@ class UserSerializationDesrializationTest(DBConBase):
 
     def test_encode(self):
         """The data should be encoded properly."""
-        result = json.loads(User.objects.to_json())
-        self.assertListEqual(result, users_dict)
+        result = sorted(
+            json.loads(User.objects.to_json()), key=lambda obj: obj["id"]
+        )
+        self.assertSequenceEqual(
+            sorted(result, key=lambda obj: obj["id"]), users_dict
+        )
 
     def test_decode(self):
         """The data should be decoded properly."""
