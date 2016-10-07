@@ -17,5 +17,5 @@ class DBConBase(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Setup database connection."""
+        """Teardown database connection."""
         cls.db.drop_database("goodjson_test")
