@@ -107,20 +107,26 @@ class FollowReferenceQueryTest(DBConBase):
     def setUp(self):
         """Setup."""
         self.maxDiff = None
-        self.users = users
+        self.users = copy.deepcopy(users)
         self.data_users = users_dict
         self.refs = []
         self.data_ref_users = []
 
-        for (index, user) in enumerate(copy.deepcopy(users)):
+        for (index, user) in enumerate(self.users):
             user.save()
-            ref = UserReferenceNoAutoSave(ref=user)
+            ref = UserReferenceNoAutoSave(
+                ref=user,
+                refs=[ruser for ruser in self.users if ruser != user]
+            )
             ref.save()
             self.refs.append(ref)
             self.data_ref_users.append({
                 u"id": str(ref.id),
                 u"ref": self.data_users[index],
-                u"refs": []
+                u"refs": [
+                    duser for duser in self.data_users
+                    if duser != self.data_users[index]
+                ]
             })
 
     def test_to_json(self):
