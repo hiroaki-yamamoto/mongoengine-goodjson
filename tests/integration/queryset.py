@@ -119,7 +119,8 @@ class FollowReferenceQueryTest(DBConBase):
             self.refs.append(ref)
             self.data_ref_users.append({
                 u"id": str(ref.id),
-                u"ref": self.data_users[index]
+                u"ref": self.data_users[index],
+                u"refs": []
             })
 
     def test_to_json(self):
