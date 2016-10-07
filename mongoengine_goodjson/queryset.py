@@ -24,22 +24,32 @@ class QuerySet(db.QuerySet):
         setattr(self, "$$good_json$$", None)
         delattr(self, "$$good_json$$")
 
+    def __get_doc(self, item, fld):
+        """Get document as dict or a list of documents."""
+        from mongoengine_goodjson.fields import FollowReferenceField
+        result = item
+        if isinstance(item, list):
+            result = [self.__get_doc(el, fld.field) for el in item]
+        if isinstance(fld, FollowReferenceField):
+            doc = fld.document_type.objects(id=item).get()
+            doc.begin_goodjson()
+            result = doc.to_mongo()
+            doc.end_goodjson()
+        if isinstance(result, dict) and "id" not in result and "_id" in result:
+            result["id"] = result.pop("_id")
+        return result
+
     def as_pymongo(self, *args, **kwargs):
         """Return pymongo encoded dict."""
-        from mongoengine_goodjson.fields import FollowReferenceField
-        from pprint import pprint
         lst = super(QuerySet, self).as_pymongo()
         if getattr(self, "$$good_json$$", None):
             for item in lst:
                 for (name, fld) in self._document._fields.items():
-                    if isinstance(fld, FollowReferenceField):
-                        doc = fld.document_type.objects(id=item[name]).get()
-                        doc.begin_goodjson()
-                        item[name] = doc.to_mongo()
-                        doc.end_goodjson()
-                        if "id" not in item[name] and "_id" in item[name]:
-                            item[name]["id"] = item[name].pop("_id")
-        pprint(list(lst))
+                    if name == "id":
+                        name = "_id"
+                    item[name] = self.__get_doc(item[name], fld)
+                if "id" not in item and "_id" in item:
+                    item["id"] = item.pop("_id")
         return lst
 
     def to_json(self, *args, **kwargs):
@@ -60,7 +70,6 @@ class QuerySet(db.QuerySet):
             ])
         ]
         for dct in lst:
-            dct["id"] = dct.pop("_id", None)
             for exc in exclude:
                 dct.pop(exc, None)
         return json.dumps(lst, *args, **kwargs)
