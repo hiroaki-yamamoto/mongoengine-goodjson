@@ -14,6 +14,12 @@ class Helper(object):
     """Helper class."""
 
     begin_goodjson = six.get_unbound_function(gj_doc.Helper.begin_goodjson)
+    __set_gj_flag_sub_field = six.get_unbound_function(
+        gj_doc.Helper.__set_gj_flag_sub_field
+    )
+    __unset_gj_flag_sub_field = six.get_unbound_function(
+        gj_doc.Helper.__unset_gj_flag_sub_field
+    )
 
 
 class ReferencedDocument(db.Document):

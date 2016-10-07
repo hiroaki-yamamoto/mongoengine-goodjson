@@ -68,18 +68,34 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
+    def __set_gj_flag_sub_field(self, fld):
+        """Set $$good_json$$ flag to subfield."""
+        if hasattr(fld, "field"):
+            setattr(fld.field, "$$good_json$$", True)
+            self.__set_gj_flag_sub_field(fld.field)
+
+    def __unset_gj_flag_sub_field(self, fld):
+        """Unset $$good_json$$ to subfield."""
+        if hasattr(fld, "field"):
+            setattr(fld.field, "$$good_json$$", None)
+            delattr(fld.field, "$$good_json$$")
+            self.__unset_gj_flag_sub_field(fld.field)
+
     def begin_goodjson(self):
         """Enable GoodJSON Flag."""
         setattr(self, "$$good_json$$", True)
         for fld in self._fields.values():
             setattr(fld, "$$good_json$$", True)
+            self.__set_gj_flag_sub_field(fld)
 
     def end_goodjson(self):
         """Stop GoodJSON Flag."""
         setattr(self, "$$good_json$$", None)
         delattr(self, "$$good_json$$")
         for fld in self._fields.values():
+            self.__unset_gj_flag_sub_field(fld)
             setattr(fld, "$$good_json$$", None)
+            delattr(fld, "$$good_json$$")
 
     def to_json(self, *args, **kwargs):
         """

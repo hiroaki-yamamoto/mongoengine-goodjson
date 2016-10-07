@@ -195,62 +195,84 @@ class FollowReferenceFieldTest(DBConBase):
         self.Doc = UserReferenceNoAutoSave
         self.AutoSaveDoc = UserReferenceAutoSave
         self.DocNoIDCheck = UserReferenceDisabledIDCheck
-        self.ref_doc = self.RefDoc(name="Test")
+        self.ref_docs = [
+            self.RefDoc(
+                id=ObjectId(),
+                name=("Test {}").format(counter)
+            ) for counter in range(3)
+        ]
+        self.data_ref_docs = [
+            {u"id": str(ref_doc.id), u"name": ref_doc.name, u"address": []}
+            for ref_doc in self.ref_docs
+        ]
         self.doc = self.Doc()
         self.non_id_check_doc = self.DocNoIDCheck()
         self.autosave_doc = self.AutoSaveDoc()
         self.data = {
             u"id": str(ObjectId()),
             u"ref": {
-                u"id": str(ObjectId()),
-                u"name": self.ref_doc.name,
+                u"id": str(self.ref_docs[0].id),
+                u"name": self.ref_docs[0].name,
                 u"address": []
-            }
+            },
+            u"refs": []
         }
 
     def tearDown(self):
         """Teardown class."""
+        self.RefDoc.drop_collection()
         self.Doc.drop_collection()
         self.AutoSaveDoc.drop_collection()
         self.DocNoIDCheck.drop_collection()
 
     def test_serialization_with_save(self):
         """The serializer should follow the referenced doc."""
-        self.ref_doc.save()
-        self.doc.ref = self.ref_doc
+        for doc in self.ref_docs:
+            doc.save()
+        self.doc.ref = self.ref_docs[0]
+        self.doc.refs = [
+            doc for doc in self.ref_docs if doc != self.ref_docs[0]
+        ]
         self.doc.save()
         result = json.loads(self.doc.to_json())
         self.assertDictEqual({
             u"id": str(self.doc.pk),
             u"ref": {
-                u"id": str(self.ref_doc.pk),
-                u"name": self.ref_doc.name,
+                u"id": str(self.ref_docs[0].pk),
+                u"name": self.ref_docs[0].name,
                 u"address": []
-            }
+            },
+            u"refs": [
+                d for d in self.data_ref_docs if d != self.data_ref_docs[0]
+            ]
         }, result)
 
     def test_serialization_without_save(self):
         """The serializer should follow the referenced doc (no ID check)."""
-        self.non_id_check_doc.ref = self.ref_doc
+        self.non_id_check_doc.ref = self.ref_docs[0]
         result = json.loads(self.non_id_check_doc.to_json())
         self.assertDictEqual({
             u"ref": {
-                u"name": self.ref_doc.name,
+                u"id": str(self.ref_docs[0].id),
+                u"name": self.ref_docs[0].name,
                 u"address": []
-            }
+            },
+            u"refs": []
         }, result)
 
     def test_serialization_with_follow_reference_true(self):
         """The serializer should work properly."""
-        self.non_id_check_doc.ref = self.ref_doc
+        self.non_id_check_doc.ref = self.ref_docs[0]
         result = json.loads(
             self.non_id_check_doc.to_json(follow_reference=True)
         )
         self.assertDictEqual({
             u"ref": {
-                u"name": self.ref_doc.name,
+                u"id": str(self.ref_docs[0].id),
+                u"name": self.ref_docs[0].name,
                 u"address": []
-            }
+            },
+            u"refs": []
         }, result)
 
     def test_deserialization_without_autosave(self):

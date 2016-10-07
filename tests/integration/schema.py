@@ -28,18 +28,21 @@ class UserReferenceNoAutoSave(Document):
     """Test schema."""
 
     ref = FollowReferenceField(User)
+    refs = db.ListField(FollowReferenceField(User))
 
 
 class UserReferenceDisabledIDCheck(Document):
     """Test schema."""
 
     ref = FollowReferenceField(User, id_check=False)
+    refs = db.ListField(FollowReferenceField(User, id_check=False))
 
 
 class UserReferenceAutoSave(Document):
     """Test schema."""
 
     ref = FollowReferenceField(User, autosave=True)
+    refs = db.ListField(FollowReferenceField(User, autosave=True))
 
 
 class Email(Document):
