@@ -68,31 +68,49 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
-    def __set_gj_flag_sub_field(self, fld):
+    def __set_gj_flag_sub_field(self, instance, fld):
         """Set $$good_json$$ flag to subfield."""
-        if hasattr(fld, "field"):
-            setattr(fld.field, "$$good_json$$", True)
-            self.__set_gj_flag_sub_field(fld.field)
+        @singledispatch
+        def set_flag_recursive(instance, fld):
+            setattr(fld, "$$good_json$$", True)
 
-    def __unset_gj_flag_sub_field(self, fld):
+        @set_flag_recursive.register(list)
+        def set_flag_list(instance, fld):
+            from .fields import FollowReferenceField
+            setattr(fld.field, "$$good_json$$", True)
+            if isinstance(fld.field, FollowReferenceField):
+                for item in instance:
+                    item.begin_goodjson()
+
+        set_flag_recursive(instance, fld)
+
+    def __unset_gj_flag_sub_field(self, instance, fld):
         """Unset $$good_json$$ to subfield."""
-        if hasattr(fld, "field"):
+        @singledispatch
+        def unset_flag_recursive(instance, fld):
+            setattr(fld, "$$good_json$$", None)
+            delattr(fld, "$$good_json$$")
+
+        @unset_flag_recursive.register(list)
+        def unset_flag_list(instance, fld):
+            from .fields import FollowReferenceField
             setattr(fld.field, "$$good_json$$", None)
             delattr(fld.field, "$$good_json$$")
-            self.__unset_gj_flag_sub_field(fld.field)
+            for item in instance:
+                if isinstance(fld.field, FollowReferenceField):
+                    item.begin_goodjson()
+
+        unset_flag_recursive(instance, fld)
 
     def begin_goodjson(self):
         """Enable GoodJSON Flag."""
-        for fld in self._fields.values():
-            setattr(fld, "$$good_json$$", True)
-            self.__set_gj_flag_sub_field(fld)
+        for (name, fld) in self._fields.items():
+            self.__set_gj_flag_sub_field(getattr(self, name), fld)
 
     def end_goodjson(self):
         """Stop GoodJSON Flag."""
-        for fld in self._fields.values():
-            self.__unset_gj_flag_sub_field(fld)
-            setattr(fld, "$$good_json$$", None)
-            delattr(fld, "$$good_json$$")
+        for (name, fld) in self._fields.items():
+            self.__unset_gj_flag_sub_field(getattr(self, name), fld)
 
     def to_json(self, *args, **kwargs):
         """
