@@ -335,12 +335,9 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
         ]
         self.instance_data_ref2 = [
             {
-                "id": self.data_ref2[counter]["id"],
-                "refs": [
-                    item["id"] for (index, item) in enumerate(self.data_ref1)
-                    if index != counter
-                ]
-            } for counter in range(len(self.data_ref1))
+                "id": ref2["id"],
+                "refs": [item["id"] for item in ref2["refs"]]
+            } for ref2 in self.data_ref2
         ]
         self.data_ref25 = [
             {
@@ -375,21 +372,10 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
         ]
         self.instance_data_ref3 = [
             {
-                "id": self.data_ref3[counter]["id"],
-                "ref": self.instance_data_ref2[counter]["id"],
-                "refs": [
-                    item["id"]
-                    for (index, item) in enumerate(self.instance_data_ref2)
-                    if index != counter
-                ],
-                "oids": self.data_ref3[counter]["oids"],
-                "emb": self.instance_data_ref25[counter],
-                "embs": [
-                    data
-                    for (index, data) in enumerate(self.instance_data_ref25)
-                    if index != counter
-                ]
-            } for counter in range(len(self.data_ref2))
+                k: ([el["id"] for el in v] if isinstance(v, list) else v["id"])
+                if v in ["ref", "refs"] else v
+                for (k, v) in item.items()
+            } for item in self.data_ref3
         ]
 
     def test_to_json(self):
