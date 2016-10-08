@@ -79,8 +79,6 @@ class Helper(object):
         @set_flag_recursive.register(db.ListField)
         def set_flag_list(fld, instance):
             setattr(fld.field, "$$good_json$$", True)
-            for item in instance:
-                set_flag_recursive(fld.field, item)
 
         @set_flag_recursive.register(db.EmbeddedDocumentField)
         def set_flag_emb(fld, instance):
@@ -98,17 +96,17 @@ class Helper(object):
         """Unset $$good_json$$ to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
-        @singledispatch
-        def unset_flag_recursive(fld, instance):
+        def unset_flag(fld):
             setattr(fld, "$$good_json$$", None)
             delattr(fld, "$$good_json$$")
 
+        @singledispatch
+        def unset_flag_recursive(fld, instance):
+            unset_flag(fld)
+
         @unset_flag_recursive.register(db.ListField)
         def unset_flag_list(fld, instance):
-            setattr(fld.field, "$$good_json$$", None)
-            delattr(fld.field, "$$good_json$$")
-            for item in instance:
-                unset_flag_recursive(fld.field, item)
+            unset_flag(fld.field)
 
         @unset_flag_recursive.register(db.EmbeddedDocumentField)
         def unset_flag_emb(fld, instance):
@@ -117,10 +115,8 @@ class Helper(object):
 
         @unset_flag_recursive.register(FollowReferenceField)
         def unset_flag_self(fld, instance):
-            setattr(fld, "$$good_json$$", None)
-            delattr(fld, "$$good_json$$")
-            setattr(fld.document_type, "$$good_json$$", None)
-            delattr(fld.document_type, "$$good_json$$")
+            unset_flag(fld)
+            unset_flag(fld.document_type)
 
         unset_flag_recursive(fld, instance)
 
