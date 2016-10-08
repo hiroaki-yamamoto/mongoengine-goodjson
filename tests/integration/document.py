@@ -301,9 +301,15 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
         class Ref2(gj.Document):
             refs = db.ListField(gj.FollowReferenceField(Ref1))
 
+        class Ref25(gj.EmbeddedDocument):
+            ref = gj.FollowReferenceField(Ref2)
+            refs = db.ListField(gj.FollowReferenceField(Ref2))
+
         class Ref3(gj.Document):
             ref = gj.FollowReferenceField(Ref2)
             refs = db.ListField(gj.FollowReferenceField(Ref2))
+            emb = db.EmbeddedDocumentField(Ref25)
+            embs = db.EmbeddedDocumentListField(Ref25)
             oids = db.ListField(db.ObjectIdField(), default=[
                 ObjectId for ignore in range(3)
             ])
@@ -336,6 +342,21 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
                 ]
             } for counter in range(len(self.data_ref1))
         ]
+        self.data_ref25 = [
+            {
+                "ref": self.data_ref2[counter],
+                "refs": [
+                    data for (index, data) in enumerate(self.data_ref2)
+                    if index != counter
+                ]
+            } for counter in range(len(self.data_ref2))
+        ]
+        self.instance_data_ref25 = [
+            {
+                "ref": ref["ref"]["id"],
+                "refs": [data["id"] for data in ref["refs"]]
+            } for ref in self.data_ref25
+        ]
         self.data_ref3 = [
             {
                 "id": str(ObjectId()),
@@ -344,7 +365,12 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
                     item for (index, item) in enumerate(self.data_ref2)
                     if index != counter
                 ],
-                "oids": [str(ObjectId()) for ignore in range(4)]
+                "oids": [str(ObjectId()) for ignore in range(4)],
+                "emb": self.data_ref25[counter],
+                "embs": [
+                    data for (index, data) in enumerate(self.data_ref25)
+                    if index != counter
+                ]
             } for counter in range(len(self.data_ref2))
         ]
         self.instance_data_ref3 = [
@@ -356,7 +382,13 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
                     for (index, item) in enumerate(self.instance_data_ref2)
                     if index != counter
                 ],
-                "oids": self.data_ref3[counter]["oids"]
+                "oids": self.data_ref3[counter]["oids"],
+                "emb": self.instance_data_ref25[counter],
+                "embs": [
+                    data
+                    for (index, data) in enumerate(self.instance_data_ref25)
+                    if index != counter
+                ]
             } for counter in range(len(self.data_ref2))
         ]
 
