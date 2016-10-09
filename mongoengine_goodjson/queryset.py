@@ -5,6 +5,11 @@
 
 import json
 
+try:
+    from functools import singledispatch
+except:
+    from singledispatch import singledispatch
+
 import bson
 import mongoengine as db
 
@@ -24,17 +29,28 @@ class QuerySet(db.QuerySet):
         setattr(self, "$$good_json$$", None)
         delattr(self, "$$good_json$$")
 
-    def __get_doc(self, item, fld):
+    def __get_doc(self, fld, item):
         """Get document as dict or a list of documents."""
         from mongoengine_goodjson.fields import FollowReferenceField
-        result = item
-        if isinstance(item, list):
-            result = [self.__get_doc(el, fld.field) for el in item]
-        if isinstance(fld, FollowReferenceField):
+
+        @singledispatch
+        def doc(fld, item):
+            return item
+
+        @doc.register(db.ListField)
+        def doc_list(fld, item):
+            return [self.__get_doc(fld.field, el) for el in item]
+
+        @doc.register(FollowReferenceField)
+        def doc_frl(fld, item):
             doc = fld.document_type.objects(id=item).get()
             doc.begin_goodjson()
             result = doc.to_mongo()
             doc.end_goodjson()
+            return result
+
+        result = doc(fld, item)
+
         if isinstance(result, dict) and "id" not in result and "_id" in result:
             result["id"] = result.pop("_id")
         return result
@@ -47,7 +63,7 @@ class QuerySet(db.QuerySet):
                 for (name, fld) in self._document._fields.items():
                     if name == "id":
                         name = "_id"
-                    item[name] = self.__get_doc(item[name], fld)
+                    item[name] = self.__get_doc(fld, item[name])
                 if "id" not in item and "_id" in item:
                     item["id"] = item.pop("_id")
         return lst
