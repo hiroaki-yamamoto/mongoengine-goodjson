@@ -68,34 +68,76 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
-    def __set_gj_flag_sub_field(self, fld):
+    def __set_gj_flag_sub_field(self, instance, fld):
         """Set $$good_json$$ flag to subfield."""
-        if hasattr(fld, "field"):
-            setattr(fld.field, "$$good_json$$", True)
-            self.__set_gj_flag_sub_field(fld.field)
+        from mongoengine_goodjson.fields import FollowReferenceField
 
-    def __unset_gj_flag_sub_field(self, fld):
+        @singledispatch
+        def set_flag_recursive(fld, instance):
+            setattr(fld, "$$good_json$$", True)
+
+        @set_flag_recursive.register(db.ListField)
+        def set_flag_list(fld, instance):
+            setattr(fld.field, "$$good_json$$", True)
+
+        @set_flag_recursive.register(db.EmbeddedDocumentField)
+        def set_flag_emb(fld, instance):
+            if isinstance(instance, Helper):
+                instance.begin_goodjson()
+
+        @set_flag_recursive.register(FollowReferenceField)
+        def set_flag_self(fld, instance):
+            setattr(fld, "$$good_json$$", True)
+            setattr(fld.document_type, "$$good_json$$", True)
+
+        set_flag_recursive(fld, instance)
+
+    def __unset_gj_flag_sub_field(self, instance, fld):
         """Unset $$good_json$$ to subfield."""
-        if hasattr(fld, "field"):
-            setattr(fld.field, "$$good_json$$", None)
-            delattr(fld.field, "$$good_json$$")
-            self.__unset_gj_flag_sub_field(fld.field)
+        from mongoengine_goodjson.fields import FollowReferenceField
+
+        def unset_flag(fld):
+            setattr(fld, "$$good_json$$", None)
+            delattr(fld, "$$good_json$$")
+
+        @singledispatch
+        def unset_flag_recursive(fld, instance):
+            unset_flag(fld)
+
+        @unset_flag_recursive.register(db.ListField)
+        def unset_flag_list(fld, instance):
+            unset_flag(fld.field)
+
+        @unset_flag_recursive.register(db.EmbeddedDocumentField)
+        def unset_flag_emb(fld, instance):
+            if isinstance(instance, Helper):
+                instance.end_goodjson()
+
+        @unset_flag_recursive.register(FollowReferenceField)
+        def unset_flag_self(fld, instance):
+            unset_flag(fld)
+            unset_flag(fld.document_type)
+
+        unset_flag_recursive(fld, instance)
 
     def begin_goodjson(self):
         """Enable GoodJSON Flag."""
-        setattr(self, "$$good_json$$", True)
-        for fld in self._fields.values():
-            setattr(fld, "$$good_json$$", True)
-            self.__set_gj_flag_sub_field(fld)
+        for (name, fld) in self._fields.items():
+            self.__set_gj_flag_sub_field(getattr(self, name), fld)
 
     def end_goodjson(self):
         """Stop GoodJSON Flag."""
-        setattr(self, "$$good_json$$", None)
-        delattr(self, "$$good_json$$")
-        for fld in self._fields.values():
-            self.__unset_gj_flag_sub_field(fld)
-            setattr(fld, "$$good_json$$", None)
-            delattr(fld, "$$good_json$$")
+        for (name, fld) in self._fields.items():
+            self.__unset_gj_flag_sub_field(getattr(self, name), fld)
+
+    def to_mongo(self, *args, **kwargs):
+        """Convert into mongodb compatible dict."""
+        if getattr(self, "$$good_json$$", None):
+            self.begin_goodjson()
+        result = super(Helper, self).to_mongo(*args, **kwargs)
+        if getattr(self, "$$good_json$$", None):
+            self.end_goodjson()
+        return result
 
     def to_json(self, *args, **kwargs):
         """

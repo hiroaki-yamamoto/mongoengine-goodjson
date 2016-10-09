@@ -191,6 +191,7 @@ class FollowReferenceFieldTest(DBConBase):
 
     def setUp(self):
         """Setup."""
+        self.maxDiff = None
         self.RefDoc = User
         self.Doc = UserReferenceNoAutoSave
         self.AutoSaveDoc = UserReferenceAutoSave
@@ -213,7 +214,7 @@ class FollowReferenceFieldTest(DBConBase):
             u"ref": {
                 u"id": str(self.ref_docs[0].id),
                 u"name": self.ref_docs[0].name,
-                u"address": []
+                u"address": [],
             },
             u"refs": []
         }
@@ -234,6 +235,7 @@ class FollowReferenceFieldTest(DBConBase):
             doc for doc in self.ref_docs if doc != self.ref_docs[0]
         ]
         self.doc.save()
+
         result = json.loads(self.doc.to_json())
         self.assertDictEqual({
             u"id": str(self.doc.pk),
@@ -284,3 +286,111 @@ class FollowReferenceFieldTest(DBConBase):
         """The deserializer should work (autosave)."""
         result = self.AutoSaveDoc.from_json(json.dumps(self.data))
         self.assertDictEqual(self.data, json.loads(result.to_json()))
+
+
+class FollowReferenceFieldListRecursionTest(DBConBase):
+    """Follow Reference Field List Recursion test."""
+
+    def setUp(self):
+        """Setup."""
+        self.maxDiff = None
+
+        class Ref1(gj.Document):
+            name = db.StringField()
+
+        class Ref2(gj.Document):
+            refs = db.ListField(gj.FollowReferenceField(Ref1))
+
+        class Ref25(gj.EmbeddedDocument):
+            ref = gj.FollowReferenceField(Ref2)
+            refs = db.ListField(gj.FollowReferenceField(Ref2))
+
+        class Ref3(gj.Document):
+            ref = gj.FollowReferenceField(Ref2)
+            refs = db.ListField(gj.FollowReferenceField(Ref2))
+            emb = db.EmbeddedDocumentField(Ref25)
+            embs = db.EmbeddedDocumentListField(Ref25)
+            oids = db.ListField(db.ObjectIdField(), default=[
+                ObjectId for ignore in range(3)
+            ])
+
+        self.ref1_cls = Ref1
+        self.ref2_cls = Ref2
+        self.ref3_cls = Ref3
+
+        self.data_ref1 = [
+            {
+                "id": str(ObjectId()),
+                "name": ("Test {}").format(counter)
+            } for counter in range(3)
+        ]
+        self.data_ref2 = [
+            {
+                "id": str(ObjectId()),
+                "refs": [
+                    item for (index, item) in enumerate(self.data_ref1)
+                    if index != counter
+                ]
+            } for counter in range(len(self.data_ref1))
+        ]
+        self.instance_data_ref2 = [
+            {
+                "id": ref2["id"],
+                "refs": [item["id"] for item in ref2["refs"]]
+            } for ref2 in self.data_ref2
+        ]
+        self.data_ref25 = [
+            {
+                "ref": self.data_ref2[counter],
+                "refs": [
+                    data for (index, data) in enumerate(self.data_ref2)
+                    if index != counter
+                ]
+            } for counter in range(len(self.data_ref2))
+        ]
+        self.instance_data_ref25 = [
+            {
+                "ref": ref["ref"]["id"],
+                "refs": [data["id"] for data in ref["refs"]]
+            } for ref in self.data_ref25
+        ]
+        self.data_ref3 = [
+            {
+                "id": str(ObjectId()),
+                "ref": self.data_ref2[counter],
+                "refs": [
+                    item for (index, item) in enumerate(self.data_ref2)
+                    if index != counter
+                ],
+                "oids": [str(ObjectId()) for ignore in range(4)],
+                "emb": self.data_ref25[counter],
+                "embs": [
+                    data for (index, data) in enumerate(self.data_ref25)
+                    if index != counter
+                ]
+            } for counter in range(len(self.data_ref2))
+        ]
+        self.instance_data_ref3 = [
+            {
+                k: ([el["id"] for el in v] if isinstance(v, list) else v["id"])
+                if v in ["ref", "refs"] else v
+                for (k, v) in item.items()
+            } for item in self.data_ref3
+        ]
+
+    def test_to_json(self):
+        """Test to_json."""
+        for item in self.data_ref1:
+            self.ref1_cls(**item).save()
+        for item in self.instance_data_ref2:
+            self.ref2_cls(**item).save()
+        for item in self.instance_data_ref3:
+            self.ref3_cls(**item).save()
+        results = [
+            json.loads(item.to_json())
+            for item in self.ref3_cls.objects()
+        ]
+        self.assertSequenceEqual(
+            sorted(results, key=lambda obj: obj["id"]),
+            sorted(self.data_ref3, key=lambda obj: obj["id"])
+        )

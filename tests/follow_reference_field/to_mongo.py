@@ -66,7 +66,7 @@ class FollowReferenceFieldDisabledIDCheckTest(TestCase):
         to_mongo.assert_not_called()
 
 
-class FollowReferenceFieldNonDocumentCheckTest(TestCase):
+class FollowReferenceFieldNonDocumentCheckTest(DBConBase):
     """Test case when the referenced data is not Document."""
 
     def setUp(self):
