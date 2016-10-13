@@ -47,17 +47,21 @@ class FollowReferenceField(db.ReferenceField):
             return super(FollowReferenceField, self).to_mongo(
                 document, **kwargs
             )
-        ret = document
+        doc = document
         if isinstance(document, db.Document):
             if document.pk is None and self.id_check:
                 self.error("The referenced document needs ID.")
         else:
-            ret = self.document_type.objects(
+            doc = self.document_type.objects(
                 pk=super(
                     FollowReferenceField, self
                 ).to_mongo(document, **kwargs)
             ).get()
-        ret = ret.to_mongo(**kwargs)
+        if isinstance(doc, Document):
+            doc.begin_goodjson()
+        ret = doc.to_mongo(**kwargs)
+        if isinstance(doc, Document):
+            doc.end_goodjson()
         if "_id" in ret and issubclass(self.document_type, Document):
             ret["id"] = ret.pop("_id", None)
         return ret

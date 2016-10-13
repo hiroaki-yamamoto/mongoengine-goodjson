@@ -88,7 +88,6 @@ class Helper(object):
         @set_flag_recursive.register(FollowReferenceField)
         def set_flag_self(fld, instance):
             setattr(fld, "$$good_json$$", True)
-            setattr(fld.document_type, "$$good_json$$", True)
 
         set_flag_recursive(fld, instance)
 
@@ -116,7 +115,6 @@ class Helper(object):
         @unset_flag_recursive.register(FollowReferenceField)
         def unset_flag_self(fld, instance):
             unset_flag(fld)
-            unset_flag(fld.document_type)
 
         unset_flag_recursive(fld, instance)
 
