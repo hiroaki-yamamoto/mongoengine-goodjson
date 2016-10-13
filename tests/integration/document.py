@@ -394,3 +394,32 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
             sorted(results, key=lambda obj: obj["id"]),
             sorted(self.data_ref3, key=lambda obj: obj["id"])
         )
+
+
+class FollowReferenceFieldDefaultRecursionLimitTest(DBConBase):
+    """Follow Reference Test Default Recusrion Test."""
+
+    def setUp(self):
+        """Setup."""
+        self.maxDiff = None
+
+        class ModelCls(gj.Document):
+            name = db.StringField()
+            ref = gj.FollowReferenceField("self")
+
+        self.model_cls = ModelCls
+        self.model = self.model_cls(name="test")
+        self.model.save()
+        self.model.ref = self.model
+        self.model.save()
+
+        self.data = {u"id": str(self.model.id), u"name": "test"}
+        self.data["ref"] = self.data.copy()
+        self.data["ref"]["ref"] = self.data["ref"].copy()
+        self.data["ref"]["ref"]["ref"] = self.data["ref"]["ref"].copy()
+        self.data["ref"]["ref"]["ref"]["ref"] = self.data["id"]
+
+    def test_recursion_limit(self):
+        """The result should have just 3-level depth."""
+        result = json.loads(self.model.to_json())
+        self.assertDictEqual(self.data, result)

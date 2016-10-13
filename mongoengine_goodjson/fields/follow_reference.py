@@ -31,9 +31,12 @@ class FollowReferenceField(db.ReferenceField):
                 True
             autosave: Set True to save/update the referenced document when
                 to_python is called.
+            max_depth: Set natural value to set depath limit for
+                loop-reference. By default this value is set to 3.
         """
         self.id_check = kwargs.pop("id_check", True)
         self.autosave = kwargs.pop("autosave", False)
+        self.max_depth = kwargs.pop("max_depth", 3)
         super(FollowReferenceField, self).__init__(*args, **kwargs)
 
     def to_mongo(self, document, **kwargs):
@@ -43,7 +46,9 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             document: The document.
         """
-        if not getattr(self, "$$good_json$$", None):
+        cur_depth = getattr(self, "$$cur_depth$$", self.max_depth)
+        if not getattr(self, "$$good_json$$", None) or \
+                cur_depth >= self.max_depth:
             return super(FollowReferenceField, self).to_mongo(
                 document, **kwargs
             )
@@ -58,10 +63,10 @@ class FollowReferenceField(db.ReferenceField):
                 ).to_mongo(document, **kwargs)
             ).get()
         if isinstance(doc, Document):
-            doc.begin_goodjson()
+            doc.begin_goodjson(cur_depth + 1)
         ret = doc.to_mongo(**kwargs)
         if isinstance(doc, Document):
-            doc.end_goodjson()
+            doc.end_goodjson(cur_depth + 1)
         if "_id" in ret and issubclass(self.document_type, Document):
             ret["id"] = ret.pop("_id", None)
         return ret
