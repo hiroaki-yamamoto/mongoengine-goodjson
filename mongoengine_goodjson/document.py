@@ -140,11 +140,7 @@ class Helper(object):
 
     def to_mongo(self, *args, **kwargs):
         """Convert into mongodb compatible dict."""
-        if getattr(self, "$$good_json$$", None):
-            self.begin_goodjson()
         result = super(Helper, self).to_mongo(*args, **kwargs)
-        if getattr(self, "$$good_json$$", None):
-            self.end_goodjson()
         return result
 
     def to_json(self, *args, **kwargs):
