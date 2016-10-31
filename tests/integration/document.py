@@ -399,13 +399,13 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
 class FollowReferenceFieldDefaultRecursionLimitTest(DBConBase):
     """Follow Reference Test Default Recusrion Test."""
 
-    def setUp(self):
+    def setUp(self, **kwargs):
         """Setup."""
         self.maxDiff = None
 
         class ModelCls(gj.Document):
             name = db.StringField()
-            ref = gj.FollowReferenceField("self")
+            ref = gj.FollowReferenceField("self", **kwargs.copy())
 
         self.model_cls = ModelCls
         self.model = self.model_cls(name="test")
@@ -414,12 +414,45 @@ class FollowReferenceFieldDefaultRecursionLimitTest(DBConBase):
         self.model.save()
 
         self.data = {u"id": str(self.model.id), u"name": "test"}
-        self.data["ref"] = self.data.copy()
-        self.data["ref"]["ref"] = self.data["ref"].copy()
-        self.data["ref"]["ref"]["ref"] = self.data["ref"]["ref"].copy()
-        self.data["ref"]["ref"]["ref"]["ref"] = self.data["id"]
+        cur_depth = self.data
+        for index in range(kwargs.get("max_depth", 3) or 3):
+            cur_depth["ref"] = cur_depth.copy()
+            cur_depth = cur_depth["ref"]
+        cur_depth["ref"] = self.data["id"]
 
     def test_recursion_limit(self):
         """The result should have just 3-level depth."""
+        result = json.loads(self.model.to_json())
+        self.assertDictEqual(self.data, result)
+
+
+class FollowReferenceFieldRecursionNoneTest(
+    FollowReferenceFieldDefaultRecursionLimitTest
+):
+    """Follow Reference Test self recursion with None Test."""
+
+    def setUp(self):
+        """Setup."""
+        super(
+            FollowReferenceFieldRecursionNoneTest, self
+        ).setUp(max_depth=None)
+
+    def test_recursion_limit(self):
+        """The result should have just 3-level depth."""
+        result = json.loads(self.model.to_json())
+        self.assertDictEqual(self.data, result)
+
+
+class FollowReferenceFieldRecursionNumTest(
+    FollowReferenceFieldDefaultRecursionLimitTest
+):
+    """Follow Reference Test self recursion with 5 recursions Test."""
+
+    def setUp(self):
+        """Setup."""
+        super(FollowReferenceFieldRecursionNumTest, self).setUp(max_depth=5)
+
+    def test_recursion_limit(self):
+        """The result should have just 5-level depth."""
         result = json.loads(self.model.to_json())
         self.assertDictEqual(self.data, result)

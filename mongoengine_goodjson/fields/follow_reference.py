@@ -36,7 +36,7 @@ class FollowReferenceField(db.ReferenceField):
         """
         self.id_check = kwargs.pop("id_check", True)
         self.autosave = kwargs.pop("autosave", False)
-        self.max_depth = kwargs.pop("max_depth", 3)
+        self.max_depth = kwargs.pop("max_depth", None) or 3
         super(FollowReferenceField, self).__init__(*args, **kwargs)
 
     def to_mongo(self, document, **kwargs):
