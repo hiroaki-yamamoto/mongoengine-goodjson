@@ -41,7 +41,8 @@ class FollowReferenceField(db.ReferenceField):
         self.autosave = kwargs.pop("autosave", False)
         self.max_depth = kwargs.pop("max_depth", None) or 3
         super(FollowReferenceField, self).__init__(*args, **kwargs)
-        if self.max_depth < 0 and self.document_type_obj == "self":
+        if self.max_depth < 0 and self.document_type_obj is \
+                db.fields.RECURSIVE_REFERENCE_CONSTANT:
             log.warn(
                 "[BE CAREFUL!] Unlimited self reference might cause "
                 "infinity loop! [BE CAREFUL!]"
@@ -70,11 +71,11 @@ class FollowReferenceField(db.ReferenceField):
                     FollowReferenceField, self
                 ).to_mongo(document, **kwargs)
             ).get()
-        if isinstance(doc, Document):
-            doc.begin_goodjson(cur_depth + 1)
-        ret = doc.to_mongo(**kwargs)
-        if isinstance(doc, Document):
-            doc.end_goodjson(cur_depth + 1)
+        ret = doc.to_mongo(
+            increment_depth=True,
+            cur_depth=cur_depth,
+            **kwargs
+        ) if isinstance(doc, Document) else doc.to_mongo(**kwargs)
         if "_id" in ret and issubclass(self.document_type, Document):
             ret["id"] = ret.pop("_id", None)
         return ret

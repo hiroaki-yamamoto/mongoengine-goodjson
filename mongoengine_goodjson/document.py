@@ -140,7 +140,13 @@ class Helper(object):
 
     def to_mongo(self, *args, **kwargs):
         """Convert into mongodb compatible dict."""
+        increment_depth = kwargs.pop("increment_depth", None) or False
+        cur_depth = kwargs.pop("cur_depth", None)
+        if increment_depth:
+            self.begin_goodjson(cur_depth + 1)
         result = super(Helper, self).to_mongo(*args, **kwargs)
+        if increment_depth:
+            self.end_goodjson(cur_depth + 1)
         return result
 
     def to_json(self, *args, **kwargs):

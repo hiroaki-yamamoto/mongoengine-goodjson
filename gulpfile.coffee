@@ -47,6 +47,10 @@ g.task "test", ->
       spawnInEnv "radon mi -nc mongoengine_goodjson"
   ).then(
     ->
+      console.log ("Cleaning coverage file").green
+      spawnInEnv "coverage erase"
+  ).then(
+    ->
       console.log ("Unit testing...").green
       spawnInEnv "tox"
   ).then(
