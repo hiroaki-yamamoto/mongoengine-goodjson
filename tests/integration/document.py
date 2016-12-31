@@ -6,6 +6,11 @@
 import json
 from unittest import TestCase
 
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch  # noqa
+
 from bson import ObjectId
 import mongoengine_goodjson as gj
 import mongoengine as db
@@ -456,3 +461,29 @@ class FollowReferenceFieldRecursionNumTest(
         """The result should have just 5-level depth."""
         result = json.loads(self.model.to_json())
         self.assertDictEqual(self.data, result)
+
+
+class FollowReferenceFieldNegativeRecursionTest(
+    FollowReferenceFieldDefaultRecursionLimitTest
+):
+    """In the case of the max recursion level is negative."""
+
+    @patch("mongoengine_goodjson.fields.follow_reference.log.warn")
+    def setUp(self, warn):
+        """Setup."""
+        self.warn = warn
+        super(
+            FollowReferenceFieldNegativeRecursionTest, self
+        ).setUp(max_depth=-1)
+
+    def test_warning(self):
+        """The warn should be shown."""
+        self.warn.assert_called_once_with(
+            "[BE CAREFUL!] Unlimited self reference might cause infinity loop!"
+            " [BE CAREFUL!]"
+        )
+
+    def test_recursion_limit(self):
+        """Should raise runtime error."""
+        with self.assertRaises(RuntimeError):
+            json.loads(self.model.to_json())

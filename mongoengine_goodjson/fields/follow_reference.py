@@ -4,8 +4,11 @@
 """Follow Reference Field code."""
 
 import json
+import logging
 import mongoengine as db
 from ..document import Document
+
+log = logging.getLogger(__name__)
 
 
 class FollowReferenceField(db.ReferenceField):
@@ -38,6 +41,11 @@ class FollowReferenceField(db.ReferenceField):
         self.autosave = kwargs.pop("autosave", False)
         self.max_depth = kwargs.pop("max_depth", None) or 3
         super(FollowReferenceField, self).__init__(*args, **kwargs)
+        if self.max_depth < 0 and self.document_type_obj == "self":
+            log.warn(
+                "[BE CAREFUL!] Unlimited self reference might cause "
+                "infinity loop! [BE CAREFUL!]"
+            )
 
     def to_mongo(self, document, **kwargs):
         """
@@ -48,7 +56,7 @@ class FollowReferenceField(db.ReferenceField):
         """
         cur_depth = getattr(self, "$$cur_depth$$", self.max_depth)
         if not getattr(self, "$$good_json$$", None) or \
-                cur_depth >= self.max_depth:
+                (self.max_depth > -1 and cur_depth >= self.max_depth):
             return super(FollowReferenceField, self).to_mongo(
                 document, **kwargs
             )
