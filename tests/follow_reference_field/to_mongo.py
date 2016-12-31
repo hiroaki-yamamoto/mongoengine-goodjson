@@ -3,7 +3,7 @@
 
 """FollowReferenceField to_mongo unit tests."""
 
-from unittest import TestCase
+from unittest import TestCase, skip
 
 try:
     from unittest.mock import patch, PropertyMock
@@ -66,6 +66,10 @@ class FollowReferenceFieldDisabledIDCheckTest(TestCase):
         to_mongo.assert_not_called()
 
 
+@skip(
+    "No longer needed as of 07018b50602b87207f23e1795d2ddba171902f3c, but "
+    "staying keep for historical/future reason."
+)
 class FollowReferenceFieldNonDocumentCheckTest(DBConBase):
     """Test case when the referenced data is not Document."""
 
