@@ -171,6 +171,24 @@ class RegexNativeWithoutFlagTest(TestCase):
         )
 
 
+class RegexNativeByteTest(TestCase):
+    """Native Regex test class."""
+
+    def setUp(self):
+        """Setup function."""
+        self.encoder = GoodJSONEncoder()
+        self.regex = re.compile("^[0-9]+$".encode())
+        self.expected_result = {
+            "regex": self.regex.pattern
+        }
+
+    def test_regex(self):
+        """The encoded value should be the expected value."""
+        self.assertDictContainsSubset(
+            self.expected_result, self.encoder.default(self.regex)
+        )
+
+
 class BSONRegexWithoutFlagTest(RegexNativeWithoutFlagTest):
     """SON-wrapped regex test class."""
 
@@ -220,15 +238,15 @@ for (flag_str, flag) in regex_flags.items():
             self.regex = Regex.from_native(self.regex)
 
 
-class RegexNativeWithAllFlagsTest(RegexNativeWithoutFlagTest):
-    """Native regex with flag test (ALL)."""
+class RegexNativeWithUnicodeTest(RegexNativeWithoutFlagTest):
+    """Native regex with flag test (except re.LOCALE)."""
 
     def setUp(self):
         """Setup class."""
-        super(RegexNativeWithAllFlagsTest, self).setUp()
+        super(RegexNativeWithUnicodeTest, self).setUp()
         self.regex = re.compile(
             self.regex.pattern,
-            re.IGNORECASE | re.LOCALE | re.MULTILINE |
+            re.IGNORECASE | re.MULTILINE |
             re.DOTALL | re.UNICODE | re.VERBOSE
         )
         self.actual_result = self.encoder.default(self.regex)
@@ -241,18 +259,61 @@ class RegexNativeWithAllFlagsTest(RegexNativeWithoutFlagTest):
 
     def test_flags(self):
         """The flag should be proper."""
-        flags = regex_flags.keys()
+        flags = [
+            key for (key, value) in regex_flags.items()
+            if value is not re.LOCALE
+        ]
         self.assertEqual(len(self.actual_result["flags"]), len(flags))
         for flag in flags:
             self.assertIn(flag, self.actual_result["flags"])
 
 
-class BSONRegexWitAllFlagsTest(RegexNativeWithAllFlagsTest):
+class RegexNativeWithLocaleTest(RegexNativeByteTest):
+    """Native regex with flag test (except re.UNICODE)."""
+
+    def setUp(self):
+        """Setup class."""
+        super(RegexNativeWithLocaleTest, self).setUp()
+        self.regex = re.compile(
+            self.regex.pattern,
+            re.IGNORECASE | re.MULTILINE |
+            re.DOTALL | re.LOCALE | re.VERBOSE
+        )
+        self.actual_result = self.encoder.default(self.regex)
+
+    def test_regex(self):
+        """The encoded value should be expected value."""
+        self.assertDictContainsSubset(
+            self.expected_result, self.actual_result,
+        )
+
+    def test_flags(self):
+        """The flag should be proper."""
+        flags = [
+            key for (key, value) in regex_flags.items()
+            if value is not re.UNICODE
+        ]
+        self.assertEqual(len(self.actual_result["flags"]), len(flags))
+        for flag in flags:
+            self.assertIn(flag, self.actual_result["flags"])
+
+
+class BSONRegexUnicodeTest(RegexNativeWithoutFlagTest):
     """BSON regex with flag test (individual)."""
 
     def setUp(self):
         """Setup class."""
-        super(BSONRegexWitAllFlagsTest, self).setUp()
+        super(BSONRegexUnicodeTest, self).setUp()
+        from bson import Regex
+        self.regex = Regex.from_native(self.regex)
+
+
+class BSONRegexLocaleTest(RegexNativeWithUnicodeTest):
+    """BSON regex with flag test (individual)."""
+
+    def setUp(self):
+        """Setup class."""
+        super(BSONRegexLocaleTest, self).setUp()
         from bson import Regex
         self.regex = Regex.from_native(self.regex)
 

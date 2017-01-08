@@ -56,7 +56,7 @@ g.task "test", ->
   ).then(
     ->
       console.log ("Combine the coverage").green
-      spawnInEnv "coverage combine python27.coverage python35.coverage"
+      spawnInEnv "coverage combine python27.coverage python36.coverage"
   ).then(
     ->
       console.log ("Coverage Report").green
