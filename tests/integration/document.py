@@ -487,3 +487,38 @@ class FollowReferenceFieldNegativeRecursionTest(
         """Should raise runtime error."""
         with self.assertRaises(RuntimeError):
             json.loads(self.model.to_json())
+
+
+class FollowReferenceFieldLimitRecursionComlexTypeTest(DBConBase):
+    """Follow reference field limit recursion with complex type test."""
+
+    def setUp(self):
+        """Setup."""
+        class SubDocument(gj.EmbeddedDocument):
+            parent = gj.FollowReferenceField("MainDocument")
+            ref_list = db.ListField(gj.FollowReferenceField("MainDocument"))
+
+        class MainDocument(gj.Document):
+            name = db.StringField()
+            ref_list = db.ListField(gj.FollowReferenceField("self"))
+            subdoc = db.EmbeddedDocumentField(SubDocument)
+
+        self.main_doc_cls = MainDocument
+        self.sub_doc_cls = SubDocument
+        self.main_docs = []
+        self.sub_docs = []
+
+        for counter in range(3):
+            main_doc = MainDocument(name=("Test {}").format(counter))
+            main_doc.save()
+            main_doc.save()
+            self.main_docs.append(main_doc)
+            sub_doc = SubDocument(parent=main_doc, ref_list=[main_doc])
+            sub_doc.save()
+            self.sub_docs.append(sub_doc)
+
+        for (index, doc) in enumerate(self.main_docs):
+            doc.ref_list.append(doc)
+            doc.ref_list.append(self.main_docs[index - 1])
+            doc.subdoc.ref_list.append(self.main_docs[index - 2])
+            doc.save()
