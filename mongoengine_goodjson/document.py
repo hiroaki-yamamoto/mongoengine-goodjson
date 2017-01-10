@@ -72,9 +72,9 @@ class Helper(object):
         """Set $$good_json$$ flag to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
-        def set_good_json(fld):
-            setattr(fld, "$$good_json$$", True)
-            setattr(fld, "$$cur_depth$$", cur_depth)
+        def set_good_json(traget):
+            setattr(traget, "$$good_json$$", True)
+            setattr(traget, "$$cur_depth$$", cur_depth)
 
         @singledispatch
         def set_flag_recursive(fld, instance):
@@ -100,10 +100,11 @@ class Helper(object):
         from mongoengine_goodjson.fields import FollowReferenceField
 
         def unset_flag(fld):
-            setattr(fld, "$$good_json$$", None)
-            setattr(fld, "$$cur_depth$$", None)
-            delattr(fld, "$$good_json$$")
-            delattr(fld, "$$cur_depth$$")
+            setattr(fld, "$$cur_depth$$", cur_depth - 1)
+            if getattr(fld, "$$cur_depth$$") <= 0:
+                setattr(fld, "$$good_json$$", False)
+                delattr(fld, "$$good_json$$")
+                delattr(fld, "$$cur_depth$$")
 
         @singledispatch
         def unset_flag_recursive(fld, instance):
