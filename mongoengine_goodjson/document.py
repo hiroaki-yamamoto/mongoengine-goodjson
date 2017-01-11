@@ -82,7 +82,7 @@ class Helper(object):
 
         @set_flag_recursive.register(db.ListField)
         def set_flag_list(fld, instance):
-            set_good_json(fld.field)
+            set_flag_recursive(fld.field, instance)
 
         @set_flag_recursive.register(db.EmbeddedDocumentField)
         def set_flag_emb(fld, instance):
@@ -112,7 +112,7 @@ class Helper(object):
 
         @unset_flag_recursive.register(db.ListField)
         def unset_flag_list(fld, instance):
-            unset_flag(fld.field)
+            unset_flag_recursive(fld.field, instance)
 
         @unset_flag_recursive.register(db.EmbeddedDocumentField)
         def unset_flag_emb(fld, instance):
@@ -141,13 +141,13 @@ class Helper(object):
 
     def to_mongo(self, *args, **kwargs):
         """Convert into mongodb compatible dict."""
-        increment_depth = kwargs.pop("increment_depth", None) or False
-        cur_depth = kwargs.pop("cur_depth", None)
-        if increment_depth:
-            self.begin_goodjson(cur_depth + 1)
+        cur_depth = kwargs.pop("cur_depth", None) or 0
+        good_json = bool(kwargs.pop("good_json", False))
+        if good_json:
+            self.begin_goodjson(cur_depth)
         result = super(Helper, self).to_mongo(*args, **kwargs)
-        if increment_depth:
-            self.end_goodjson(cur_depth + 1)
+        if good_json:
+            self.end_goodjson(cur_depth)
         return result
 
     def to_json(self, *args, **kwargs):
@@ -170,14 +170,14 @@ class Helper(object):
         use_db_field = kwargs.pop('use_db_field', True)
         follow_reference = kwargs.pop("follow_reference", False)
         max_depth = kwargs.pop("max_depth", 3)
-        current_depth = kwargs.pop("current_depth", 0)
+        current_depth = kwargs.pop("current_depth", 0) or 0
 
         if "cls" not in kwargs:
             kwargs["cls"] = GoodJSONEncoder
 
-        self.begin_goodjson()
-
-        data = self.to_mongo(use_db_field)
+        data = self.to_mongo(
+            use_db_field, cur_depth=current_depth, good_json=True
+        )
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
 
@@ -193,8 +193,6 @@ class Helper(object):
             data.update(self._follow_reference(
                 max_depth, current_depth, use_db_field, *args, **kwargs
             ))
-
-        self.end_goodjson()
 
         return json.dumps(data, *args, **kwargs)
 

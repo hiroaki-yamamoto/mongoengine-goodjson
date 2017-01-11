@@ -555,5 +555,6 @@ class FollowReferenceFieldLimitRecursionComlexTypeTest(DBConBase):
 
     def test_to_json(self):
         """The serialized json should be equal to the expected data."""
-        results = [json.loads(doc.to_json()) for doc in self.main_docs]
-        self.assertListEqual(self.expected_data, results)
+        result = json.loads(self.main_docs[0].to_json())
+        self.assertDictEqual(self.expected_data[0], result)
+        # self.assertListEqual(self.expected_data, results)

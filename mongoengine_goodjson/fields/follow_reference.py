@@ -72,9 +72,7 @@ class FollowReferenceField(db.ReferenceField):
                 ).to_mongo(document, **kwargs)
             ).get()
         ret = doc.to_mongo(
-            increment_depth=True,
-            cur_depth=cur_depth,
-            **kwargs
+            cur_depth=cur_depth + 1, good_json=True, **kwargs
         ) if isinstance(doc, Document) else doc.to_mongo(**kwargs)
         if "_id" in ret and issubclass(self.document_type, Document):
             ret["id"] = ret.pop("_id", None)
