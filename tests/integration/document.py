@@ -20,8 +20,9 @@ from .schema import (
     UserReferenceAutoSave, UserReferenceDisabledIDCheck
 )
 from .fixtures import (
-    user, user_dict, article, article_dict, article_dict_epoch,
-    email, email_dict_id, email_dict_email, reference, reference_dict
+    user, user_dict, article, article_dict, article_ref_fld_dict,
+    article_dict_epoch, email, email_dict_id, email_dict_email,
+    reference, reference_dict
 )
 from ..connection_case import DBConBase
 
@@ -79,6 +80,13 @@ class ToJSONNormalIntegrationTest(TestCase):
         )
         self.assertIs(type(article), self.article_cls)
         self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
+
+    def test_normal_follow_reference(self):
+        """The to_json(follow_reference=True) should follow the reference."""
+        self.assertEqual(
+            json.loads(self.article.to_json(follow_reference=True)),
+            article_ref_fld_dict
+        )
 
 
 class JSONExclusionTest(DBConBase):

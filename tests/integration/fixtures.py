@@ -112,6 +112,9 @@ article_dict = {
         }
     }
 }
+article_ref_fld_dict = article_dict.copy()
+article_ref_fld_dict["user"] = user_dict.copy()
+
 article_dict_epoch = article_dict.copy()
 article_dict_epoch["date"] = int(
     (timegm(article.date.timetuple()) * 1000) +
