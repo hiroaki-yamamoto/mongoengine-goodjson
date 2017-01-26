@@ -133,6 +133,8 @@ class FollowReferenceTest(DBConBase):
         self.maxDiff = None
         self.reference_cls = Reference
         self.reference = reference
+        self.reference.ex_ref.save()
+        self.reference.save()
         self.reference_dict = reference_dict
 
     def test_encode_follow_reference_data(self):

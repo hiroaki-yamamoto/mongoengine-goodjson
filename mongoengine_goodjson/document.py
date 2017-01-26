@@ -35,6 +35,14 @@ class Helper(object):
                 ), not isinstance(target, FollowReferenceField)
             ]):
                 value = None
+                ckwargs = kwargs.copy()
+                if issubclass(target.document_type, Helper):
+                    ckwargs.update({
+                        "follow_reference": True,
+                        "max_depth": max_depth,
+                        "current_depth": current_depth + 1,
+                        "use_db_field": use_db_field
+                    })
                 if is_list:
                     value = []
                     for doc in getattr(self, fldname, []):
@@ -43,11 +51,7 @@ class Helper(object):
                                 id=doc.id
                             ).get() if isinstance(doc, DBRef) else doc
                         ).to_json(
-                            follow_reference=True,
-                            max_depth=max_depth,
-                            current_depth=current_depth + 1,
-                            use_db_field=use_db_field,
-                            *args, **kwargs
+                            *args, **ckwargs
                         )))
                 else:
                     doc = getattr(self, fldname, None)
@@ -57,11 +61,7 @@ class Helper(object):
                                 id=doc.id
                             ).get() if isinstance(doc, DBRef) else doc
                         ).to_json(
-                            follow_reference=True,
-                            max_depth=max_depth,
-                            current_depth=current_depth + 1,
-                            use_db_field=use_db_field,
-                            *args, **kwargs
+                            *args, **ckwargs
                         )
                     ) if doc else doc
                 if value is not None:
@@ -229,7 +229,7 @@ class Helper(object):
         @normalize_reference.register(dict)
         def normalize_reference_dict(ref_id, fld):
             """Normalize Reference for dict."""
-            return fld.to_python(ref_id["id"])
+            return fld.to_python(ref_id.get("id") or ref_id["_id"])
 
         @normalize_reference.register(list)
         def normalize_reference_list(ref_id, fld):

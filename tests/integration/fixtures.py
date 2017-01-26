@@ -12,7 +12,8 @@ from bson import ObjectId, Binary
 from bson.py3compat import text_type
 
 from .schema import (
-    User, Address, Article, Email, ArticleMetaData, Seller, Reference
+    User, Address, Article, Email, ArticleMetaData, Seller, Reference,
+    ExtraReference, ExtraInformation
 )
 
 now = datetime.utcnow()
@@ -121,10 +122,23 @@ article_dict_epoch["date"] = int(
     (article.date.microsecond / 1000)
 )
 
-reference = Reference(pk=ObjectId(), name="test", references=[article])
+reference_extra_info = ExtraInformation(txt="This is a test")
+reference_extra_ref = ExtraReference(pk=ObjectId(), ref_txt="Reference test")
+
+reference = Reference(
+    pk=ObjectId(), name="test", references=[article],
+    ex_info=reference_extra_info, ex_ref=reference_extra_ref
+)
 reference_dict = {
     u"id": text_type(reference.id),
     u"name": u"test",
-    u"references": [article_dict.copy()]
+    u"references": [article_dict.copy()],
+    u"ex_info": {
+        u"txt": reference_extra_info.txt
+    },
+    u"ex_ref": {
+        u"_id": {u"$oid": str(reference_extra_ref.id)},
+        u"ref_txt": reference_extra_ref.ref_txt
+    }
 }
 reference_dict["references"][0]["user"] = user_dict.copy()
