@@ -166,8 +166,9 @@ class RegexNativeWithoutFlagTest(TestCase):
 
     def test_regex(self):
         """The encoded value should be the expected value."""
-        self.assertDictContainsSubset(
-            self.expected_result, self.encoder.default(self.regex)
+        self.assertEqual(
+            self.expected_result["regex"],
+            self.encoder.default(self.regex)["regex"]
         )
 
 
@@ -184,7 +185,7 @@ class RegexNativeByteTest(TestCase):
 
     def test_regex(self):
         """The encoded value should be the expected value."""
-        self.assertDictContainsSubset(
+        self.assertEqual(
             self.expected_result, self.encoder.default(self.regex)
         )
 
@@ -220,8 +221,8 @@ for (flag_str, flag) in regex_flags.items():
 
         def test_regex(self):
             """The encoded value should be expected value."""
-            self.assertDictContainsSubset(
-                self.expected_result, self.actual_result,
+            self.assertEqual(
+                self.expected_result["regex"], self.actual_result["regex"]
             )
 
         def test_flags(self):
@@ -253,8 +254,8 @@ class RegexNativeWithUnicodeTest(RegexNativeWithoutFlagTest):
 
     def test_regex(self):
         """The encoded value should be expected value."""
-        self.assertDictContainsSubset(
-            self.expected_result, self.actual_result,
+        self.assertEqual(
+            self.expected_result["regex"], self.actual_result["regex"]
         )
 
     def test_flags(self):
@@ -283,8 +284,8 @@ class RegexNativeWithLocaleTest(RegexNativeByteTest):
 
     def test_regex(self):
         """The encoded value should be expected value."""
-        self.assertDictContainsSubset(
-            self.expected_result, self.actual_result,
+        self.assertEqual(
+            self.expected_result["regex"], self.actual_result["regex"]
         )
 
     def test_flags(self):

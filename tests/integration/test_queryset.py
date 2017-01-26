@@ -11,7 +11,7 @@ import mongoengine as db
 
 from .schema import User, UserReferenceNoAutoSave
 from .fixtures import users, users_dict
-from ..connection_case import DBConBase
+from ..con_base import DBConBase
 
 
 class UserSerializationDesrializationTest(DBConBase):
@@ -20,16 +20,16 @@ class UserSerializationDesrializationTest(DBConBase):
     def setUp(self):
         """Setup."""
         self.maxDiff = None
+        User.objects.delete()
         for user_el in copy.deepcopy(users):
             user_el.save()
 
     def test_encode(self):
         """The data should be encoded properly."""
-        result = sorted(
-            json.loads(User.objects.to_json()), key=lambda obj: obj["id"]
-        )
-        self.assertSequenceEqual(
-            sorted(result, key=lambda obj: obj["id"]), users_dict
+        result = json.loads(User.objects.to_json())
+        self.assertEqual(
+            sorted(result, key=lambda obj: obj["id"]),
+            sorted(users_dict, key=lambda obj: obj["id"])
         )
 
     def test_decode(self):

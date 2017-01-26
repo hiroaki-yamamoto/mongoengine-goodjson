@@ -13,7 +13,7 @@ except ImportError:
 import mongoengine as db
 from mongoengine_goodjson import Document, QuerySet, GoodJSONEncoder
 
-from .connection_case import DBConBase
+from .con_base import DBConBase
 
 
 class QuerysetEncodeDecodeTest(DBConBase):

@@ -3,7 +3,6 @@ coveralls
 flake8
 flake8-docstrings
 mongoengine
-nose
 radon
 tox
 virtualenv

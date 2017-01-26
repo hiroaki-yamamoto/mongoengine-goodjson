@@ -4,7 +4,6 @@
 """Integration tests."""
 
 import json
-from unittest import TestCase
 
 try:
     from unittest.mock import patch
@@ -24,7 +23,7 @@ from .fixtures import (
     article_dict_epoch, email, email_dict_id, email_dict_email,
     reference, reference_dict
 )
-from ..connection_case import DBConBase
+from ..con_base import DBConBase
 
 try:
     str = unicode
@@ -32,7 +31,7 @@ except NameError:
     pass
 
 
-class ToJSONNormalIntegrationTest(TestCase):
+class ToJSONNormalIntegrationTest(DBConBase):
     """Good JSON Encoder Normal Data test."""
 
     def setUp(self):
@@ -162,11 +161,10 @@ class FollowReferenceTest(DBConBase):
                 id=self.reference.id
             ).get().to_json(follow_reference=True)
         )
-        print(self.reference_dict)
         self.assertDictEqual(self.reference_dict, result)
 
 
-class PrimaryKeyNotOidTest(TestCase):
+class PrimaryKeyNotOidTest(DBConBase):
     """Good JSON encoder/decoder email as primary key test."""
 
     def setUp(self):
