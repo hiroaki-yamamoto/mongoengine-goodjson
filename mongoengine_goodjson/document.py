@@ -46,24 +46,29 @@ class Helper(object):
                 if is_list:
                     value = []
                     for doc in getattr(self, fldname, []):
-                        value.append(json.loads((
-                            target.document_type.objects(
-                                id=doc.id
-                            ).get() if isinstance(doc, DBRef) else doc
-                        ).to_json(
+                        tdoc = target.document_type.objects(
+                            id=doc.id
+                        ).get() if isinstance(doc, DBRef) else doc
+                        dct = json.loads(tdoc.to_json(
                             *args, **ckwargs
-                        )))
+                        )) if issubclass(
+                            target.document_type, Helper
+                        ) else tdoc.to_mongo()
+                        if "_id" in dct:
+                            dct["id"] = dct.pop("_id")
+                        value.append(dct)
                 else:
                     doc = getattr(self, fldname, None)
+                    tdoc = target.document_type.objects(
+                        id=doc.id
+                    ).get() if isinstance(doc, DBRef) else doc
                     value = json.loads(
-                        (
-                            target.document_type.objects(
-                                id=doc.id
-                            ).get() if isinstance(doc, DBRef) else doc
-                        ).to_json(
-                            *args, **ckwargs
-                        )
-                    ) if doc else doc
+                        tdoc.to_json(*args, **ckwargs)
+                    ) if issubclass(
+                        target.document_type, Helper
+                    ) else tdoc.to_mongo() if doc else doc
+                    if "_id" in value:
+                        value["id"] = value.pop("_id")
                 if value is not None:
                     ret.update({fldname: value})
         return ret

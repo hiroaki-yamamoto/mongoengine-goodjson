@@ -137,7 +137,7 @@ reference_dict = {
         u"txt": reference_extra_info.txt
     },
     u"ex_ref": {
-        u"_id": {u"$oid": str(reference_extra_ref.id)},
+        u"id": str(reference_extra_ref.id),
         u"ref_txt": reference_extra_ref.ref_txt
     }
 }
