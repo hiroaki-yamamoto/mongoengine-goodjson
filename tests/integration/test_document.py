@@ -134,6 +134,8 @@ class FollowReferenceTest(DBConBase):
         self.reference_cls = Reference
         self.reference = reference
         self.reference.ex_ref.save()
+        for ref in self.reference.ex_refs:
+            ref.save()
         self.reference.save()
         self.reference_dict = reference_dict
 

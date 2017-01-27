@@ -124,10 +124,15 @@ article_dict_epoch["date"] = int(
 
 reference_extra_info = ExtraInformation(txt="This is a test")
 reference_extra_ref = ExtraReference(pk=ObjectId(), ref_txt="Reference test")
+reference_extra_refs = [
+    ExtraReference(pk=ObjectId(), ref_txt=("Reference test {}").format(ct))
+    for ct in range(3)
+]
 
 reference = Reference(
     pk=ObjectId(), name="test", references=[article],
-    ex_info=reference_extra_info, ex_ref=reference_extra_ref
+    ex_info=reference_extra_info, ex_ref=reference_extra_ref,
+    ex_refs=reference_extra_refs
 )
 reference_dict = {
     u"id": text_type(reference.id),
@@ -139,6 +144,10 @@ reference_dict = {
     u"ex_ref": {
         u"id": str(reference_extra_ref.id),
         u"ref_txt": reference_extra_ref.ref_txt
-    }
+    },
+    u"ex_refs": [
+        {u"id": str(item.id), u"ref_txt": item.ref_txt}
+        for item in reference_extra_refs
+    ]
 }
 reference_dict["references"][0]["user"] = user_dict.copy()
