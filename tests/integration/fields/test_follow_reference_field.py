@@ -3,7 +3,7 @@
 
 """Follow Refernce Field Test."""
 
-from ...connection_case import DBConBase as TestCase
+from ...con_base import DBConBase as TestCase
 
 from bson import ObjectId
 import mongoengine as db

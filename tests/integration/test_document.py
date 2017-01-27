@@ -4,7 +4,6 @@
 """Integration tests."""
 
 import json
-from unittest import TestCase
 
 try:
     from unittest.mock import patch
@@ -20,10 +19,11 @@ from .schema import (
     UserReferenceAutoSave, UserReferenceDisabledIDCheck
 )
 from .fixtures import (
-    user, user_dict, article, article_dict, article_dict_epoch,
-    email, email_dict_id, email_dict_email, reference, reference_dict
+    user, user_dict, article, article_dict, article_ref_fld_dict,
+    article_dict_epoch, email, email_dict_id, email_dict_email,
+    reference, reference_dict
 )
-from ..connection_case import DBConBase
+from ..con_base import DBConBase
 
 try:
     str = unicode
@@ -31,7 +31,7 @@ except NameError:
     pass
 
 
-class ToJSONNormalIntegrationTest(TestCase):
+class ToJSONNormalIntegrationTest(DBConBase):
     """Good JSON Encoder Normal Data test."""
 
     def setUp(self):
@@ -80,6 +80,13 @@ class ToJSONNormalIntegrationTest(TestCase):
         self.assertIs(type(article), self.article_cls)
         self.assertDictEqual(self.article.to_mongo(), article.to_mongo())
 
+    def test_normal_follow_reference(self):
+        """The to_json(follow_reference=True) should follow the reference."""
+        self.assertEqual(
+            json.loads(self.article.to_json(follow_reference=True)),
+            article_ref_fld_dict
+        )
+
 
 class JSONExclusionTest(DBConBase):
     """JSON Exclusion Test."""
@@ -126,6 +133,10 @@ class FollowReferenceTest(DBConBase):
         self.maxDiff = None
         self.reference_cls = Reference
         self.reference = reference
+        self.reference.ex_ref.save()
+        for ref in self.reference.ex_refs:
+            ref.save()
+        self.reference.save()
         self.reference_dict = reference_dict
 
     def test_encode_follow_reference_data(self):
@@ -154,11 +165,10 @@ class FollowReferenceTest(DBConBase):
                 id=self.reference.id
             ).get().to_json(follow_reference=True)
         )
-        print(self.reference_dict)
         self.assertDictEqual(self.reference_dict, result)
 
 
-class PrimaryKeyNotOidTest(TestCase):
+class PrimaryKeyNotOidTest(DBConBase):
     """Good JSON encoder/decoder email as primary key test."""
 
     def setUp(self):

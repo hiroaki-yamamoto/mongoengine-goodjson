@@ -66,7 +66,7 @@ g.task "test", ->
 g.task "clean", ->
   q.all [
     q.nfcall rimraf, "**/__pycache__"
-    q.nfcall rimraf, "!(__pycache__)/**.pyc"
+    q.nfcall rimraf, "!(__pycache__)/**/**.pyc"
   ]
 
 g.task "default", ->

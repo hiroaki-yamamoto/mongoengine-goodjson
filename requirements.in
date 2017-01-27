@@ -1,0 +1,9 @@
+coverage
+coveralls
+flake8
+flake8-docstrings
+mongoengine
+radon
+tox
+virtualenv
+pip-tools

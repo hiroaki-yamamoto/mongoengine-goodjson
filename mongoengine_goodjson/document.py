@@ -35,35 +35,40 @@ class Helper(object):
                 ), not isinstance(target, FollowReferenceField)
             ]):
                 value = None
+                ckwargs = kwargs.copy()
+                if issubclass(target.document_type, Helper):
+                    ckwargs.update({
+                        "follow_reference": True,
+                        "max_depth": max_depth,
+                        "current_depth": current_depth + 1,
+                        "use_db_field": use_db_field
+                    })
                 if is_list:
                     value = []
                     for doc in getattr(self, fldname, []):
-                        value.append(json.loads((
-                            target.document_type.objects(
-                                id=doc.id
-                            ).get() if isinstance(doc, DBRef) else doc
-                        ).to_json(
-                            follow_reference=True,
-                            max_depth=max_depth,
-                            current_depth=current_depth + 1,
-                            use_db_field=use_db_field,
-                            *args, **kwargs
-                        )))
+                        tdoc = target.document_type.objects(
+                            id=doc.id
+                        ).get() if isinstance(doc, DBRef) else doc
+                        dct = json.loads(tdoc.to_json(
+                            *args, **ckwargs
+                        )) if issubclass(
+                            target.document_type, Helper
+                        ) else tdoc.to_mongo()
+                        if "_id" in dct:
+                            dct["id"] = dct.pop("_id")
+                        value.append(dct)
                 else:
                     doc = getattr(self, fldname, None)
+                    tdoc = target.document_type.objects(
+                        id=doc.id
+                    ).get() if isinstance(doc, DBRef) else doc
                     value = json.loads(
-                        (
-                            target.document_type.objects(
-                                id=doc.id
-                            ).get() if isinstance(doc, DBRef) else doc
-                        ).to_json(
-                            follow_reference=True,
-                            max_depth=max_depth,
-                            current_depth=current_depth + 1,
-                            use_db_field=use_db_field,
-                            *args, **kwargs
-                        )
-                    ) if doc else doc
+                        tdoc.to_json(*args, **ckwargs)
+                    ) if issubclass(
+                        target.document_type, Helper
+                    ) else tdoc.to_mongo() if doc else doc
+                    if "_id" in value:
+                        value["id"] = value.pop("_id")
                 if value is not None:
                     ret.update({fldname: value})
         return ret
@@ -228,7 +233,7 @@ class Helper(object):
         @normalize_reference.register(dict)
         def normalize_reference_dict(ref_id, fld):
             """Normalize Reference for dict."""
-            return fld.to_python(ref_id["id"])
+            return fld.to_python(ref_id.get("id") or ref_id["_id"])
 
         @normalize_reference.register(list)
         def normalize_reference_list(ref_id, fld):

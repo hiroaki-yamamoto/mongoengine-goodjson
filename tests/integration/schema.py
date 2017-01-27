@@ -76,8 +76,23 @@ class Article(Document):
     uuid = db.UUIDField()
 
 
+class ExtraInformation(db.EmbeddedDocument):
+    """Extra information."""
+
+    txt = db.StringField()
+
+
+class ExtraReference(db.Document):
+    """Extran reference info."""
+
+    ref_txt = db.StringField()
+
+
 class Reference(Document):
     """Test schema."""
 
     name = db.StringField()
+    ex_info = db.EmbeddedDocumentField(ExtraInformation)
+    ex_ref = db.ReferenceField(ExtraReference)
+    ex_refs = db.ListField(db.ReferenceField(ExtraReference))
     references = db.ListField(db.ReferenceField(Article))
