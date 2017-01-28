@@ -10,5 +10,5 @@ script:
   - "radon cc -nc mongoengine_goodjson"
   - "tox"
 after_success:
-  - "coverage combine python27.coverage python35.coverage"
+  - "coverage combine python27.coverage python36.coverage"
   - "coveralls"
