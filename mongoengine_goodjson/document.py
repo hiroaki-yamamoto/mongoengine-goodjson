@@ -73,12 +73,11 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
-    def __set_gj_flag_sub_field(self, instance, fld, cur_depth):
-        """Set $$good_json$$ flag to subfield."""
+    def __set_gj_flag_sub_field(self, name, instance, fld, cur_depth):
+        """Tell current depth to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
         def set_good_json(traget):
-            setattr(traget, "$$good_json$$", True)
             setattr(traget, "$$cur_depth$$", cur_depth)
 
         @singledispatch
@@ -100,15 +99,13 @@ class Helper(object):
 
         set_flag_recursive(fld, instance)
 
-    def __unset_gj_flag_sub_field(self, instance, fld, cur_depth):
-        """Unset $$good_json$$ to subfield."""
+    def __unset_gj_flag_sub_field(self, name, instance, fld, cur_depth):
+        """Remove current depth to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
         def unset_flag(fld):
             setattr(fld, "$$cur_depth$$", cur_depth - 1)
-            if getattr(fld, "$$cur_depth$$") <= 0:
-                setattr(fld, "$$good_json$$", False)
-                delattr(fld, "$$good_json$$")
+            if getattr(fld, "$$cur_depth$$") < 0:
                 delattr(fld, "$$cur_depth$$")
 
         @singledispatch
@@ -134,14 +131,14 @@ class Helper(object):
         """Enable GoodJSON Flag."""
         for (name, fld) in self._fields.items():
             self.__set_gj_flag_sub_field(
-                getattr(self, name), fld, cur_depth=cur_depth
+                name, getattr(self, name), fld, cur_depth=cur_depth
             )
 
     def end_goodjson(self, cur_depth=0):
         """Stop GoodJSON Flag."""
         for (name, fld) in self._fields.items():
             self.__unset_gj_flag_sub_field(
-                getattr(self, name), fld, cur_depth=cur_depth
+                name, getattr(self, name), fld, cur_depth=cur_depth
             )
 
     def to_mongo(self, *args, **kwargs):

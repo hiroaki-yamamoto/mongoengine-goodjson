@@ -55,12 +55,15 @@ class FollowReferenceField(db.ReferenceField):
         Parameters:
             document: The document.
         """
-        cur_depth = getattr(self, "$$cur_depth$$", self.max_depth)
-        if not getattr(self, "$$good_json$$", None) or \
-                (self.max_depth > -1 and cur_depth >= self.max_depth):
-            return super(FollowReferenceField, self).to_mongo(
-                document, **kwargs
-            )
+        cur_depth = self.max_depth
+        try:
+            cur_depth = getattr(self, "$$cur_depth$$")
+            if self.max_depth > -1 and cur_depth >= self.max_depth:
+                raise AttributeError()
+        except AttributeError:
+            return super(
+                FollowReferenceField, self
+            ).to_mongo(document, **kwargs)
         doc = document
         if isinstance(document, db.Document):
             if document.pk is None and self.id_check:
