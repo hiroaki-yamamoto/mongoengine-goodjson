@@ -547,17 +547,21 @@ class FollowReferenceFieldLimitRecursionComlexTypeTest(DBConBase):
         self.sub_doc_cls = SubDocument
         self.main_docs = []
 
-        for counter in range(3):
+        for counter in range(4):
             main_doc = MainDocument(name=("Test {}").format(counter))
             main_doc.save()
             self.main_docs.append(main_doc)
 
         for (index, doc) in enumerate(self.main_docs):
             doc.subdoc = SubDocument(
-                parent=doc, ref_list=[doc, self.main_docs[index - 2]]
+                parent=doc, ref_list=[
+                    doc, self.main_docs[index - 1],
+                    self.main_docs[index - 2]
+                ]
             )
-            doc.ref_list.append(doc)
-            doc.ref_list.append(self.main_docs[index - 1])
+            doc.ref_list.extend([
+                doc, self.main_docs[index - 1], self.main_docs[index - 3]
+            ])
             doc.save()
 
         self.expected_data = [doc.dict() for doc in self.main_docs]
