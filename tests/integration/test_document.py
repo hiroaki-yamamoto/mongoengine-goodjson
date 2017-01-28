@@ -508,27 +508,62 @@ class FollowReferenceFieldLimitRecursionComlexTypeTest(DBConBase):
             parent = gj.FollowReferenceField("MainDocument")
             ref_list = db.ListField(gj.FollowReferenceField("MainDocument"))
 
+            def dict(self, current_depth=0):
+                return {
+                    "parent": (
+                        self.parent.dict(current_depth=current_depth + 1)
+                        if current_depth < self._fields["parent"].max_depth
+                        else str(self.parent.id)
+                    ),
+                    "ref_list": [
+                        doc.dict(current_depth=current_depth + 1)
+                        if current_depth < self._fields[
+                            "ref_list"
+                        ].field.max_depth else str(doc.id)
+                        for doc in self.ref_list
+                    ]
+                }
+
         class MainDocument(gj.Document):
             name = db.StringField()
             ref_list = db.ListField(gj.FollowReferenceField("self"))
             subdoc = db.EmbeddedDocumentField(SubDocument)
 
+            def dict(self, current_depth=0):
+                return {
+                    "id": str(self.pk),
+                    "name": self.name,
+                    "ref_list": [
+                        doc.dict(current_depth=current_depth + 1)
+                        if current_depth < self._fields[
+                            "ref_list"
+                        ].field.max_depth else str(doc.id)
+                        for doc in self.ref_list
+                    ],
+                    "subdoc": self.subdoc.dict(current_depth=current_depth)
+                }
+
         self.main_doc_cls = MainDocument
         self.sub_doc_cls = SubDocument
         self.main_docs = []
-        self.sub_docs = []
 
         for counter in range(3):
             main_doc = MainDocument(name=("Test {}").format(counter))
             main_doc.save()
-            main_doc.save()
             self.main_docs.append(main_doc)
-            sub_doc = SubDocument(parent=main_doc, ref_list=[main_doc])
-            sub_doc.save()
-            self.sub_docs.append(sub_doc)
 
         for (index, doc) in enumerate(self.main_docs):
+            doc.subdoc = SubDocument(
+                parent=doc, ref_list=[doc, self.main_docs[index - 2]]
+            )
             doc.ref_list.append(doc)
             doc.ref_list.append(self.main_docs[index - 1])
-            doc.subdoc.ref_list.append(self.main_docs[index - 2])
             doc.save()
+
+        self.expected_data = [doc.dict() for doc in self.main_docs]
+        self.maxDiff = None
+
+    def test_to_json(self):
+        """The serialized json should be equal to the expected data."""
+        result = [json.loads(item.to_json()) for item in self.main_docs]
+        self.assertEqual(self.expected_data, result)

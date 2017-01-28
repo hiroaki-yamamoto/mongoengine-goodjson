@@ -43,10 +43,14 @@ class QuerySet(db.QuerySet):
 
         @doc.register(FollowReferenceField)
         def doc_frl(fld, item):
+            from .document import Document
             doc = fld.document_type.objects(id=item).get()
-            doc.begin_goodjson()
-            result = doc.to_mongo()
-            doc.end_goodjson()
+            # doc.begin_goodjson()
+            result = \
+                doc.to_mongo(current_depth=0) \
+                if isinstance(fld.document_type, Document) \
+                else doc.to_mongo()
+            # doc.end_goodjson()
             return result
 
         result = doc(fld, item)

@@ -73,13 +73,12 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
-    def __set_gj_flag_sub_field(self, instance, fld, cur_depth):
-        """Set $$good_json$$ flag to subfield."""
+    def __set_gj_flag_sub_field(self, name, instance, fld, cur_depth):
+        """Tell current depth to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
-        def set_good_json(fld):
-            setattr(fld, "$$good_json$$", True)
-            setattr(fld, "$$cur_depth$$", cur_depth)
+        def set_good_json(traget):
+            setattr(traget, "$$cur_depth$$", cur_depth)
 
         @singledispatch
         def set_flag_recursive(fld, instance):
@@ -87,7 +86,7 @@ class Helper(object):
 
         @set_flag_recursive.register(db.ListField)
         def set_flag_list(fld, instance):
-            set_good_json(fld.field)
+            set_flag_recursive(fld.field, instance)
 
         @set_flag_recursive.register(db.EmbeddedDocumentField)
         def set_flag_emb(fld, instance):
@@ -100,15 +99,14 @@ class Helper(object):
 
         set_flag_recursive(fld, instance)
 
-    def __unset_gj_flag_sub_field(self, instance, fld, cur_depth):
-        """Unset $$good_json$$ to subfield."""
+    def __unset_gj_flag_sub_field(self, name, instance, fld, cur_depth):
+        """Remove current depth to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
         def unset_flag(fld):
-            setattr(fld, "$$good_json$$", None)
-            setattr(fld, "$$cur_depth$$", None)
-            delattr(fld, "$$good_json$$")
-            delattr(fld, "$$cur_depth$$")
+            setattr(fld, "$$cur_depth$$", cur_depth - 1)
+            if getattr(fld, "$$cur_depth$$") < 0:
+                delattr(fld, "$$cur_depth$$")
 
         @singledispatch
         def unset_flag_recursive(fld, instance):
@@ -116,7 +114,7 @@ class Helper(object):
 
         @unset_flag_recursive.register(db.ListField)
         def unset_flag_list(fld, instance):
-            unset_flag(fld.field)
+            unset_flag_recursive(fld.field, instance)
 
         @unset_flag_recursive.register(db.EmbeddedDocumentField)
         def unset_flag_emb(fld, instance):
@@ -133,25 +131,25 @@ class Helper(object):
         """Enable GoodJSON Flag."""
         for (name, fld) in self._fields.items():
             self.__set_gj_flag_sub_field(
-                getattr(self, name), fld, cur_depth=cur_depth
+                name, getattr(self, name), fld, cur_depth=cur_depth
             )
 
     def end_goodjson(self, cur_depth=0):
         """Stop GoodJSON Flag."""
         for (name, fld) in self._fields.items():
             self.__unset_gj_flag_sub_field(
-                getattr(self, name), fld, cur_depth=cur_depth
+                name, getattr(self, name), fld, cur_depth=cur_depth
             )
 
     def to_mongo(self, *args, **kwargs):
         """Convert into mongodb compatible dict."""
-        increment_depth = kwargs.pop("increment_depth", None) or False
-        cur_depth = kwargs.pop("cur_depth", None)
-        if increment_depth:
-            self.begin_goodjson(cur_depth + 1)
+        cur_depth = kwargs.pop("cur_depth", None) or 0
+        good_json = bool(kwargs.pop("good_json", False))
+        if good_json:
+            self.begin_goodjson(cur_depth)
         result = super(Helper, self).to_mongo(*args, **kwargs)
-        if increment_depth:
-            self.end_goodjson(cur_depth + 1)
+        if good_json:
+            self.end_goodjson(cur_depth)
         return result
 
     def to_json(self, *args, **kwargs):
@@ -174,14 +172,14 @@ class Helper(object):
         use_db_field = kwargs.pop('use_db_field', True)
         follow_reference = kwargs.pop("follow_reference", False)
         max_depth = kwargs.pop("max_depth", 3)
-        current_depth = kwargs.pop("current_depth", 0)
+        current_depth = kwargs.pop("current_depth", 0) or 0
 
         if "cls" not in kwargs:
             kwargs["cls"] = GoodJSONEncoder
 
-        self.begin_goodjson()
-
-        data = self.to_mongo(use_db_field)
+        data = self.to_mongo(
+            use_db_field, cur_depth=current_depth, good_json=True
+        )
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
 
@@ -197,8 +195,6 @@ class Helper(object):
             data.update(self._follow_reference(
                 max_depth, current_depth, use_db_field, *args, **kwargs
             ))
-
-        self.end_goodjson()
 
         return json.dumps(data, *args, **kwargs)
 

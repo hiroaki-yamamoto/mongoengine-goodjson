@@ -59,16 +59,11 @@ class ToJSONTest(TestCase):
         )
         self.model.to_mongo = MagicMock(
             return_value={
-                "id": self.model.id, "title": self.model.title,
+                "id": self.model.id,
+                "title": self.model.title,
                 "references": self.references
             }
         )
-
-        self.model.to_mongo = lambda x: {
-            "id": self.model.pk,
-            "title": "Test",
-            "references": [str(srd.pk) for srd in self.references]
-        }
 
     @patch("json.dumps")
     def test_document(self, dumps):
