@@ -20,6 +20,8 @@ before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
   - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
   - "mv setup.py.new setup.py"
+  - "git add ."
+  - "git commit -m \"For release\""
   - >
       git archive --format tar.gz
       --prefix=mongoengine_goodjson-${TRAVIS_TAG}/
