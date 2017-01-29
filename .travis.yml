@@ -54,7 +54,7 @@ deploy:
         PY8qCIjDHdD/gz7sSOoi4Zg1+59fgbycjnJItMxymsKesh7l7J3rMkMoeBIPgRCHOPJAix
         jWQa4OpcDhXUyh26liws6MI5e7ESigthN4ksS+LAFWP2jxOdxU+oE=
   - provider: releases
-    file: "${HOME}/mongoengine_goodjson-${TRAVIS_BUILD_ID}.tgz"
+    file: "${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tgz"
     skip_cleanup: true
     on:
       tags: true
