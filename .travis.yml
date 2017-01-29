@@ -20,6 +20,8 @@ before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
   - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
   - "mv setup.py.new setup.py"
+  - "git config user.email 'travis@travis-ci.org'"
+  - "git config user.name 'Travis Automated Commit'"
   - "git add ."
   - "git commit -m \"For release\""
   - >
