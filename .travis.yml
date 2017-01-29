@@ -57,7 +57,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      python: 3.
+      python: 3.6
     api_key:
       secure: >-
         K38bWhQWubBzIYuGuV96VBJRV1BPQmKAIzmjOJgPv76kRH2bvCGf4ekFKqnT2CVPWnSNGd
