@@ -10,7 +10,7 @@ import mongoengine_goodjson as gj
 import mongoengine as db
 
 from .schema import User, UserReferenceNoAutoSave
-from .fixtures import users, users_dict
+from .fixtures.user import users, users_dict
 from ..con_base import DBConBase
 
 

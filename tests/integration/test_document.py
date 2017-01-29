@@ -18,11 +18,13 @@ from .schema import (
     User, Article, Email, Reference, UserReferenceNoAutoSave,
     UserReferenceAutoSave, UserReferenceDisabledIDCheck
 )
-from .fixtures import (
-    user, user_dict, article, article_dict, article_ref_fld_dict,
-    article_dict_epoch, email, email_dict_id, email_dict_email,
-    reference, reference_dict
+from .fixtures.articles import (
+    article, article_dict, article_ref_fld_dict,
+    article_dict_epoch
 )
+from .fixtures.user import user, user_dict
+from .fixtures.email import email, email_dict_id, email_dict_email
+from .fixtures.reference import reference, reference_dict
 from ..con_base import DBConBase
 
 try:
