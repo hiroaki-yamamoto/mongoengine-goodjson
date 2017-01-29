@@ -3,13 +3,10 @@
 
 """Article fixtures."""
 
-# from base64 import b64encode
-# from calendar import timegm
 from datetime import datetime, timedelta
 from uuid import uuid5, NAMESPACE_DNS
 
 from bson import ObjectId, Binary
-# from six import text_type
 
 import mongoengine as db
 import mongoengine_goodjson as gj
