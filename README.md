@@ -292,11 +292,6 @@ class DetailedProfile(gj.Document):
   partner = gj.FollowReferenceField(User, autosave=True)
 ```
 
-### Important Note when use FollowReferenceField
-Currently, FollowReferenceField doesn't support the limit of recursion.
-Therefore, **don't implement self-reference document and/or loop-reference
-document.**
-
 ## Feature 2: Exclude fields from JSON serialization/deserialization
 
 Sometimes you might want to exclude fields from JSON serialization, but to do
@@ -311,6 +306,40 @@ the following:
   from JSON decoding. Note that this excludes fields JSON decoding only.
 * Setting Truhy value to `exclude_json`, the corresponding field is omitted from
   JSON encoding and decoding.
+
+
+## Feature 3: Reference Limit
+
+Since version 1.0.0, the method to limit recursive depth is implemented.
+Currently, this supports only "depth-level" limit, however, limit circuit
+references by condition will be implemented in the future.
+
+By default, `to_json` serializes the document until the cursor reaches 3rd
+level. To change the maximum depth level, change `max_depth` kwargs:
+
+```Python
+#!/usr/bin/env python
+# coding=utf-8
+
+import mongoengine as db
+import mongoengine_goodjson as gj
+
+
+class User(gj.Document):
+  """User info."""
+  name = db.StringField()
+  email = db.EmailField()
+  # i.e. You can access everyone in the world by Six Degrees of Separation
+  friends = db.ListField(gj.FollowReferenceField("self", max_depth=6))
+
+class DetailedProfile(gj.Document):
+  """Detail profile of the user."""
+  user = gj.FollowReferenceField(User)
+  yob = db.DateTimeField()
+```
+
+To disable the limit, put negative number to `max_depth`, however don't
+forget to make sure that the model doesn't have circuit and/or self-reference.
 
 ### Example
 To use the exclusion, you can just put exclude metadata like this:
