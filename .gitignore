@@ -139,3 +139,6 @@ ENV/
 .ropeproject
 
 *.coverage
+
+# README.rst is an auto-generated file
+README.rst
