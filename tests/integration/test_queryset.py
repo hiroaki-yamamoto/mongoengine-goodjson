@@ -3,14 +3,12 @@
 
 """Queryset integration tests."""
 
-import copy
 import json
 
 import mongoengine_goodjson as gj
 import mongoengine as db
 
-from .schema import User, UserReferenceNoAutoSave
-from .fixtures.user import users, users_dict
+from .fixtures.user import User, UserReferenceNoAutoSave
 from ..con_base import DBConBase
 
 
@@ -21,7 +19,9 @@ class UserSerializationDesrializationTest(DBConBase):
         """Setup."""
         self.maxDiff = None
         User.objects.delete()
-        for user_el in copy.deepcopy(users):
+        self.users = [User.generate_test_data(counter) for counter in range(3)]
+        self.users_dict = [item.to_dict() for item in self.users]
+        for user_el in self.users:
             user_el.save()
 
     def test_encode(self):
@@ -29,13 +29,13 @@ class UserSerializationDesrializationTest(DBConBase):
         result = json.loads(User.objects.to_json())
         self.assertEqual(
             sorted(result, key=lambda obj: obj["id"]),
-            sorted(users_dict, key=lambda obj: obj["id"])
+            sorted(self.users_dict, key=lambda obj: obj["id"])
         )
 
     def test_decode(self):
         """The data should be decoded properly."""
-        result = User.objects.from_json(json.dumps(users_dict))
-        self.assertListEqual(users, result)
+        result = User.objects.from_json(json.dumps(self.users_dict))
+        self.assertEqual(self.users, result)
 
 
 class QuerySetJSONExclusionTest(DBConBase):
@@ -111,8 +111,8 @@ class FollowReferenceQueryTest(DBConBase):
     def setUp(self):
         """Setup."""
         self.maxDiff = None
-        self.users = copy.deepcopy(users)
-        self.data_users = users_dict
+        self.users = [User.generate_test_data(counter) for counter in range(3)]
+        self.data_users = [item.to_dict() for item in self.users]
         self.refs = []
         self.data_ref_users = []
 

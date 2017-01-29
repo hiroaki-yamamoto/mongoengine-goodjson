@@ -4,38 +4,75 @@
 """Fixtures for integration tests."""
 
 from bson import ObjectId
-from six import text_type
 
-from ..schema import Reference, ExtraReference, ExtraInformation
-from .articles import article, article_dict
-from .user import user_dict
+import mongoengine as db
+import mongoengine_goodjson as gj
 
-reference_extra_info = ExtraInformation(txt="This is a test")
-reference_extra_ref = ExtraReference(pk=ObjectId(), ref_txt="Reference test")
-reference_extra_refs = [
-    ExtraReference(pk=ObjectId(), ref_txt=("Reference test {}").format(ct))
-    for ct in range(3)
-]
+from .articles import Article
+from .base import Dictable
+from .user import User
 
-reference = Reference(
-    pk=ObjectId(), name="test", references=[article],
-    ex_info=reference_extra_info, ex_ref=reference_extra_ref,
-    ex_refs=reference_extra_refs
-)
-reference_dict = {
-    u"id": text_type(reference.id),
-    u"name": u"test",
-    u"references": [article_dict.copy()],
-    u"ex_info": {
-        u"txt": reference_extra_info.txt
-    },
-    u"ex_ref": {
-        u"id": str(reference_extra_ref.id),
-        u"ref_txt": reference_extra_ref.ref_txt
-    },
-    u"ex_refs": [
-        {u"id": str(item.id), u"ref_txt": item.ref_txt}
-        for item in reference_extra_refs
-    ]
-}
-reference_dict["references"][0]["user"] = user_dict.copy()
+
+class ExtraInformation(Dictable, db.EmbeddedDocument):
+    """Extra information."""
+
+    txt = db.StringField()
+
+    @classmethod
+    def generate_test_data(cls, additional_suffix=""):
+        """Generate test data."""
+        return cls(
+            txt=("This is a test{}").format(
+                (" {}").format(additional_suffix) if additional_suffix else
+                ""
+            )
+        )
+
+
+class ExtraReference(Dictable, db.Document):
+    """Extran reference info."""
+
+    ref_txt = db.StringField()
+
+    @classmethod
+    def generate_test_data(cls, additional_suffix=""):
+        """Generate test data."""
+        return cls(
+            pk=ObjectId(),
+            ref_txt=("Reference test{}").format(
+                (" {}").format(additional_suffix) if additional_suffix else
+                ""
+            )
+        )
+
+
+class Reference(Dictable, gj.Document):
+    """Test schema."""
+
+    name = db.StringField()
+    ex_info = db.EmbeddedDocumentField(ExtraInformation)
+    ex_ref = db.ReferenceField(ExtraReference)
+    ex_refs = db.ListField(db.ReferenceField(ExtraReference))
+    references = db.ListField(db.ReferenceField(Article))
+
+    @classmethod
+    def generate_test_data(cls, user=None, article=None, additional_suffix=""):
+        """Generate test data."""
+        return cls(
+            pk=ObjectId(), name="test", references=[
+                article or Article.generate_test_data(
+                    user=user or User.generate_test_data(
+                        additional_suffix=additional_suffix
+                    ),
+                    additional_suffix=additional_suffix
+                )
+            ],
+            ex_info=ExtraInformation.generate_test_data(additional_suffix),
+            ex_ref=ExtraReference.generate_test_data(additional_suffix),
+            ex_refs=[
+                ExtraReference.generate_test_data(
+                    additional_suffix=("{}{}").format(additional_suffix, ct)
+                )
+                for ct in range(3)
+            ]
+        )

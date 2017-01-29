@@ -3,6 +3,7 @@
 
 """Integration tests."""
 
+from calendar import timegm
 import json
 
 try:
@@ -13,18 +14,15 @@ except ImportError:
 from bson import ObjectId
 import mongoengine_goodjson as gj
 import mongoengine as db
+from six import text_type
 
-from .schema import (
-    User, Article, Email, Reference, UserReferenceNoAutoSave,
-    UserReferenceAutoSave, UserReferenceDisabledIDCheck
+from .fixtures.articles import Article
+from .fixtures.user import (
+    User, UserReferenceNoAutoSave, UserReferenceAutoSave,
+    UserReferenceDisabledIDCheck
 )
-from .fixtures.articles import (
-    article, article_dict, article_ref_fld_dict,
-    article_dict_epoch
-)
-from .fixtures.user import user, user_dict
-from .fixtures.email import email, email_dict_id, email_dict_email
-from .fixtures.reference import reference, reference_dict
+from .fixtures.email import Email
+from .fixtures.reference import Reference
 from ..con_base import DBConBase
 
 try:
@@ -40,12 +38,18 @@ class ToJSONNormalIntegrationTest(DBConBase):
         """Setup the class."""
         self.maxDiff = None
         self.user_cls = User
-        self.user = user
+        self.user = self.user_cls.generate_test_data()
         self.article_cls = Article
-        self.article = article
-        self.user_dict = user_dict
-        self.article_dict = article_dict
-        self.article_dict_epoch = article_dict_epoch
+        self.article = self.article_cls.generate_test_data(user=self.user)
+        self.user_dict = self.user.to_dict()
+        self.article_dict = self.article.to_dict()
+        self.article_ref_fld_dict = self.article_dict.copy()
+        self.article_dict["user"] = text_type(self.user.id)
+        self.article_dict_epoch = self.article_dict.copy()
+        self.article_dict_epoch["date"] = int(
+            (timegm(self.article.date.timetuple()) * 1000) +
+            (self.article.date.microsecond / 1000)
+        )
 
     def test_encode_user_data(self):
         """User model should be encoded properly."""
@@ -86,7 +90,7 @@ class ToJSONNormalIntegrationTest(DBConBase):
         """The to_json(follow_reference=True) should follow the reference."""
         self.assertEqual(
             json.loads(self.article.to_json(follow_reference=True)),
-            article_ref_fld_dict
+            self.article_ref_fld_dict
         )
 
 
@@ -134,12 +138,12 @@ class FollowReferenceTest(DBConBase):
         """Setup function."""
         self.maxDiff = None
         self.reference_cls = Reference
-        self.reference = reference
+        self.reference = self.reference_cls.generate_test_data()
         self.reference.ex_ref.save()
         for ref in self.reference.ex_refs:
             ref.save()
         self.reference.save()
-        self.reference_dict = reference_dict
+        self.reference_dict = self.reference.to_dict()
 
     def test_encode_follow_reference_data(self):
         """Reference data should follow ReferenceField."""
@@ -175,14 +179,14 @@ class PrimaryKeyNotOidTest(DBConBase):
 
     def setUp(self):
         """Setup the class."""
-        self.email = email
-        self.data_id = email_dict_id
-        self.data_email = email_dict_email
+        self.email = Email.generate_test_data()
+        self.data_id = self.email.to_dict()
+        self.data_email = self.data_id.copy()
 
     def test_encode(self):
         """Email document should be encoded properly."""
         result = json.loads(self.email.to_json())
-        self.assertDictEqual(self.data_id, result)
+        self.assertEqual(self.data_id, result)
 
     def test_decode_id(self):
         """

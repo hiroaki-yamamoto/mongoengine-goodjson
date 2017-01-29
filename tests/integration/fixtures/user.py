@@ -3,61 +3,71 @@
 
 """User fixture."""
 
-from six import text_type
 from bson import ObjectId
-from ..schema import User, Address
+
+import mongoengine as db
+import mongoengine_goodjson as gj
+
+from .base import Dictable
 
 
-user = User(
-    id=ObjectId(), name="Test man", email="test@example.com",
-    address=[
-        Address(
-            street=(("Test street {}").format(counter)),
-            city=(("Test city {}").format(counter)),
-            state=(("Test state {}").format(counter))
-        ) for counter in range(3)
-    ]
-)
+class Address(Dictable, gj.EmbeddedDocument):
+    """Test schema."""
 
-users = [
-    User(
-        id=ObjectId(),
-        name=("Test man {}").format(c1),
-        email=("test{}@example.com").format(c1),
-        address=[
-            Address(
-                street=(("Test street {} {}").format(c1, c2)),
-                city=(("Test city %d %d").format(c1, c2)),
-                state=(("Test state %d %d").format((c1, c2)))
-            ) for c2 in range(3)
+    street = db.StringField()
+    city = db.StringField()
+    state = db.StringField()
+
+    @classmethod
+    def generate_test_data(cls, user, additional_suffix=""):
+        """Generate test data."""
+        return cls(
+            street=("Test street {} {}").format(user.name, additional_suffix),
+            city=("Test city {} {}").format(user.name, additional_suffix),
+            state=("Test state {} {}").format(user.name, additional_suffix)
+        )
+
+
+class User(Dictable, gj.Document):
+    """Test schema."""
+
+    name = db.StringField()
+    email = db.EmailField()
+    address = db.EmbeddedDocumentListField(Address)
+
+    @classmethod
+    def generate_test_data(cls, additional_suffix=""):
+        """Generate test data."""
+        user = cls(
+            id=ObjectId(),
+            name=("Test man{}").format(
+                (" {}").format(additional_suffix) if additional_suffix else ""
+            ),
+            email=("test{}@example.com").format(additional_suffix)
+        )
+        user.address = [
+            Address.generate_test_data(user, additional_suffix=counter)
+            for counter in range(3)
         ]
-    ) for c1 in range(3)
-]
+        return user
 
-user_dict = {
-    text_type("id"): text_type(user.pk),
-    text_type("name"): text_type(user.name),
-    text_type("email"): text_type(user.email),
-    text_type("address"): [
-        {
-            text_type("street"): text_type(address.street),
-            text_type("city"): text_type(address.city),
-            text_type("state"): text_type(address.state)
-        } for address in user.address
-    ]
-}
 
-users_dict = [
-    {
-        text_type("id"): text_type(user_el.pk),
-        text_type("name"): text_type(user_el.name),
-        text_type("email"): text_type(user_el.email),
-        text_type("address"): [
-            {
-                text_type("street"): text_type(address.street),
-                text_type("city"): text_type(address.city),
-                text_type("state"): text_type(address.state)
-            } for address in user_el.address
-        ]
-    } for user_el in users
-]
+class UserReferenceNoAutoSave(Dictable, gj.Document):
+    """Test schema."""
+
+    ref = gj.fields.FollowReferenceField(User)
+    refs = db.ListField(gj.fields.FollowReferenceField(User))
+
+
+class UserReferenceDisabledIDCheck(Dictable, gj.Document):
+    """Test schema."""
+
+    ref = gj.fields.FollowReferenceField(User, id_check=False)
+    refs = db.ListField(gj.fields.FollowReferenceField(User, id_check=False))
+
+
+class UserReferenceAutoSave(Dictable, gj.Document):
+    """Test schema."""
+
+    ref = gj.fields.FollowReferenceField(User, autosave=True)
+    refs = db.ListField(gj.fields.FollowReferenceField(User, autosave=True))

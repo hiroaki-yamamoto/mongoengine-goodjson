@@ -5,9 +5,21 @@
 
 from six import text_type
 
-from ..schema import Email
+import mongoengine as db
+import mongoengine_goodjson as gj
+from .base import Dictable
 
 
-email = Email(email="test@example.com")
-email_dict_id = {text_type("id"): email.pk}
-email_dict_email = {text_type("id"): email.pk}
+class Email(Dictable, gj.Document):
+    """Test schema."""
+
+    email = db.EmailField(primary_key=True)
+
+    @classmethod
+    def generate_test_data(cls):
+        """Generate test data."""
+        return cls(email="test@example.com")
+
+    def to_dict(self):
+        """Convert into dict."""
+        return {text_type("id"): self.pk}
