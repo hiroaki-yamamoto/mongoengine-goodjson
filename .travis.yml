@@ -18,7 +18,8 @@ after_success:
   - "coveralls"
 before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
-  - > git archive --format tar.gz
+  - >
+      git archive --format tar.gz
       --prefix==mongoengine_goodjson-${TRAVIS_TAG}/
       -o ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tgz HEAD
 deploy:
