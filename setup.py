@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 dependencies = ["mongoengine", "dateutils"]
 desc = "More human readable JSON serializer/de-serializer for MongoEngine"
-version = "0.99.0"
+version = "0.99.1"
 if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
 
