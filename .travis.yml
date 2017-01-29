@@ -18,7 +18,8 @@ after_success:
   - "coveralls"
 before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
-  - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py"
+  - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
+  - "mv setup.py.new setup.py"
   - >
       git archive --format tar.gz
       --prefix=mongoengine_goodjson-${TRAVIS_TAG}/
