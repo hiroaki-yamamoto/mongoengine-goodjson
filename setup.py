@@ -12,7 +12,7 @@ if sys.version_info < (2, 7):
     raise RuntimeError("Not supported on earlier then python 2.7.")
 
 try:
-    from functools import singledispatch
+    from functools import singledispatch  # noqa
 except ImportError:
     dependencies.append("singledispatch")
 
