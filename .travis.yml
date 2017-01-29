@@ -12,3 +12,33 @@ script:
 after_success:
   - "coverage combine python27.coverage python36.coverage"
   - "coveralls"
+deploy:
+  provider: pypi
+  distributions: sdist
+  on:
+    tags: true
+    python: 3.6
+  user:
+    secure: >-
+      Oe8CIOBCiunxPQMj0feO7+bqrKbXxlUXH3P2HwfUGLIfFi5Qq+RVOl1uek0QZDpRjik3tjSg
+      uDnLRM0RPcWRxK+QCAzoWhzYztmEClISXGJfMOmE4L71H7gtlCmEUWr/zJOilhZnMpVBwmSs
+      gHYmU8ziumaVVb34h8WbLx9N2cLyAhB6mvyW5e3C2KfgabLzvCOSoE36As/CGqojPifNtDAD
+      EYrcBcJ0t4SjUcVlEqmbzsNCF/LRtiqTpA5E07DhORAy7sdMORtSNcNWDPGYtlOMsqGV+Qx9
+      BFyZ4qRRirAjqXH6uKXMn6jCcuh8rR4bm113FLj1FNyRtGNeKQNgnlZ6XuaHkALQxIEzrxAi
+      3QRdRQsdSLSKmUHjgmJrJ7aXYfTiVQbagn5h8QSxDRnTSsgBoVX6F6705ggux6pP21+MkwJb
+      G1QZWsIjnhGm4q3kbghsS/5IkQniCcZi0isE4CBIuIWgZXbWF0rgjzXV08bWeHZNZAubpjP4
+      O9QD3sqbv+imAc+HZbNp8YZgSUo4aui5muQ7wz5Et/sRRxE/gptS8iyyVft5ZMYV/7gyJdwT
+      z1B3m3kAf9U+YS0Xon6MxXD8VTnjvkr5MUR1VNV+lTz8///pzaXEAf0EbJIdn3h/326+iZkD
+      wujBB3ohKBiRTMl52TDY7R3P8BcynyjIqJo=
+  password:
+    secure: >-
+      KeCRL6MFYeg8bSw1n7lC4tPc1pBTg/6sMOgoMfR3cECkX/T0MTKQd/R8bU/Iw/PxW6H83uSZ
+      oNe7kCgOy7d2DxqKpgx45lDx+Q9ytyrW972vAbHNRVB3lMBeN3C1Jkp0rp6thKfxtvWeX5io
+      Zz9/VnLlaCsyTng7dNbE+ZTCcJ8Z4wiM+RXsDn11m7T0gxQkzJ9eAWQFnPc0X5O11L/2Tu1C
+      XQmd/BUD0zj3kED1K16TFwtnRreGizNzXjp3+yVHjpgA+MiA0heJGOG15vMNn2LnqXUMOUMG
+      3cp9HLw4cWTXPNNJ39+dTuwPWYlkkYhil2q+V9+Msx8jMuc//QruM4uKGSyNcDx6vzQmVGQs
+      G/PT2MSLCcqglJ5cMkdRRDidijNOnvM8ZSkzBRccTjYZtuurXiyqOX+d5OM4Ov7Z40kaj41g
+      ZfC2++aYWRedN8zPM2Pzrb4rto31kPoxnEcWA99Hb+iMfMMAvetQ9ZKmEaf7lM/Aq8fn+8eg
+      ySk3Xb4lquj2aV6zZjJvNJkeCOtEf55WuAisEcvLoJfTm7naxiE9ldqpQ90NRgA3tgRmt3ny
+      K6RF++tpgeEc892/quFj0QhowUPdUyLW16FBd5naamDK8Ad+EXS+gDprQePZqb8wVjZ2PGXJ
+      eFfd5mWH+RJN2dIO05UWx/crhveuz4e+o+E=
