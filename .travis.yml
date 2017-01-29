@@ -18,16 +18,19 @@ after_success:
   - "coveralls"
 before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
+  - >
+      git archive --format tar
+      --prefix=mongoengine_goodjson-${TRAVIS_TAG}/
+      -o ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tar HEAD
+  - "cd ${HOME}"
+  - tar xf ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tar
+  - "cd ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}"
   - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
   - "mv setup.py.new setup.py"
-  - "git config user.email 'travis@travis-ci.org'"
-  - "git config user.name 'Travis Automated Commit'"
-  - "git add ."
-  - "git commit -m \"For release\""
-  - >
-      git archive --format tar.gz
-      --prefix=mongoengine_goodjson-${TRAVIS_TAG}/
-      -o ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tgz HEAD
+  - "cd ${HOME}"
+  - tar czf ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tgz mongoengine_goodjson-${TRAVIS_TAG}
+  - rm -rf mongoengine_goodjson-${TRAVIS_TAG}
+  - "cd ${TRAVIS_BUILD_DIR}"
 deploy:
   - provider: pypi
     skip_cleanup: true
