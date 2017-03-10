@@ -8,6 +8,7 @@ import mongoengine_goodjson as gj
 import mongoengine as db
 
 from ...con_base import DBConBase
+from ..fixtures.base import Dictable
 
 
 class JSONExclusionTest(DBConBase):
@@ -45,3 +46,27 @@ class JSONExclusionTest(DBConBase):
         self.assertIsNone(result.json_exclude)
         self.assertIsNotNone(result.to_json_exclude)
         self.assertIsNotNone(result.required)
+
+
+class EmbeddedDocumentJsonExclusionTest(DBConBase):
+    """Complex JSON exclusion test."""
+
+    def setUp(self):
+        """Setup."""
+        class EmbDoc(Dictable, gj.EmbeddedDocument):
+            name = db.StringField()
+            meta_id = db.ObjectIdField(exclude_json=True)
+            description = db.StringField(exclude_form_json=True)
+            public_date = db.DateTimeField(exclude_to_json=True)
+
+        class CompleExclusionModel(gj.Document):
+            emb_docs_ex_to_json = db.ListField(
+                db.EmbeddedDocumentField(EmbDoc), exclude_to_json=True
+            )
+            emb_docs_ex_from_json = db.ListField(
+                db.EmbeddedDocumentField(EmbDoc), exclude_from_json=True
+            )
+            emb_dosc_ex_json = db.ListField(
+                db.EmbeddedDocumentField(EmbDoc), exclude_json=True
+            )
+            emb_doc = db.EmbeddedDocumentField(EmbDoc)
