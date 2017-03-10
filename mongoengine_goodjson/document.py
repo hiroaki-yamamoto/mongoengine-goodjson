@@ -21,7 +21,7 @@ class Helper(object):
     """Helper class to serialize / deserialize JSON document."""
 
     def _follow_reference(self, max_depth, current_depth,
-                          use_db_field, *args, **kwargs):
+                          use_db_field, data, *args, **kwargs):
         from .fields import FollowReferenceField
         ret = {}
         for fldname in self:
@@ -58,7 +58,18 @@ class Helper(object):
                             dct["id"] = dct.pop("_id")
                         value.append(dct)
                 else:
-                    doc = getattr(self, fldname, None)
+                    # Honestly, I don't feel this implementation is good.
+                    # However, as #892 at MongoEngine
+                    # (https://github.com/MongoEngine/mongoengine/issues/892)
+                    # shows, to keep follow reference, this is only the way...
+                    #
+                    # (Of course, PR is appreciated.)
+                    try:
+                        doc = getattr(self, fldname, None)
+                    except db.DoesNotExist:
+                        doc = self._fields[fldname].document_type.objects(
+                            id=data[fldname]
+                        ).get()
                     tdoc = target.document_type.objects(
                         id=doc.id
                     ).get() if isinstance(doc, DBRef) else doc
@@ -73,7 +84,7 @@ class Helper(object):
                     ret.update({fldname: value})
         return ret
 
-    def __set_gj_flag_sub_field(self, name, instance, fld, cur_depth):
+    def __set_gj_flag_sub_field(self, name, fld, cur_depth):
         """Tell current depth to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
@@ -81,25 +92,30 @@ class Helper(object):
             setattr(traget, "$$cur_depth$$", cur_depth)
 
         @singledispatch
-        def set_flag_recursive(fld, instance):
+        def set_flag_recursive(fld):
             set_good_json(fld)
 
         @set_flag_recursive.register(db.ListField)
-        def set_flag_list(fld, instance):
-            set_flag_recursive(fld.field, instance)
+        def set_flag_list(fld):
+            set_flag_recursive(fld.field)
 
         @set_flag_recursive.register(db.EmbeddedDocumentField)
-        def set_flag_emb(fld, instance):
-            if isinstance(instance, Helper):
-                instance.begin_goodjson(cur_depth)
+        def set_flag_emb(fld):
+            if issubclass(fld.document_type_obj, Helper):
+                obj = getattr(self, name)
+                if isinstance(obj, list):
+                    for item in obj:
+                        item.begin_goodjson()
+                else:
+                    obj.begin_goodjson(cur_depth)
 
         @set_flag_recursive.register(FollowReferenceField)
-        def set_flag_self(fld, instance):
+        def set_flag_self(fld):
             set_good_json(fld)
 
-        set_flag_recursive(fld, instance)
+        set_flag_recursive(fld)
 
-    def __unset_gj_flag_sub_field(self, name, instance, fld, cur_depth):
+    def __unset_gj_flag_sub_field(self, name, fld, cur_depth):
         """Remove current depth to subfield."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
@@ -109,37 +125,38 @@ class Helper(object):
                 delattr(fld, "$$cur_depth$$")
 
         @singledispatch
-        def unset_flag_recursive(fld, instance):
+        def unset_flag_recursive(fld):
             unset_flag(fld)
 
         @unset_flag_recursive.register(db.ListField)
-        def unset_flag_list(fld, instance):
-            unset_flag_recursive(fld.field, instance)
+        def unset_flag_list(fld):
+            unset_flag_recursive(fld.field)
 
         @unset_flag_recursive.register(db.EmbeddedDocumentField)
-        def unset_flag_emb(fld, instance):
-            if isinstance(instance, Helper):
-                instance.end_goodjson(cur_depth)
+        def unset_flag_emb(fld):
+            if issubclass(fld.document_type_obj, Helper):
+                obj = getattr(self, name)
+                if isinstance(obj, list):
+                    for item in obj:
+                        item.end_goodjson()
+                else:
+                    obj.end_goodjson(cur_depth)
 
         @unset_flag_recursive.register(FollowReferenceField)
-        def unset_flag_self(fld, instance):
+        def unset_flag_self(fld):
             unset_flag(fld)
 
-        unset_flag_recursive(fld, instance)
+        unset_flag_recursive(fld)
 
     def begin_goodjson(self, cur_depth=0):
         """Enable GoodJSON Flag."""
         for (name, fld) in self._fields.items():
-            self.__set_gj_flag_sub_field(
-                name, getattr(self, name), fld, cur_depth=cur_depth
-            )
+            self.__set_gj_flag_sub_field(name, fld, cur_depth=cur_depth)
 
     def end_goodjson(self, cur_depth=0):
         """Stop GoodJSON Flag."""
         for (name, fld) in self._fields.items():
-            self.__unset_gj_flag_sub_field(
-                name, getattr(self, name), fld, cur_depth=cur_depth
-            )
+            self.__unset_gj_flag_sub_field(name, fld, cur_depth=cur_depth)
 
     def to_mongo(self, *args, **kwargs):
         """Convert into mongodb compatible dict."""
@@ -193,7 +210,7 @@ class Helper(object):
         if follow_reference and \
                 (current_depth < max_depth or max_depth is None):
             data.update(self._follow_reference(
-                max_depth, current_depth, use_db_field, *args, **kwargs
+                max_depth, current_depth, use_db_field, data, *args, **kwargs
             ))
 
         return json.dumps(data, *args, **kwargs)

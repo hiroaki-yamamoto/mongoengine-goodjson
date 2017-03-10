@@ -43,7 +43,7 @@ class FollowReferenceTest(DBConBase):
         for ref in self.reference.references:
             ref.user.save()
             ref.save()
-        self.reference.save(cascade=True)
+        self.reference.save()
         result = json.loads(
             self.reference_cls.objects(
                 id=self.reference.id
