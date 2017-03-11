@@ -169,6 +169,36 @@ class Helper(object):
             self.end_goodjson(cur_depth)
         return result
 
+    def __to_json_drop_excluded_data(self, data, flds=None):
+        """
+        Cosider exclude_to_json and exclude_json flag.
+
+        Arguments:
+            data: The return value of to_mongo from the top-level document.
+            flds: The fields of child document. In usual use, this parameter
+                should be None, because this is used internally.
+        """
+        ret = data.copy()
+        for name, fld in (flds or self._fields).items():
+            if any([
+                getattr(fld, "exclude_to_json", None),
+                getattr(fld, "exclude_json", None)
+            ]):
+                ret.pop(name, None)
+            elif isinstance(ret.get(name), list):
+                if isinstance(fld.field, db.EmbeddedDocumentField) and \
+                        issubclass(fld.field.document_type, Helper):
+                    ret[name] = [
+                        self.__to_json_drop_excluded_data(
+                            item, fld.field.document_type._fields
+                        ) for item in ret[name]
+                    ]
+            elif isinstance(ret.get(name), dict):
+                ret[name] = self.__to_json_drop_excluded_data(
+                    ret[name], fld.document_type._fields
+                )
+        return ret
+
     def to_json(self, *args, **kwargs):
         """
         Encode to human-readable json.
@@ -200,18 +230,13 @@ class Helper(object):
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
 
-        for name, fld in self._fields.items():
-            if any([
-                getattr(fld, "exclude_to_json", None),
-                getattr(fld, "exclude_json", None)
-            ]):
-                data.pop(name, None)
-
         if follow_reference and \
                 (current_depth < max_depth or max_depth is None):
             data.update(self._follow_reference(
                 max_depth, current_depth, use_db_field, data, *args, **kwargs
             ))
+
+        data = self.__to_json_drop_excluded_data(data)
 
         return json.dumps(data, *args, **kwargs)
 

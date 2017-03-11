@@ -3,7 +3,10 @@
 
 """Field exclusion tests."""
 
+from datetime import datetime
 import json
+
+from bson import ObjectId
 import mongoengine_goodjson as gj
 import mongoengine as db
 
@@ -51,22 +54,95 @@ class JSONExclusionTest(DBConBase):
 class EmbeddedDocumentJsonExclusionTest(DBConBase):
     """Complex JSON exclusion test."""
 
-    def setUp(self):
-        """Setup."""
+    @classmethod
+    def setUpClass(cls):
+        """Setup class."""
+        super(EmbeddedDocumentJsonExclusionTest, cls).setUpClass()
+
         class EmbDoc(Dictable, gj.EmbeddedDocument):
             name = db.StringField()
             meta_id = db.ObjectIdField(exclude_json=True)
             description = db.StringField(exclude_form_json=True)
             public_date = db.DateTimeField(exclude_to_json=True)
 
-        class CompleExclusionModel(gj.Document):
+            @classmethod
+            def generate_test_data(cls, prefix="", suffix=""):
+                return cls(
+                    name=("{}Test{}").format(prefix, suffix),
+                    meta_id=ObjectId(),
+                    description=(
+                        "{}Test Description{}"
+                    ).format(prefix, suffix),
+                    public_date=datetime.utcnow()
+                )
+
+        class ComplexExclusionModel(Dictable, gj.Document):
             emb_docs_ex_to_json = db.ListField(
                 db.EmbeddedDocumentField(EmbDoc), exclude_to_json=True
             )
             emb_docs_ex_from_json = db.ListField(
                 db.EmbeddedDocumentField(EmbDoc), exclude_from_json=True
             )
-            emb_dosc_ex_json = db.ListField(
+            emb_docs_ex_json = db.ListField(
                 db.EmbeddedDocumentField(EmbDoc), exclude_json=True
             )
             emb_doc = db.EmbeddedDocumentField(EmbDoc)
+
+            @classmethod
+            def generate_test_data(cls, prefix="", suffix=""):
+                return cls(
+                    emb_docs_ex_to_json=[
+                        EmbDoc.generate_test_data(
+                            prefix=(
+                                "{} (emb_docs_ex_to_json) "
+                            ).format(prefix),
+                            suffix=("{} {}").format(suffix, counter)
+                        ) for counter in range(3)
+                    ],
+                    emb_docs_ex_from_json=[
+                        EmbDoc.generate_test_data(
+                            prefix=(
+                                "{} (emb_docs_ex_from_json) "
+                            ).format(prefix),
+                            suffix=("{} {}").format(suffix, counter)
+                        ) for counter in range(3)
+                    ],
+                    emb_docs_ex_json=[
+                        EmbDoc.generate_test_data(
+                            prefix=("{} (emb_docs_ex_json) ").format(prefix),
+                            suffix=("{} {}").format(suffix, counter)
+                        ) for counter in range(3)
+                    ],
+                    emb_doc=EmbDoc.generate_test_data(
+                        prefix=("{} (emb_dos) ").format(prefix),
+                        suffix=("{}").format(suffix)
+                    )
+                )
+        cls.doc_cls = ComplexExclusionModel
+
+    def setUp(self):
+        """Setup."""
+        self.doc = self.doc_cls.generate_test_data()
+        self.doc.save()
+
+    def tearDown(self):
+        """Tear down."""
+        self.doc_cls.drop_collection()
+
+    def test_to_json(self):
+        """Test to_json."""
+        self.maxDiff = None
+        result = json.loads(self.doc.to_json())
+        correct = self.doc.to_dict()
+        correct.pop("emb_docs_ex_to_json")
+        correct.pop("emb_docs_ex_json")
+        correct["emb_docs_ex_from_json"] = [
+            {
+                key: value
+                for (key, value) in item.items()
+                if key != "meta_id" and key != "public_date"
+            } for item in correct["emb_docs_ex_from_json"]
+        ]
+        correct["emb_doc"].pop("meta_id")
+        correct["emb_doc"].pop("public_date")
+        self.assertEqual(result, correct)
