@@ -59,7 +59,32 @@ class EmbeddedDocumentJsonExclusionTest(DBConBase):
         """Setup class."""
         super(EmbeddedDocumentJsonExclusionTest, cls).setUpClass()
 
-        class EmbDoc(Dictable, gj.EmbeddedDocument):
+        class CheckObj(object):
+            def check(self, input_data):
+                for (name, fld) in self._fields.items():
+                    value = getattr(self, name, None)
+                    if getattr(fld, "exclude_from_json", None):
+                        if isinstance(value, list):
+                            assert len(value) == 0, (
+                                "{} is not emtpy: {}"
+                            ).format(name, value)
+                        else:
+                            assert value is None, (
+                                "{} is not None: {}"
+                            ).format(name, value)
+                    elif hasattr(value, "check"):
+                        value.check(input_data[name])
+                    elif isinstance(value, list):
+                        for index, item in enumerate(getattr(self, name)):
+                            item.check(input_data[name][index])
+                    else:
+                        assert value == fld.to_python(
+                            input_data[name]
+                        ), ("{} is not {}: {}").format(
+                            name, input_data[name], getattr(self, name)
+                        )
+
+        class EmbDoc(CheckObj, Dictable, gj.EmbeddedDocument):
             name = db.StringField()
             meta_id = db.ObjectIdField(exclude_json=True)
             description = db.StringField(exclude_form_json=True)
@@ -76,7 +101,7 @@ class EmbeddedDocumentJsonExclusionTest(DBConBase):
                     public_date=datetime.utcnow()
                 )
 
-        class ComplexExclusionModel(Dictable, gj.Document):
+        class ComplexExclusionModel(CheckObj, Dictable, gj.Document):
             emb_docs_ex_to_json = db.ListField(
                 db.EmbeddedDocumentField(EmbDoc), exclude_to_json=True
             )
@@ -131,7 +156,6 @@ class EmbeddedDocumentJsonExclusionTest(DBConBase):
 
     def test_to_json(self):
         """Test to_json."""
-        self.maxDiff = None
         result = json.loads(self.doc.to_json())
         correct = self.doc.to_dict()
         correct.pop("emb_docs_ex_to_json")
@@ -146,3 +170,9 @@ class EmbeddedDocumentJsonExclusionTest(DBConBase):
         correct["emb_doc"].pop("meta_id")
         correct["emb_doc"].pop("public_date")
         self.assertEqual(result, correct)
+
+    def test_from_json(self):
+        """Test from_json."""
+        data = self.doc.to_dict()
+        obj = self.doc_cls.from_json(json.dumps(data))
+        obj.check(data)
