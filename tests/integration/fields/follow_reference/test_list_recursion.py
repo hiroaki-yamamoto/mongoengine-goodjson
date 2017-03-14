@@ -123,7 +123,8 @@ class FollowReferenceFieldListRecursionTest(DBConBase):
         self.ref2_cls.objects().delete()
         self.ref3_cls.objects().delete()
         results = [
-            self.ref3_cls.from_json(item.to_json())
+            json.loads(self.ref3_cls.from_json(item.to_json()).to_json())
             for item in self.ref3
         ]
-        self.assertEqual(results, self.ref3)
+        expected = [json.loads(item.to_json()) for item in self.ref3]
+        self.assertEqual(results, expected)
