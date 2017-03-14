@@ -3,8 +3,9 @@
 
 """Follow Reference Field code."""
 
-import json
 import logging
+
+from bson import SON
 import mongoengine as db
 from ..document import Document
 
@@ -90,8 +91,8 @@ class FollowReferenceField(db.ReferenceField):
         """
         clone = value
         if isinstance(value, dict):
-            clone = self.document_type.from_json(
-                json.dumps(value), created="id" not in value
+            clone = self.document_type._from_son(
+                SON(value), created="id" not in value
             )
             if self.autosave:
                 clone.save()

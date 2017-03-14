@@ -5,6 +5,8 @@
 
 import json
 
+from unittest import skip
+
 try:
     from unittest.mock import patch
 except ImportError:
@@ -51,6 +53,13 @@ class FollowReferenceFieldDefaultRecursionLimitTest(DBConBase):
         result = json.loads(self.model.to_json())
         self.assertEqual(self.data, result)
 
+    def test_decoder(self):
+        """Test decoder."""
+        self.model_cls.objects.delete()
+        json_data = self.model.to_json()
+        data = self.model_cls.from_json(self.model.to_json())
+        self.assertEqual(json.loads(data.to_json()), json.loads(json_data))
+
 
 class FollowReferenceFieldRecursionNoneTest(
     FollowReferenceFieldDefaultRecursionLimitTest
@@ -83,9 +92,11 @@ class FollowReferenceFieldNegativeRecursionTest(
     def setUp(self, warn):
         """Setup."""
         self.warn = warn
-        super(
-            FollowReferenceFieldNegativeRecursionTest, self
-        ).setUp(max_depth=-1)
+        super(FollowReferenceFieldNegativeRecursionTest, self).setUp(
+            max_depth=-1
+        )
+
+    test_decoder = skip("Not needed")(lambda: None)
 
     def test_warning(self):
         """The warn should be shown."""
