@@ -42,10 +42,14 @@ class FollowReferenceFieldDefaultRecursionLimitTest(DBConBase):
             cur_depth = cur_depth["ref"]
         cur_depth["ref"] = self.data["id"]
 
+    def tearDown(self):
+        """Tear down class."""
+        self.model_cls.objects.delete()
+
     def test_recursion_limit(self):
         """The result should have just 3-level depth."""
         result = json.loads(self.model.to_json())
-        self.assertDictEqual(self.data, result)
+        self.assertEqual(self.data, result)
 
 
 class FollowReferenceFieldRecursionNoneTest(
@@ -59,11 +63,6 @@ class FollowReferenceFieldRecursionNoneTest(
             max_depth=None
         )
 
-    def test_recursion_limit(self):
-        """The result should have just 3-level depth."""
-        result = json.loads(self.model.to_json())
-        self.assertDictEqual(self.data, result)
-
 
 class FollowReferenceFieldRecursionNumTest(
     FollowReferenceFieldDefaultRecursionLimitTest
@@ -73,11 +72,6 @@ class FollowReferenceFieldRecursionNumTest(
     def setUp(self):
         """Setup."""
         super(FollowReferenceFieldRecursionNumTest, self).setUp(max_depth=5)
-
-    def test_recursion_limit(self):
-        """The result should have just 5-level depth."""
-        result = json.loads(self.model.to_json())
-        self.assertDictEqual(self.data, result)
 
 
 class FollowReferenceFieldNegativeRecursionTest(
