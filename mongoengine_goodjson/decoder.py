@@ -10,7 +10,6 @@ from uuid import UUID
 import bson
 from dateutil.parser import parse
 import mongoengine as db
-from mongoengine.base import BaseField
 
 try:
     from functools import singledispatch
@@ -20,11 +19,7 @@ except ImportError:
 
 def generate_object_hook(cls):
     """Human readable JSON decoder for MongoEngine."""
-    fields = {} if cls is None else {
-        field_name: field_type
-        for (field_name, field_type) in cls.__dict__.items()
-        if isinstance(field_type, BaseField)
-    }
+    fields = {} if cls is None else cls._fields
 
     def object_hook(dct):
         @singledispatch

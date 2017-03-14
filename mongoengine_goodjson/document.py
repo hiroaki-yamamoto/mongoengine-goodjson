@@ -213,7 +213,7 @@ class Helper(object):
             current_depth: This is used internally to identify current
                 recursion depth. Therefore, you should leave this value as-is.
                 By default, the value is 0.
-            *args, **kwargs: Any arguments, keyword arguments to
+            *args, **kwargs: Any arguments, and keyword arguments to
                 tell json.dumps.
         """
         use_db_field = kwargs.pop('use_db_field', True)
@@ -277,9 +277,7 @@ class Helper(object):
         @normalize_reference.register(list)
         def normalize_reference_list(ref_id, fld):
             """Normalize Reference for list."""
-            return [
-                normalize_reference(ref.id, fld) for ref in ref_id
-            ]
+            return [normalize_reference(ref.id, fld) for ref in ref_id]
 
         for fldname, fld in cls._fields.items():
             target = fld.field if isinstance(fld, db.ListField) else fld
