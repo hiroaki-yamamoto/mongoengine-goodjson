@@ -137,3 +137,38 @@ class FollowReferenceQueryTest(DBConBase):
         """The document referenced by the field should be referenced."""
         result = json.loads(UserReferenceNoAutoSave.objects.to_json())
         self.assertListEqual(result, self.data_ref_users)
+
+
+class PartialQuerySetReferenceTest(DBConBase):
+    """Partial query set reference test."""
+
+    def setUp(self):
+        """Setup."""
+        super(PartialQuerySetReferenceTest, self).setUp()
+
+        class Doc(gj.Document):
+            """Document."""
+
+            test1 = db.StringField()
+            test2 = db.StringField()
+            test3 = db.StringField()
+            test4 = db.IntField()
+
+        self.doc_cls = Doc
+        self.docs = [
+            self.doc_cls.objects.create(test1="TEST1"),
+            self.doc_cls.objects.create(test1="TEST2", test2="tEsT2"),
+            self.doc_cls.objects.create(test1="TEST3", test3="tEsT3")
+        ]
+
+    def test_data(self):
+        """The serialized document should be expected."""
+        data = [
+            {"id": str(item.id), "test1": item.test1}
+            for item in self.docs[:-1]
+        ]
+        data[-1]["test2"] = self.docs[-2]["test2"]
+        actual = self.doc_cls.objects[0:1]
+        self.assertEqual(
+            json.loads(actual.to_json()), data
+        )
