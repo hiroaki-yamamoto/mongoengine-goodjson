@@ -12,7 +12,7 @@ install:
 script:
   - "flake8 mongoengine_goodjson tests"
   - "radon cc -nc mongoengine_goodjson"
-  - "tox"
+  - "detox"
 after_success:
   - "coverage combine python27.coverage python36.coverage"
   - "coveralls"

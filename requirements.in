@@ -4,6 +4,6 @@ flake8
 flake8-docstrings
 mongoengine
 radon
-tox
+detox
 virtualenv
 pip-tools

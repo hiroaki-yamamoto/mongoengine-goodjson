@@ -52,7 +52,7 @@ g.task "test", ->
   ).then(
     ->
       console.log ("Unit testing...").green
-      spawnInEnv "tox"
+      spawnInEnv "detox"
   ).then(
     ->
       console.log ("Combine the coverage").green

@@ -8,8 +8,17 @@ import json
 import mongoengine_goodjson as gj
 import mongoengine as db
 
+from .fixtures.base import Dictable
 from .fixtures.user import User, UserReferenceNoAutoSave
 from ..con_base import DBConBase
+
+
+# class EmptyEuqeyTest(DBConBase):
+#     """Empty query test."""
+#
+#     def test_to_json(self):
+#         """The serialized value should be an empty list."""
+#         self.assertEqual(json.loads(User.objects.to_json()), [])
 
 
 class UserSerializationDesrializationTest(DBConBase):
@@ -36,6 +45,16 @@ class UserSerializationDesrializationTest(DBConBase):
         """The data should be decoded properly."""
         result = User.objects.from_json(json.dumps(self.users_dict))
         self.assertEqual(self.users, result)
+
+    def test_as_pymongo(self):
+        """Should behave as normal."""
+        data = []
+        for item in self.users:
+            el = item.to_dict(oid_as_str=False, call_child_to_dict=False)
+            el["_id"] = el.pop("id")
+            data.append(el)
+        actual = User.objects.as_pymongo()
+        self.assertEqual(data, list(actual))
 
 
 class QuerySetJSONExclusionTest(DBConBase):
@@ -146,7 +165,7 @@ class PartialQuerySetReferenceTest(DBConBase):
         """Setup."""
         super(PartialQuerySetReferenceTest, self).setUp()
 
-        class Doc(gj.Document):
+        class Doc(Dictable, gj.Document):
             """Document."""
 
             test1 = db.StringField()
@@ -161,14 +180,63 @@ class PartialQuerySetReferenceTest(DBConBase):
             self.doc_cls.objects.create(test1="TEST3", test3="tEsT3")
         ]
 
-    def test_data(self):
+    def tearDown(self):
+        """Tear down."""
+        self.doc_cls.drop_collection()
+        super(PartialQuerySetReferenceTest, self).tearDown()
+
+    def test_encode(self):
         """The serialized document should be expected."""
-        data = [
-            {"id": str(item.id), "test1": item.test1}
-            for item in self.docs[:-1]
-        ]
-        data[-1]["test2"] = self.docs[-2]["test2"]
-        actual = self.doc_cls.objects[0:1]
+        data = [item.to_dict() for item in self.docs[0:2]]
+        actual = self.doc_cls.objects[0:2]
         self.assertEqual(
             json.loads(actual.to_json()), data
+        )
+
+    def test_as_pymongo(self):
+        """Should behave as normal."""
+        data = []
+        self.maxDiff = None
+        for item in self.docs[0:2]:
+            el = item.to_dict(oid_as_str=False, call_child_to_dict=False)
+            el["_id"] = el.pop("id")
+            data.append(el)
+        actual = self.doc_cls.objects[0:2].as_pymongo()
+        self.assertEqual(data, list(actual))
+
+
+class NotInheritGJDocTest(DBConBase):
+    """QuerySet that is embedded to the normal doc reference test."""
+
+    def setUp(self):
+        """Setup."""
+        super(NotInheritGJDocTest, self).setUp()
+
+        class Doc(Dictable, db.Document):
+            """Document."""
+
+            meta = {"queryset_class": gj.QuerySet}
+
+            test1 = db.StringField()
+            test2 = db.StringField()
+            test3 = db.StringField()
+            test4 = db.IntField()
+
+        self.doc_cls = Doc
+        self.docs = [
+            self.doc_cls.objects.create(test1="TEST1"),
+            self.doc_cls.objects.create(test1="TEST2", test2="tEsT2"),
+            self.doc_cls.objects.create(test1="TEST3", test3="tEsT3")
+        ]
+
+    def tearDown(self):
+        """Tear down."""
+        self.doc_cls.drop_collection()
+        super(NotInheritGJDocTest, self).tearDown()
+
+    def test_encode(self):
+        """The queryset should behave as usual."""
+        data = [json.loads(item.to_json()) for item in self.docs]
+        self.assertEqual(
+            json.loads(self.doc_cls.objects.to_json()), data
         )
