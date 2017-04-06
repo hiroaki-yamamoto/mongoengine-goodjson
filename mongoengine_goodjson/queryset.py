@@ -61,38 +61,38 @@ class QuerySet(db.QuerySet):
 
     def as_pymongo(self, *args, **kwargs):
         """Return pymongo encoded dict."""
-        lst = super(QuerySet, self).as_pymongo()
+        lst = super(QuerySet, self).as_pymongo()()
         if getattr(self, "$$good_json$$", None):
             for item in lst:
                 for (name, fld) in self._document._fields.items():
-                    if name == "id":
-                        name = "_id"
-                    item[name] = self.__get_doc(fld, item[name])
-                if "id" not in item and "_id" in item:
-                    item["id"] = item.pop("_id")
+                    if name in item:
+                        item[name] = self.__get_doc(fld, item[name])
+                item["id"] = item.pop("_id")
         return lst
 
     def to_json(self, *args, **kwargs):
         """Convert to JSON."""
-        if "cls" not in kwargs:
-            kwargs["cls"] = GoodJSONEncoder
-        self.__start_good_json()
-        lst = self.as_pymongo()
-        self.__end_good_json()
-        # Using for loop twice is not good in the case that there's a lot of
-        # data, and to reduce for loop, picking out the field of which exclude
-        # fields are truhty is the idea
-        # (If you know more suitable idea, make a PR.).
-        exclude = [
-            name for (name, fld) in self._document._fields.items() if any([
-                getattr(fld, "exclude_to_json", None),
-                getattr(fld, "exclude_json", None)
-            ])
-        ]
-        for dct in lst:
-            for exc in exclude:
-                dct.pop(exc, None)
-        return json.dumps(lst, *args, **kwargs)
+        from .document import Document
+        if issubclass(self._document, Document):
+            kwargs.setdefault("cls", GoodJSONEncoder)
+            self.__start_good_json()
+            lst = self.as_pymongo()
+            self.__end_good_json()
+            # Using for loop twice is not good in the case that there's
+            # a lot of data, and to reduce for loop, picking out the field of
+            # which exclude fields are truhty is the idea (If you know more
+            # suitable idea, make a PR.).
+            exclude = [
+                name for (name, fld) in self._document._fields.items() if any([
+                    getattr(fld, "exclude_to_json", None),
+                    getattr(fld, "exclude_json", None)
+                ])
+            ]
+            for dct in lst:
+                for exc in exclude:
+                    dct.pop(exc, None)
+            return json.dumps(lst, *args, **kwargs)
+        return super(QuerySet, self).to_json()
 
     def from_json(self, json_data):
         """Convert from JSON."""
