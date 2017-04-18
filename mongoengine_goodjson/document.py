@@ -81,7 +81,8 @@ class Helper(object):
                     if "_id" in value:
                         value["id"] = value.pop("_id")
                 if value is not None:
-                    ret.update({fldname: value})
+                    ret[fldname] = value
+                    # ret.update({fldname: value})
         return ret
 
     def __set_gj_flag_sub_field(self, name, fld, cur_depth):
@@ -252,9 +253,7 @@ class Helper(object):
                 json.loads.
         """
         from .fields import FollowReferenceField
-        hook = generate_object_hook(cls)
-        if "object_hook" not in kwargs:
-            kwargs["object_hook"] = hook
+        kwargs.setdefault("object_hook", generate_object_hook(cls))
         dct = json.loads(json_str, *args, **kwargs)
         for name, fld in cls._fields.items():
             if any([
