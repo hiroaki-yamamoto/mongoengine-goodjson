@@ -30,6 +30,7 @@ class Dictable(object):
                 into str.
             call_child_to_dict: Set False to skip calling to_dict of child
                 doc.
+
         """
         @singledispatch
         def to_primitive(value):

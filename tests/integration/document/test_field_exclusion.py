@@ -56,7 +56,7 @@ class EmbeddedDocumentJsonExclusionTest(DBConBase):
 
     @classmethod
     def setUpClass(cls):
-        """Setup class."""
+        """Set up class."""
         super(EmbeddedDocumentJsonExclusionTest, cls).setUpClass()
 
         class CheckObj(object):

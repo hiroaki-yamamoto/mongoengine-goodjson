@@ -20,7 +20,7 @@ class QuerysetEncodeDecodeTest(DBConBase):
     """Queryset encoding / decoding tests."""
 
     def setUp(self):
-        """Setup the class."""
+        """Set up the class."""
         self.dict_model = [
             {u"test": u"Hello %s" % count} for count in range(5)
         ]

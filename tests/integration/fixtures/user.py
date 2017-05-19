@@ -34,6 +34,7 @@ class User(Dictable, gj.Document):
     name = db.StringField()
     email = db.EmailField()
     address = db.EmbeddedDocumentListField(Address)
+    metadata = db.DictField()
 
     @classmethod
     def generate_test_data(cls, additional_suffix=""):
@@ -49,6 +50,14 @@ class User(Dictable, gj.Document):
             Address.generate_test_data(user, additional_suffix=counter)
             for counter in range(3)
         ]
+        user.metadata = {
+            ("test{}").format(counter1): {
+                ("test2_{}").format(counter2):
+                    ("Test value {}").format(counter2)
+                for counter2 in range(3)
+            }
+            for counter1 in range(5)
+        }
         return user
 
 

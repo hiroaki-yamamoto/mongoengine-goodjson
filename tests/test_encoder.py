@@ -19,7 +19,7 @@ class NormalStuffEncodingTest(TestCase):
     """Normal stuff should be encoded."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.encoder = GoodJSONEncoder()
         self.data = "test"
 
@@ -40,7 +40,7 @@ class ObjectIdEncodeTest(TestCase):
     """Object ID Encoding test."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         from bson import ObjectId
         self.encoder = GoodJSONEncoder()
         self.oid = ObjectId()
@@ -55,7 +55,7 @@ class DatetimeISOEncodeTest(TestCase):
     """datetime encoding test."""
 
     def setUp(self):
-        """Setup funciton."""
+        """Set up funciton."""
         from datetime import datetime
         self.now = datetime.utcnow()
         self.encoder = GoodJSONEncoder()
@@ -71,7 +71,7 @@ class DatetimeEpochEncodeTest(TestCase):
     """datetime encoding test."""
 
     def setUp(self):
-        """Setup funciton."""
+        """Set up funciton."""
         from datetime import datetime
         self.now = datetime.utcnow()
         self.encoder = GoodJSONEncoder(epoch_mode=True)
@@ -92,7 +92,7 @@ class DBRefEncodingTestBase(TestCase):
     """DBRef test case base."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         from bson.dbref import DBRef
         from bson import ObjectId
         self.DBRef = DBRef
@@ -110,7 +110,7 @@ class DBRefEncodeWithDBTest(DBRefEncodingTestBase):
     """DBRef with external database encoding test."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         super(DBRefEncodeWithDBTest, self).setUp()
         self.data = self.DBRef(
             self.collection_name, self.doc_id,
@@ -134,7 +134,7 @@ class DBRefEncodeWithoutDBTest(DBRefEncodingTestBase):
     """DBRef without external database encoding test."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         super(DBRefEncodeWithoutDBTest, self).setUp()
         self.data = self.DBRef(
             self.collection_name, self.doc_id,
@@ -157,7 +157,7 @@ class RegexNativeWithoutFlagTest(TestCase):
     """Native Regex test class."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.encoder = GoodJSONEncoder()
         self.regex = re.compile("^[0-9]+$")
         self.expected_result = {
@@ -176,7 +176,7 @@ class RegexNativeByteTest(TestCase):
     """Native Regex test class."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.encoder = GoodJSONEncoder()
         self.regex = re.compile("^[0-9]+$".encode())
         self.expected_result = {
@@ -194,7 +194,7 @@ class BSONRegexWithoutFlagTest(RegexNativeWithoutFlagTest):
     """SON-wrapped regex test class."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         from bson import Regex
         super(BSONRegexWithoutFlagTest, self).setUp()
         self.regex = Regex.from_native(self.regex)
@@ -214,7 +214,7 @@ for (flag_str, flag) in regex_flags.items():
         """Native regex with flag test (individual)."""
 
         def setUp(self):
-            """Setup class."""
+            """Set up class."""
             super(RegexNativeWithFlagTest, self).setUp()
             self.regex = re.compile(self.regex.pattern, flag)
             self.actual_result = self.encoder.default(self.regex)
@@ -233,7 +233,7 @@ for (flag_str, flag) in regex_flags.items():
         """BSON regex with flag test (individual)."""
 
         def setUp(self):
-            """Setup class."""
+            """Set up class."""
             super(BSONRegexWitFlagTest, self).setUp()
             from bson import Regex
             self.regex = Regex.from_native(self.regex)
@@ -243,7 +243,7 @@ class RegexNativeWithUnicodeTest(RegexNativeWithoutFlagTest):
     """Native regex with flag test (except re.LOCALE)."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         super(RegexNativeWithUnicodeTest, self).setUp()
         self.regex = re.compile(
             self.regex.pattern,
@@ -273,7 +273,7 @@ class RegexNativeWithLocaleTest(RegexNativeByteTest):
     """Native regex with flag test (except re.UNICODE)."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         super(RegexNativeWithLocaleTest, self).setUp()
         self.regex = re.compile(
             self.regex.pattern,
@@ -303,7 +303,7 @@ class BSONRegexUnicodeTest(RegexNativeWithoutFlagTest):
     """BSON regex with flag test (individual)."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         super(BSONRegexUnicodeTest, self).setUp()
         from bson import Regex
         self.regex = Regex.from_native(self.regex)
@@ -313,7 +313,7 @@ class BSONRegexLocaleTest(RegexNativeWithUnicodeTest):
     """BSON regex with flag test (individual)."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         super(BSONRegexLocaleTest, self).setUp()
         from bson import Regex
         self.regex = Regex.from_native(self.regex)
@@ -323,7 +323,7 @@ class MinKeyTest(TestCase):
     """MinKey test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson.min_key import MinKey
         self.encoder = GoodJSONEncoder()
         self.data = MinKey()
@@ -340,7 +340,7 @@ class MaxKeyTest(TestCase):
     """MaxKey test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson.max_key import MaxKey
         self.encoder = GoodJSONEncoder()
         self.data = MaxKey()
@@ -357,7 +357,7 @@ class TimeStampTest(TestCase):
     """Timestamp test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson.timestamp import Timestamp
         from datetime import datetime
         from calendar import timegm
@@ -378,7 +378,7 @@ class CodeTest(TestCase):
     """Code test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson.code import Code
         self.encoder = GoodJSONEncoder()
         self.expected = {
@@ -396,7 +396,7 @@ class BinaryTest(TestCase):
     """Binary test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson.binary import Binary, BINARY_SUBTYPE
         from base64 import b64encode
 
@@ -417,7 +417,7 @@ class UUIDTest(TestCase):
     """UUID Test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from uuid import uuid5, NAMESPACE_DNS
         self.encoder = GoodJSONEncoder()
         self.data = uuid5(NAMESPACE_DNS, "This is a test")
@@ -433,7 +433,7 @@ if PY3:
         """Bytes test."""
 
         def setUp(self):
-            """Setup class."""
+            """Set up class."""
             from base64 import b64encode
             self.encoder = GoodJSONEncoder()
             self.data = b"This is a test."

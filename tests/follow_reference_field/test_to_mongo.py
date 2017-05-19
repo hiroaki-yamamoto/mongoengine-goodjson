@@ -22,7 +22,7 @@ class FollowReferenceFieldIDCheckTest(TestCase):
     """Test case for FollowReferenceField ID check functionality."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.referenced_doc = ReferencedDocument(name="hi")
         self.idcheck_doc = IDCheckDocument(
             enable_gj=True,
@@ -47,7 +47,7 @@ class FollowReferenceFieldDisabledIDCheckTest(TestCase):
     """Test case for FollowReferenceField without id_check."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.referenced_doc = ReferencedDocument(name="hi")
         self.doc = DisabledIDCheckDocument(
             ref=self.referenced_doc, enable_gj=True
@@ -74,7 +74,7 @@ class FollowReferenceFieldNonDocumentCheckTest(DBConBase):
     """Test case when the referenced data is not Document."""
 
     def setUp(self):
-        """Setup."""
+        """Set up."""
         self._id = ObjectId()
         self.doc = IDCheckDocument(ref=DBRef("referenced_document", self._id))
         self.disabled_check = DisabledIDCheckDocument(
@@ -107,7 +107,7 @@ class FollowReferenceFieldReturnValueTest(DBConBase):
     """Test case for return value."""
 
     def setUp(self):
-        """Setup."""
+        """Set up."""
         self.referenced_doc = ReferencedDocument(name="hi")
         self.referenced_doc.save()
         self.doc = IDCheckDocument(ref=self.referenced_doc)

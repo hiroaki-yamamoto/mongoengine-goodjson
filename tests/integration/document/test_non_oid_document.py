@@ -13,7 +13,7 @@ class PrimaryKeyNotOidTest(DBConBase):
     """Good JSON encoder/decoder email as primary key test."""
 
     def setUp(self):
-        """Setup the class."""
+        """Set up the class."""
         self.email = Email.generate_test_data()
         self.data_id = self.email.to_dict()
         self.data_email = self.data_id.copy()

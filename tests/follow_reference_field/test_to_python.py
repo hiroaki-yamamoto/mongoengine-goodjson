@@ -21,7 +21,7 @@ class FollowReferenceFieldWithIDTest(TestCase):
     """Unit tests for Follow Reference Field with ID."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.RefDoc = ReferencedDocument
         self.ref_doc = self.RefDoc(name="Test")
         self.ref_doc.pk = ObjectId()
@@ -37,7 +37,7 @@ class FollowReferenceFieldWithoutIDTest(TestCase):
     """Unit test for Follow Reference Field WITHOUT ID."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.RefDoc = ReferencedDocument
         self.ref_doc = self.RefDoc(name="Test")
 
@@ -52,7 +52,7 @@ class FollowReferenceFieldAutoSaveTest(TestCase):
     """Unit test for auto save functionality."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.RefDoc = ReferencedDocument
         self.ref_doc = {"name": "Test"}
 

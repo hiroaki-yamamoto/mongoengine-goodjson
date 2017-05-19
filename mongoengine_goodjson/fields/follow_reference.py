@@ -37,6 +37,7 @@ class FollowReferenceField(db.ReferenceField):
                 to_python is called.
             max_depth: Set natural value to set depath limit for
                 loop-reference. By default this value is set to 3.
+
         """
         self.id_check = kwargs.pop("id_check", True)
         self.autosave = kwargs.pop("autosave", False)
@@ -55,6 +56,7 @@ class FollowReferenceField(db.ReferenceField):
 
         Parameters:
             document: The document.
+
         """
         cur_depth = self.max_depth
         try:
@@ -88,6 +90,7 @@ class FollowReferenceField(db.ReferenceField):
 
         Parameters:
             value: The python-typed document.
+
         """
         clone = value
         if isinstance(value, dict):

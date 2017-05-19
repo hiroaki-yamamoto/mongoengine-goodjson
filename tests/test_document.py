@@ -32,7 +32,7 @@ class ToJSONTest(TestCase):
     """Good JSON Encoder invocation test."""
 
     def setUp(self):
-        """Setup the class."""
+        """Set up the class."""
         class SelfReferenceDocument(Document):
             name = db.StringField()
             reference = db.ReferenceField("self")
@@ -108,7 +108,7 @@ class FromJSONTest(TestCase):
     """object hook generation invocation test."""
 
     def setUp(self):
-        """Setup the class."""
+        """Set up the class."""
         import json
 
         class TestDocument(Document):

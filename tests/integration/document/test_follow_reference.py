@@ -13,7 +13,7 @@ class FollowReferenceTest(DBConBase):
     """Good JSON follow reference encoder/decoder test."""
 
     def setUp(self):
-        """Setup function."""
+        """Set up function."""
         self.maxDiff = None
         self.reference_cls = Reference
         self.reference = self.reference_cls.generate_test_data()

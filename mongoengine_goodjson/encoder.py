@@ -35,6 +35,7 @@ class GoodJSONEncoder(json.JSONEncoder):
                 millisecond. By default, this parameter is set to False, which
                 means the serializer serializes datetime into ISO-formatted
                 string.
+
         """
         self.epoch_mode = epoch_mode
         super(GoodJSONEncoder, self).__init__(*args, **kwargs)
@@ -45,6 +46,7 @@ class GoodJSONEncoder(json.JSONEncoder):
 
         Parameters:
             obj: Object to be converted.
+
         """
         @singledispatch
         def default(obj):

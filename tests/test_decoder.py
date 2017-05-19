@@ -15,7 +15,7 @@ class NoneFieldsTest(TestCase):
     """Test case if the model is not given."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         self.hook = generate_object_hook(None)
         self.expected_data = {"user": "56f63a716a8dec7705f36409"}
         self.data = json.dumps(self.expected_data)
@@ -30,7 +30,7 @@ class ObjectIdDecodeTest(TestCase):
     """ObjectId Test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson import ObjectId
 
         class TestModel(db.Document):
@@ -51,7 +51,7 @@ class DBRefDecodeTest(TestCase):
     """DBRef Test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson import DBRef, ObjectId
 
         class Source(db.Document):
@@ -79,7 +79,7 @@ class OidBasedReferenceDecodeTest(TestCase):
     """Object ID based reference decode test."""
 
     def setUp(self):
-        """Setup class."""
+        """Set up class."""
         from bson import ObjectId, DBRef
 
         class Source(db.Document):
@@ -109,7 +109,7 @@ class DateTimeEpochMillisecDecodeTest(TestCase):
     """DateTime epoch milliseconds Test."""
 
     def setUp(self):
-        """Setup test."""
+        """Set up test."""
         from datetime import datetime, timedelta
         from calendar import timegm
 
@@ -137,7 +137,7 @@ class DateTimeISODecodeTest(TestCase):
     """DateTime ISO format Test."""
 
     def setUp(self):
-        """Setup test."""
+        """Set up test."""
         from datetime import datetime
         from dateutil.parser import parse
 
@@ -160,7 +160,7 @@ class DateTimeUnknownDecodeTest(TestCase):
     """DateTime unknown format Test."""
 
     def setUp(self):
-        """Setup test."""
+        """Set up test."""
         from datetime import datetime
 
         class DateTime(db.Document):
@@ -190,7 +190,7 @@ class BinaryDecodeTest(TestCase):
     """Binary format test."""
 
     def setUp(self):
-        """Setup test."""
+        """Set up test."""
         from base64 import b64encode, b64decode
         from bson.binary import Binary, BINARY_SUBTYPE
 
@@ -226,7 +226,7 @@ class UUIDDecodeTest(TestCase):
     """UUID decode test."""
 
     def setUp(self):
-        """Setup test."""
+        """Set up test."""
         from uuid import uuid5, NAMESPACE_DNS
 
         class UUIDModel(db.Document):

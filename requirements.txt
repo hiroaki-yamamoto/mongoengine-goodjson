@@ -5,15 +5,15 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 click==6.7                # via pip-tools
-colorama==0.3.7           # via radon
-coverage==4.3.4
+colorama==0.3.9           # via radon
+coverage==4.4.1
 coveralls==1.1
 detox==0.11
 docopt==0.6.2             # via coveralls
 enum-compat==0.0.2        # via eventlet
 eventlet==0.21.0          # via detox
 first==2.0.1              # via pip-tools
-flake8-docstrings==1.0.3
+flake8-docstrings==1.1.0
 flake8-polyfill==1.0.1    # via flake8-docstrings, radon
 flake8==3.3.0
 greenlet==0.4.12          # via eventlet
@@ -24,11 +24,12 @@ pip-tools==1.9.0
 pluggy==0.4.0             # via tox
 py==1.4.33                # via detox, tox
 pycodestyle==2.3.1        # via flake8
-pydocstyle==1.1.1         # via flake8-docstrings
+pydocstyle==2.0.0         # via flake8-docstrings
 pyflakes==1.5.0           # via flake8
 pymongo==3.4.0            # via mongoengine
 radon==1.5.0
-requests==2.13.0          # via coveralls
-six==1.10.0               # via mongoengine, pip-tools
+requests==2.14.2          # via coveralls
+six==1.10.0               # via mongoengine, pip-tools, pydocstyle
+snowballstemmer==1.2.1    # via pydocstyle
 tox==2.7.0                # via detox
 virtualenv==15.1.0

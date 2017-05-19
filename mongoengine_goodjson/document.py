@@ -216,6 +216,7 @@ class Helper(object):
                 By default, the value is 0.
             *args, **kwargs: Any arguments, and keyword arguments to
                 tell json.dumps.
+
         """
         use_db_field = kwargs.pop('use_db_field', True)
         follow_reference = kwargs.pop("follow_reference", False)
@@ -251,6 +252,7 @@ class Helper(object):
             created: a parameter that is passed to cls._from_son.
             *args, **kwargs: Any additional arguments that is passed to
                 json.loads.
+
         """
         from .fields import FollowReferenceField
         kwargs.setdefault("object_hook", generate_object_hook(cls))

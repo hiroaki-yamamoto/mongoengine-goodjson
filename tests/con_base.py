@@ -12,7 +12,7 @@ class DBConBase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Setup database connection."""
+        """Set up database connection."""
         cls.db = db.connect("goodjson_test", host='mongomock://localhost')
 
     @classmethod

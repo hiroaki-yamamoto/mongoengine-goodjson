@@ -16,7 +16,7 @@ class NormalDocumentTest(DBConBase):
     """Good JSON Encoder / Decoder Normal Data test."""
 
     def setUp(self):
-        """Setup the class."""
+        """Set up the class."""
         self.maxDiff = None
         self.user_cls = User
         self.user = self.user_cls.generate_test_data()
