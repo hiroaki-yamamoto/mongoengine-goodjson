@@ -194,7 +194,8 @@ class Helper(object):
                             item, fld.field.document_type._fields
                         ) for item in ret[name]
                     ]
-            elif isinstance(ret.get(name), dict):
+            elif isinstance(ret.get(name), dict) and \
+                    hasattr(fld, "document_type"):
                 ret[name] = self.__to_json_drop_excluded_data(
                     ret[name], fld.document_type._fields
                 )
