@@ -43,12 +43,32 @@ class FollowReferenceField(db.ReferenceField):
         self.autosave = kwargs.pop("autosave", False)
         self.max_depth = kwargs.pop("max_depth", None) or 3
         super(FollowReferenceField, self).__init__(*args, **kwargs)
-        if self.max_depth < 0 and self.document_type_obj is \
-                db.fields.RECURSIVE_REFERENCE_CONSTANT:
+        if (not isinstance(self.max_depth, int)) or (
+                self.max_depth < 0 and self.document_type_obj is
+                db.fields.RECURSIVE_REFERENCE_CONSTANT):
             log.warn(
                 "[BE CAREFUL!] Unlimited self reference might cause "
                 "infinity loop! [BE CAREFUL!]"
             )
+
+    def __get_doc_parent_pair(self, document, **kwargs):
+        """Return document and its parent pair."""
+        doc = document
+        parent = None
+        if isinstance(doc, db.Document):
+            if doc.pk is None and self.id_check:
+                self.error("The referenced document needs ID.")
+        else:
+            parent = document
+            try:
+                doc = self.document_type.objects(
+                    pk=super(
+                        FollowReferenceField, self
+                    ).to_mongo(document, **kwargs)
+                ).get()
+            except db.DoesNotExist:
+                doc = None
+        return (doc, parent)
 
     def to_mongo(self, document, **kwargs):
         """
@@ -58,25 +78,25 @@ class FollowReferenceField(db.ReferenceField):
             document: The document.
 
         """
+        (doc, parent) = self.__get_doc_parent_pair(document, **kwargs)
         cur_depth = self.max_depth
+        max_depth = self.max_depth
+        stop = False
+
         try:
-            cur_depth = getattr(self, "$$cur_depth$$")
-            if self.max_depth > -1 and cur_depth >= self.max_depth:
-                raise AttributeError()
-        except AttributeError:
+            stop = max_depth(doc, parent)
+        except TypeError as e:
+            try:
+                cur_depth = getattr(self, "$$cur_depth$$")
+                stop = max_depth > -1 and cur_depth >= max_depth
+            except AttributeError:
+                stop = True
+
+        if stop:
             return super(
                 FollowReferenceField, self
             ).to_mongo(document, **kwargs)
-        doc = document
-        if isinstance(document, db.Document):
-            if document.pk is None and self.id_check:
-                self.error("The referenced document needs ID.")
-        else:
-            doc = self.document_type.objects(
-                pk=super(
-                    FollowReferenceField, self
-                ).to_mongo(document, **kwargs)
-            ).get()
+
         ret = doc.to_mongo(
             cur_depth=cur_depth + 1, good_json=True, **kwargs
         ) if isinstance(doc, Document) else doc.to_mongo(**kwargs)
