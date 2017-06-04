@@ -43,9 +43,9 @@ class FollowReferenceField(db.ReferenceField):
         self.autosave = kwargs.pop("autosave", False)
         self.max_depth = kwargs.pop("max_depth", None) or 3
         super(FollowReferenceField, self).__init__(*args, **kwargs)
-        if (not isinstance(self.max_depth, int)) or (
-                self.max_depth < 0 and self.document_type_obj is
-                db.fields.RECURSIVE_REFERENCE_CONSTANT):
+        if isinstance(self.max_depth, int) and \
+                self.max_depth < 0 and self.document_type_obj is \
+                db.fields.RECURSIVE_REFERENCE_CONSTANT:
             log.warn(
                 "[BE CAREFUL!] Unlimited self reference might cause "
                 "infinity loop! [BE CAREFUL!]"
@@ -79,18 +79,21 @@ class FollowReferenceField(db.ReferenceField):
 
         """
         (doc, parent) = self.__get_doc_parent_pair(document, **kwargs)
-        cur_depth = self.max_depth
+        cur_depth = getattr(self, "$$cur_depth$$", None)
         max_depth = self.max_depth
         stop = False
 
         try:
             stop = max_depth(doc, parent)
-        except TypeError as e:
-            try:
-                cur_depth = getattr(self, "$$cur_depth$$")
-                stop = max_depth > -1 and cur_depth >= max_depth
-            except AttributeError:
-                stop = True
+        except TypeError:
+            stop = (
+                cur_depth is not None and
+                max_depth > -1 and
+                isinstance(cur_depth,  int) and
+                cur_depth >= max_depth
+            )
+
+        stop = (cur_depth is None) or stop
 
         if stop:
             return super(
