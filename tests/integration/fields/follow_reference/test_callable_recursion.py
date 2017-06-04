@@ -23,7 +23,7 @@ class CallableRecursionTests(DBConBase):
         """Setup."""
         super(CallableRecursionTests, self).setUp()
         self.check_depth = MagicMock(
-            side_effect=lambda doc: doc.is_last
+            side_effect=lambda doc, cur_depth: doc.is_last
         )
 
         class TestDoc(gj.Document):
@@ -73,5 +73,6 @@ class CallableRecursionTests(DBConBase):
         self.assertEqual(correct_data, actual_data)
         self.assertEqual(self.check_depth.call_count, max_depth_level)
         self.check_depth.assert_has_calls([
-            call(self.docs[count]) for count in range(1, max_depth_level + 1)
+            call(self.docs[count], count - 1)
+            for count in range(1, max_depth_level + 1)
         ])

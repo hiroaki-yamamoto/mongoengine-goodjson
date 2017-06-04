@@ -83,7 +83,7 @@ class FollowReferenceField(db.ReferenceField):
         stop = False
 
         try:
-            stop = max_depth(doc)
+            stop = max_depth(doc, cur_depth)
         except TypeError:
             stop = (
                 cur_depth is not None and
