@@ -42,6 +42,7 @@ class FollowReferenceField(db.ReferenceField):
         self.id_check = kwargs.pop("id_check", True)
         self.autosave = kwargs.pop("autosave", False)
         self.max_depth = kwargs.pop("max_depth", None) or 3
+        self.parent_docs = {}
         super(FollowReferenceField, self).__init__(*args, **kwargs)
         if isinstance(self.max_depth, int) and \
                 self.max_depth < 0 and self.document_type_obj is \
@@ -52,14 +53,12 @@ class FollowReferenceField(db.ReferenceField):
             )
 
     def __get_doc_parent_pair(self, document, **kwargs):
-        """Return document and its parent pair."""
+        """Return document that this field has."""
         doc = document
-        parent = None
         if isinstance(doc, db.Document):
             if doc.pk is None and self.id_check:
                 self.error("The referenced document needs ID.")
         else:
-            parent = document
             try:
                 doc = self.document_type.objects(
                     pk=super(
@@ -68,7 +67,7 @@ class FollowReferenceField(db.ReferenceField):
                 ).get()
             except db.DoesNotExist:
                 doc = None
-        return (doc, parent)
+        return doc
 
     def to_mongo(self, document, **kwargs):
         """
@@ -78,13 +77,13 @@ class FollowReferenceField(db.ReferenceField):
             document: The document.
 
         """
-        (doc, parent) = self.__get_doc_parent_pair(document, **kwargs)
+        doc = self.__get_doc_parent_pair(document, **kwargs)
         cur_depth = getattr(self, "$$cur_depth$$", None)
         max_depth = self.max_depth
         stop = False
 
         try:
-            stop = max_depth(doc, parent)
+            stop = max_depth(doc)
         except TypeError:
             stop = (
                 cur_depth is not None and

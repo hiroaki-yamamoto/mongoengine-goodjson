@@ -23,7 +23,7 @@ class CallableRecursionTests(DBConBase):
         """Setup."""
         super(CallableRecursionTests, self).setUp()
         self.check_depth = MagicMock(
-            side_effect=lambda doc, parent: doc.is_last
+            side_effect=lambda doc: doc.is_last
         )
 
         class TestDoc(gj.Document):
@@ -60,17 +60,18 @@ class CallableRecursionTests(DBConBase):
             doc.ref = self.docs[(index + 1) % len(self.docs)]
             doc.save()
 
+        # Needs to reset mock because doc.save calls to_mongo
+        self.check_depth.reset_mock()
+
     def test_from_first(self):
         """Should encode the element from first to the element is_last=True."""
-        max_depth_level = 5
+        max_depth_level = 4
         correct_data = self.docs[0].to_dict()
         actual_data = json.loads(self.docs[0].to_json())
 
         self.maxDiff = None
         self.assertEqual(correct_data, actual_data)
-        self.check_depth.assert_has_calls([
-            call(
-                self.docs[count], self.docs[count - 1] if count > 0 else None
-            ) for count in range(max_depth_level)
-        ])
         self.assertEqual(self.check_depth.call_count, max_depth_level)
+        self.check_depth.assert_has_calls([
+            call(self.docs[count]) for count in range(1, max_depth_level + 1)
+        ])
