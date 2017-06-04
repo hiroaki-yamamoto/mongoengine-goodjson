@@ -122,7 +122,8 @@ class Helper(object):
 
         def unset_flag(fld):
             setattr(fld, "$$cur_depth$$", cur_depth - 1)
-            if getattr(fld, "$$cur_depth$$") < 0:
+            cur_depth_attr = getattr(fld, "$$cur_depth$$")
+            if (not isinstance(cur_depth_attr, int)) or cur_depth_attr < 0:
                 delattr(fld, "$$cur_depth$$")
 
         @singledispatch
