@@ -307,40 +307,6 @@ the following:
 * Setting Truhy value to `exclude_json`, the corresponding field is omitted from
   JSON encoding and decoding.
 
-
-## Feature 3: Reference Limit
-
-Since version 1.0.0, the method to limit recursive depth is implemented.
-Currently, this supports only "depth-level" limit, however, limit circuit
-references by condition will be implemented in the future.
-
-By default, `to_json` serializes the document until the cursor reaches 3rd
-level. To change the maximum depth level, change `max_depth` kwargs:
-
-```Python
-#!/usr/bin/env python
-# coding=utf-8
-
-import mongoengine as db
-import mongoengine_goodjson as gj
-
-
-class User(gj.Document):
-  """User info."""
-  name = db.StringField()
-  email = db.EmailField()
-  # i.e. You can access everyone in the world by Six Degrees of Separation
-  friends = db.ListField(gj.FollowReferenceField("self", max_depth=6))
-
-class DetailedProfile(gj.Document):
-  """Detail profile of the user."""
-  user = gj.FollowReferenceField(User)
-  yob = db.DateTimeField()
-```
-
-To disable the limit, put negative number to `max_depth`, however don't
-forget to make sure that the model doesn't have circuit and/or self-reference.
-
 ### Example
 To use the exclusion, you can just put exclude metadata like this:
 
@@ -376,6 +342,59 @@ def get_obj_from_json(json_text):
 def get_list_from_json(json_text):
   return Exclude.objects.from_json(json_text)
 ```
+
+
+## Feature 3: Reference Limit
+
+Since version 1.0.0, the method to limit recursive depth is implemented.
+Currently, this supports only "depth-level" limit, however, limit circuit
+references by condition will be implemented in the future.
+
+By default, `to_json` serializes the document until the cursor reaches 3rd
+level. To change the maximum depth level, change `max_depth` kwargs.
+
+As of 1.1.0, callable function can be set to `max_depth`, and to_json calls
+`max_depth` with the document that the field holds, and current depth level.
+If the function that is associated with `max_depth` returns truthy values,
+the serialization will be stop.
+
+Note that, the border of the document i.e. the document that `max_depth`
+returned truthy value, will **NOT** be serialized. It just be "id" of
+the model.
+
+### Code Example
+Here is the code example of Limit Recursion:
+
+```Python
+#!/usr/bin/env python
+# coding=utf-8
+
+import mongoengine as db
+import mongoengine_goodjson as gj
+
+
+class User(gj.Document):
+  """User info."""
+  name = db.StringField()
+  email = db.EmailField()
+  # i.e. You can access everyone in the world by Six Degrees of Separation
+  friends = db.ListField(gj.FollowReferenceField("self", max_depth=6))
+
+  # If the name of the user is Alice, Mary, or Bob, it will refer more depth.
+  not_friend = gj.FollowReferenceField(
+    "self", max_depth=lambda doc, cur_depth: doc.name not in [
+      "Alice", "Mary", "Bob"
+    ]
+  )
+
+class DetailedProfile(gj.Document):
+  """Detail profile of the user."""
+  user = gj.FollowReferenceField(User)
+  yob = db.DateTimeField()
+```
+
+To disable the limit, put negative number to `max_depth`, however don't
+forget to make sure that the model has neither circuit nor self-reference.
 
 ## Not implemented list
 The following types are partially implemented because there aren't any
