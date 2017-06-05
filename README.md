@@ -358,9 +358,10 @@ As of 1.1.0, callable function can be set to `max_depth`, and to_json calls
 If the function that is associated with `max_depth` returns truthy values,
 the serialization will be stop.
 
-Note that, the border of the document i.e. the document that `max_depth`
-returned truthy value, will **NOT** be serialized. It just be "id" of
-the model.
+Note that when you use callable `max_depth` of `FollowReferenceField`,
+the border of the document i.e. the document that `max_depth` returned truthy
+value, will **NOT** be serialized while `to_json()` **does**. It just be "id"
+of the model.
 
 ### Code Example
 Here is the code example of Limit Recursion:

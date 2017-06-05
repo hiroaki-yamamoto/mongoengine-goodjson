@@ -16,12 +16,12 @@ import mongoengine as db
 from ....con_base import DBConBase
 
 
-class CallableRecursionTests(DBConBase):
+class CallableRecursionTest(DBConBase):
     """Callable recursion test."""
 
     def setUp(self):
         """Setup."""
-        super(CallableRecursionTests, self).setUp()
+        super(CallableRecursionTest, self).setUp()
         self.check_depth = MagicMock(
             side_effect=lambda doc, cur_depth: doc.is_last
         )

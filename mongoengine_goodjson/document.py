@@ -234,11 +234,26 @@ class Helper(object):
         if "_id" in data and "id" not in data:
             data["id"] = data.pop("_id", None)
 
-        if follow_reference and \
-                (current_depth < max_depth or max_depth is None):
-            data.update(self._follow_reference(
-                max_depth, current_depth, use_db_field, data, *args, **kwargs
-            ))
+        if follow_reference:
+            max_depth_value = None
+            func_call = False
+            try:
+                max_depth_value = max_depth(self, current_depth)
+                func_call = True
+            except TypeError:
+                max_depth_value = max_depth
+
+            if (func_call and not max_depth_value) or (
+                isinstance(max_depth_value, int) and (
+                    current_depth < max_depth_value or max_depth_value < 0
+                )
+            ) or max_depth_value is None:
+                data.update(
+                    self._follow_reference(
+                        max_depth, current_depth, use_db_field,
+                        data, *args, **kwargs
+                    )
+                )
 
         data = self.__to_json_drop_excluded_data(data)
 
