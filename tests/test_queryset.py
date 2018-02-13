@@ -6,12 +6,12 @@
 import json
 
 try:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import patch
 except ImportError:
-    from mock import MagicMock, patch
+    from mock import patch
 
 import mongoengine as db
-from mongoengine_goodjson import Document, QuerySet, GoodJSONEncoder
+from mongoengine_goodjson import Document, GoodJSONEncoder
 
 from .con_base import DBConBase
 
@@ -24,24 +24,24 @@ class QuerysetEncodeDecodeTest(DBConBase):
         self.dict_model = [
             {u"test": u"Hello %s" % count} for count in range(5)
         ]
-        QuerySet.as_pymongo = MagicMock(return_value=self.dict_model)
 
         class TestModel(Document):
             test = db.StringField()
 
-        self.as_pymongo = TestModel.objects.as_pymongo
         self.model_cls = TestModel
         self.model = [
             self.model_cls(test="Hello %s" % count) for count in range(5)
         ]
 
     @patch("json.dumps")
-    def test_encode(self, dumps):
+    @patch("mongoengine_goodjson.queryset.QuerySet.as_pymongo")
+    def test_encode(self, as_pymongo, dumps):
         """The encode functionality should call proper-funcitons."""
+        as_pymongo.return_value = self.dict_model
         self.model_cls.objects.to_json(indent=2)
-        self.as_pymongo.assert_called_once_with()
+        as_pymongo.assert_called_once_with()
         dumps.assert_called_once_with(
-            self.as_pymongo.return_value,
+            as_pymongo.return_value,
             cls=GoodJSONEncoder, indent=2
         )
 
