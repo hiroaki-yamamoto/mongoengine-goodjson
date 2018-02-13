@@ -14,7 +14,8 @@ script:
   - "radon cc -nc mongoengine_goodjson"
   - "detox"
 after_success:
-  - "coverage combine python27.coverage python36.coverage"
+  - "coverage erase"
+  - "coverage combine *.coverage"
   - "coveralls"
   - "codeclimate-test-reporter"
 before_deploy:
