@@ -107,7 +107,7 @@ class Helper(object):
                 if isinstance(obj, list):
                     for item in obj:
                         item.begin_goodjson()
-                else:
+                elif obj is not None:
                     obj.begin_goodjson(cur_depth)
 
         @set_flag_recursive.register(FollowReferenceField)
@@ -141,7 +141,7 @@ class Helper(object):
                 if isinstance(obj, list):
                     for item in obj:
                         item.end_goodjson()
-                else:
+                elif obj is not None:
                     obj.end_goodjson(cur_depth)
 
         @unset_flag_recursive.register(FollowReferenceField)
