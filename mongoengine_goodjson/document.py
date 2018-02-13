@@ -5,6 +5,7 @@
 
 import json
 
+# functools.partial is not supported on Python2... :x:
 try:
     from functools import singledispatch
 except ImportError:
@@ -95,70 +96,56 @@ class Helper(object):
                     # ret.update({fldname: value})
         return ret
 
-    def __set_gj_flag_sub_field(self, name, fld, cur_depth):
-        """Tell current depth to subfield."""
+    def __apply_element(
+        self, name, fld, cur_depth, func=None, flagfunc_attr=None
+    ):
+        """Apply field flag by calling parameter func."""
         from mongoengine_goodjson.fields import FollowReferenceField
 
-        def set_good_json(traget):
-            setattr(traget, "$$cur_depth$$", cur_depth)
-
         @singledispatch
-        def set_flag_recursive(fld):
-            set_good_json(fld)
+        def recursive_apply_flag(fld):
+            func(fld, cur_depth)
 
-        @set_flag_recursive.register(db.ListField)
+        @recursive_apply_flag.register(db.ListField)
         def set_flag_list(fld):
-            set_flag_recursive(fld.field)
+            recursive_apply_flag(fld.field)
 
-        @set_flag_recursive.register(db.EmbeddedDocumentField)
+        @recursive_apply_flag.register(db.EmbeddedDocumentField)
         def set_flag_emb(fld):
             if issubclass(fld.document_type_obj, Helper):
                 obj = getattr(self, name)
                 if isinstance(obj, list):
                     for item in obj:
-                        item.begin_goodjson()
+                        getattr(item, flagfunc_attr)()
                 elif obj:
-                    obj.begin_goodjson(cur_depth)
+                    getattr(obj, flagfunc_attr)(cur_depth)
 
-        @set_flag_recursive.register(FollowReferenceField)
+        @recursive_apply_flag.register(FollowReferenceField)
         def set_flag_self(fld):
-            set_good_json(fld)
+            func(fld, cur_depth)
 
-        set_flag_recursive(fld)
+        recursive_apply_flag(fld)
+
+    def __set_gj_flag_sub_field(self, name, fld, cur_depth):
+        """Tell current depth to subfield."""
+        def set_good_json(traget, depth_lv):
+            setattr(traget, "$$cur_depth$$", depth_lv)
+
+        self.__apply_element(
+            name, fld, cur_depth, set_good_json, "begin_goodjson"
+        )
 
     def __unset_gj_flag_sub_field(self, name, fld, cur_depth):
         """Remove current depth to subfield."""
-        from mongoengine_goodjson.fields import FollowReferenceField
-
-        def unset_flag(fld):
-            setattr(fld, "$$cur_depth$$", cur_depth - 1)
+        def unset_flag(fld, depth_lv):
+            setattr(fld, "$$cur_depth$$", depth_lv - 1)
             cur_depth_attr = getattr(fld, "$$cur_depth$$")
             if (not isinstance(cur_depth_attr, int)) or cur_depth_attr < 0:
                 delattr(fld, "$$cur_depth$$")
 
-        @singledispatch
-        def unset_flag_recursive(fld):
-            unset_flag(fld)
-
-        @unset_flag_recursive.register(db.ListField)
-        def unset_flag_list(fld):
-            unset_flag_recursive(fld.field)
-
-        @unset_flag_recursive.register(db.EmbeddedDocumentField)
-        def unset_flag_emb(fld):
-            if issubclass(fld.document_type_obj, Helper):
-                obj = getattr(self, name)
-                if isinstance(obj, list):
-                    for item in obj:
-                        item.end_goodjson()
-                elif obj:
-                    obj.end_goodjson(cur_depth)
-
-        @unset_flag_recursive.register(FollowReferenceField)
-        def unset_flag_self(fld):
-            unset_flag(fld)
-
-        unset_flag_recursive(fld)
+        self.__apply_element(
+            name, fld, cur_depth, unset_flag, "end_goodjson"
+        )
 
     def begin_goodjson(self, cur_depth=0):
         """Enable GoodJSON Flag."""

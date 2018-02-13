@@ -7,19 +7,6 @@ import mongoengine as db
 
 import mongoengine_goodjson as gj
 import mongoengine_goodjson.document as gj_doc
-import six
-
-
-class Helper(object):
-    """Helper class."""
-
-    begin_goodjson = six.get_unbound_function(gj_doc.Helper.begin_goodjson)
-    __set_gj_flag_sub_field = six.get_unbound_function(
-        gj_doc.Helper.__set_gj_flag_sub_field
-    )
-    __unset_gj_flag_sub_field = six.get_unbound_function(
-        gj_doc.Helper.__unset_gj_flag_sub_field
-    )
 
 
 class ReferencedDocument(db.Document):
@@ -28,7 +15,7 @@ class ReferencedDocument(db.Document):
     name = db.StringField()
 
 
-class IDCheckDocument(Helper, db.Document):
+class IDCheckDocument(gj_doc.Helper, db.Document):
     """
     Test document.
 
@@ -44,7 +31,7 @@ class IDCheckDocument(Helper, db.Document):
             self.begin_goodjson()
 
 
-class DisabledIDCheckDocument(Helper, db.Document):
+class DisabledIDCheckDocument(gj_doc.Helper, db.Document):
     """Test document disabling id check."""
 
     ref = gj.FollowReferenceField(ReferencedDocument, id_check=False)
