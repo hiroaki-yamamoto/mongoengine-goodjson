@@ -7,7 +7,7 @@ import json
 
 try:
     from functools import singledispatch
-except:
+except ImportError:
     from singledispatch import singledispatch
 
 import bson

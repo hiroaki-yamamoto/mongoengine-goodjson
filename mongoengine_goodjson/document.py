@@ -20,6 +20,43 @@ from .queryset import QuerySet
 class Helper(object):
     """Helper class to serialize / deserialize JSON document."""
 
+    def __get_doc(self, fld, fldname, value):
+        """Get the target document."""
+        # Honestly, I don't feel this implementation is good.
+        # However, as #892 at MongoEngine
+        # (https://github.com/MongoEngine/mongoengine/issues/892)
+        # shows, to keep follow reference, this is only the way...
+        #
+        # (Of course, PR is appreciated.)
+        try:
+            doc = getattr(self, fldname, None)
+        except db.DoesNotExist:
+            doc = self._fields[fldname].document_type.objects(id=value).get()
+        return fld.document_type.objects(id=doc.id).get() \
+            if isinstance(doc, DBRef) else doc
+
+    def __follow_reference_list(self, fld, fldname, *args, **kwargs):
+        """Follow reference with list."""
+        value = []
+        for doc in getattr(self, fldname, []):
+            tdoc = fld.document_type.objects(
+                id=doc.id
+            ).get() if isinstance(doc, DBRef) else doc
+            dct = self.__serialize_doc_to_dict(fld, tdoc, *args, **kwargs)
+            value.append(dct)
+        return value
+
+    def __serialize_doc_to_dict(self, fld, doc, *args, **kwargs):
+        """Serialize the document into dict."""
+        dct = json.loads(doc.to_json(
+            *args, **kwargs
+        )) if issubclass(
+            fld.document_type, Helper
+        ) else doc.to_mongo()
+        if "_id" in dct:
+            dct["id"] = dct.pop("_id")
+        return dct
+
     def _follow_reference(self, max_depth, current_depth,
                           use_db_field, data, *args, **kwargs):
         from .fields import FollowReferenceField
@@ -44,42 +81,15 @@ class Helper(object):
                         "use_db_field": use_db_field
                     })
                 if is_list:
-                    value = []
-                    for doc in getattr(self, fldname, []):
-                        tdoc = target.document_type.objects(
-                            id=doc.id
-                        ).get() if isinstance(doc, DBRef) else doc
-                        dct = json.loads(tdoc.to_json(
-                            *args, **ckwargs
-                        )) if issubclass(
-                            target.document_type, Helper
-                        ) else tdoc.to_mongo()
-                        if "_id" in dct:
-                            dct["id"] = dct.pop("_id")
-                        value.append(dct)
+                    value = self.__follow_reference_list(
+                        target, fldname, *args, **ckwargs
+                    )
                 else:
-                    # Honestly, I don't feel this implementation is good.
-                    # However, as #892 at MongoEngine
-                    # (https://github.com/MongoEngine/mongoengine/issues/892)
-                    # shows, to keep follow reference, this is only the way...
-                    #
-                    # (Of course, PR is appreciated.)
-                    try:
-                        doc = getattr(self, fldname, None)
-                    except db.DoesNotExist:
-                        doc = self._fields[fldname].document_type.objects(
-                            id=data[fldname]
-                        ).get()
-                    tdoc = target.document_type.objects(
-                        id=doc.id
-                    ).get() if isinstance(doc, DBRef) else doc
-                    value = json.loads(
-                        tdoc.to_json(*args, **ckwargs)
-                    ) if issubclass(
-                        target.document_type, Helper
-                    ) else tdoc.to_mongo() if doc else doc
-                    if "_id" in value:
-                        value["id"] = value.pop("_id")
+                    tdoc = self.__get_doc(target, fldname, data.get(fldname))
+                    if tdoc:
+                        value = self.__serialize_doc_to_dict(
+                            target, tdoc, *args, **ckwargs
+                        )
                 if value is not None:
                     ret[fldname] = value
                     # ret.update({fldname: value})
@@ -107,7 +117,7 @@ class Helper(object):
                 if isinstance(obj, list):
                     for item in obj:
                         item.begin_goodjson()
-                else:
+                elif obj:
                     obj.begin_goodjson(cur_depth)
 
         @set_flag_recursive.register(FollowReferenceField)
@@ -141,7 +151,7 @@ class Helper(object):
                 if isinstance(obj, list):
                     for item in obj:
                         item.end_goodjson()
-                else:
+                elif obj:
                     obj.end_goodjson(cur_depth)
 
         @unset_flag_recursive.register(FollowReferenceField)
