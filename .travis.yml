@@ -16,6 +16,7 @@ script:
 after_success:
   - "coverage combine python27.coverage python36.coverage"
   - "coveralls"
+  - "codeclimate-test-reporter"
 before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
   - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
