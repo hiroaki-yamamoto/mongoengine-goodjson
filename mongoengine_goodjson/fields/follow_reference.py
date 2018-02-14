@@ -8,6 +8,7 @@ import logging
 from bson import SON
 import mongoengine as db
 from ..document import Document
+from ..utils import method_dispatch
 
 log = logging.getLogger(__name__)
 
@@ -69,6 +70,16 @@ class FollowReferenceField(db.ReferenceField):
                 doc = None
         return doc
 
+    @method_dispatch
+    def __get_doc_dict(self, doc, **kwargs):
+        kwargs.pop("cur_depth", None)
+        kwargs.pop("good_json", None)
+        return doc.to_mongo(**kwargs)
+
+    @__get_doc_dict.register(Document)
+    def __get_gjdoc_dict(self, doc, **kwargs):
+        return doc.to_mongo(**kwargs)
+
     def to_mongo(self, document, **kwargs):
         """
         Convert to python-typed dict.
@@ -85,12 +96,10 @@ class FollowReferenceField(db.ReferenceField):
         try:
             stop = max_depth(doc, cur_depth)
         except TypeError:
-            stop = (
-                cur_depth is not None and
-                max_depth > -1 and
-                isinstance(cur_depth,  int) and
-                cur_depth >= max_depth
-            )
+            stop = all([
+                max_depth > -1,
+                isinstance(cur_depth,  int) and cur_depth >= max_depth
+            ])
 
         stop = (cur_depth is None) or stop
 
@@ -99,11 +108,11 @@ class FollowReferenceField(db.ReferenceField):
                 FollowReferenceField, self
             ).to_mongo(document, **kwargs)
 
-        ret = doc.to_mongo(
-            cur_depth=cur_depth + 1, good_json=True, **kwargs
-        ) if isinstance(doc, Document) else doc.to_mongo(**kwargs)
-        if "_id" in ret and issubclass(self.document_type, Document):
-            ret["id"] = ret.pop("_id", None)
+        ret = self.__get_doc_dict(
+            doc, cur_depth=cur_depth + 1, good_json=True, **kwargs
+        )
+        if issubclass(self.document_type, Document):
+            ret.setdefault("id", ret.pop("_id", None))
         return ret
 
     def to_python(self, value):
