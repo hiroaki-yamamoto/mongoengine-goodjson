@@ -17,7 +17,7 @@ from bson import (
     ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary,
     PY3
 )
-from bson.py3compat import text_type
+from bson.py3compat import text_type, string_type
 
 
 class GoodJSONEncoder(json.JSONEncoder):
@@ -135,16 +135,14 @@ class GoodJSONEncoder(json.JSONEncoder):
     def encode(self, o, **kwargs):
         """encode."""
         return super(GoodJSONEncoder, self).encode(o, **kwargs)
+    encode.register(text_type)(encode.dispatch(str))
+    encode.register(string_type)(encode.dispatch(str))
 
     @encode.register(dict)
     def __envode_dict(self, o, **kwargs):
         return super(GoodJSONEncoder, self).encode({
             key: self.__check(value) for (key, value) in o.items()
         }, **kwargs)
-
-    @encode.register(str)
-    def __encode_str(self, o, **kwargs):
-        return super(GoodJSONEncoder, self).encode(o, **kwargs)
 
     @encode.register(collections.Iterable)
     def __envode_list(self, o, **kwargs):

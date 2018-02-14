@@ -21,5 +21,6 @@ def method_dispatch(func):
         return dispatcher.dispatch(args[1].__class__)(*args, **kw)
 
     wrapper.register = dispatcher.register
+    wrapper.dispatch = dispatcher.dispatch
     update_wrapper(wrapper, func)
     return wrapper
