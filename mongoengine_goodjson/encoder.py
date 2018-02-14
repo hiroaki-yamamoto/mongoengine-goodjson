@@ -11,10 +11,7 @@ from datetime import datetime
 from calendar import timegm
 from uuid import UUID
 
-try:
-    from functools import singledispatch
-except ImportError:
-    from singledispatch import singledispatch
+from .utils import method_dispatch
 
 from bson import (
     ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary,
@@ -40,6 +37,7 @@ class GoodJSONEncoder(json.JSONEncoder):
         self.epoch_mode = epoch_mode
         super(GoodJSONEncoder, self).__init__(*args, **kwargs)
 
+    @method_dispatch
     def default(self, obj):
         """
         Convert the object into JSON-serializable value.
@@ -48,111 +46,108 @@ class GoodJSONEncoder(json.JSONEncoder):
             obj: Object to be converted.
 
         """
-        @singledispatch
-        def default(obj):
-            super(GoodJSONEncoder, self).default(obj)
+        super(GoodJSONEncoder, self).default(obj)
 
-        @default.register(ObjectId)
-        @default.register(UUID)
-        def conv_objid(obj):
-            return text_type(obj)
+    @default.register(ObjectId)
+    @default.register(UUID)
+    def __conv_objid(self, obj):
+        return text_type(obj)
 
-        @default.register(datetime)
-        def conv_datetime(obj):
-            if self.epoch_mode:
-                return int(
-                    (timegm(obj.timetuple()) * 1000) +
-                    ((obj.microsecond) / 1000)
-                )
-            return obj.isoformat()
+    @default.register(datetime)
+    def __conv_datetime(self, obj):
+        if self.epoch_mode:
+            return int(
+                (timegm(obj.timetuple()) * 1000) +
+                ((obj.microsecond) / 1000)
+            )
+        return obj.isoformat()
 
-        @default.register(DBRef)
-        def conv_dbref(obj):
-            doc = obj.as_doc()
-            ret = {
-                "collection": doc["$ref"],
-                "id": self.default(doc["$id"])
-            }
-            if obj.database:
-                ret["db"] = doc["$db"]
-            ret.update({
-                key: value
-                for (key, value) in doc.items()
-                if key[0] != "$"
-            })
-            return ret
+    @default.register(DBRef)
+    def __conv_dbref(self, obj):
+        doc = obj.as_doc()
+        ret = {
+            "collection": doc["$ref"],
+            "id": self.default(doc["$id"])
+        }
+        if obj.database:
+            ret["db"] = doc["$db"]
+        ret.update({
+            key: value
+            for (key, value) in doc.items()
+            if key[0] != "$"
+        })
+        return ret
 
-        @default.register(RE_TYPE)
-        @default.register(Regex)
-        def conv_regex(obj):
-            flags_map = {
-                "i": obj.flags & re.IGNORECASE,
-                "l": obj.flags & re.LOCALE,
-                "m": obj.flags & re.MULTILINE,
-                "s": obj.flags & re.DOTALL,
-                "u": obj.flags & re.UNICODE,
-                "x": obj.flags & re.VERBOSE
-            }
-            flags = [key for (key, contains) in flags_map.items() if contains]
-            ret = {"regex": obj.pattern}
-            if flags:
-                ret["flags"] = ("").join(flags)
-            return ret
+    @default.register(RE_TYPE)
+    @default.register(Regex)
+    def __conv_regex(self, obj):
+        flags_map = {
+            "i": obj.flags & re.IGNORECASE,
+            "l": obj.flags & re.LOCALE,
+            "m": obj.flags & re.MULTILINE,
+            "s": obj.flags & re.DOTALL,
+            "u": obj.flags & re.UNICODE,
+            "x": obj.flags & re.VERBOSE
+        }
+        flags = [key for (key, contains) in flags_map.items() if contains]
+        ret = {"regex": obj.pattern}
+        if flags:
+            ret["flags"] = ("").join(flags)
+        return ret
 
-        @default.register(MinKey)
-        def conv_minkey(obj):
-            return {"minKey": True}
+    @default.register(MinKey)
+    def __conv_minkey(self, obj):
+        return {"minKey": True}
 
-        @default.register(MaxKey)
-        def conv_maxkey(obj):
-            return {"maxKey": True}
+    @default.register(MaxKey)
+    def __conv_maxkey(self, obj):
+        return {"maxKey": True}
 
-        @default.register(Timestamp)
-        def conv_timestamp(obj):
-            return {"time": obj.time, "inc": obj.inc}
+    @default.register(Timestamp)
+    def __conv_timestamp(self, obj):
+        return {"time": obj.time, "inc": obj.inc}
 
-        @default.register(Code)
-        def conv_code(obj):
-            return {"code": str(obj), "scope": obj.scope}
+    @default.register(Code)
+    def __conv_code(self, obj):
+        return {"code": str(obj), "scope": obj.scope}
 
-        @default.register(Binary)
-        def conv_bin(obj):
-            return {
-                "data": b64encode(obj).decode("utf-8"),
-                "type": obj.subtype
-            }
+    @default.register(Binary)
+    def __conv_bin(self, obj):
+        return {
+            "data": b64encode(obj).decode("utf-8"),
+            "type": obj.subtype
+        }
 
-        if PY3:
-            @default.register(bytes)
-            def conv_bytes(obj):
-                return {"data": b64encode(obj).decode("utf-8"), "type": 0}
+    if PY3:
+        @default.register(bytes)
+        def __conv_bytes(self, obj):
+            return {"data": b64encode(obj).decode("utf-8"), "type": 0}
 
-        return default(obj)
+    @method_dispatch
+    def __check(self, obj):
+        return obj
 
+    @__check.register(Binary)
+    def __conv_type(self, obj):
+        return self.default(obj)
+
+    @method_dispatch
     def encode(self, o, **kwargs):
         """encode."""
-        # I appologize that I wrote this bad code.
-        # The reason why I wrote this code is because Binary class inherits
-        # bytes. bytes is the same of str in python2, but byte is treated as
-        # "binary" type in python3. If I can lock into python3, this encode
-        # function is not needed. However, this code is used on the both
-        # of python3 and python2. Therefore, needs to convert Binary
-        # instance into the corresponding dict first...
-        #
-        # In addition, I think there are other types that have compatibility
-        # problem like above. (Of course, pull request is appreciated)
-        @singledispatch
-        def check(obj):
-            return obj
+        return super(GoodJSONEncoder, self).encode(o, **kwargs)
 
-        @check.register(Binary)
-        def conv_type(obj):
-            return self.default(obj)
+    @encode.register(dict)
+    def __envode_dict(self, o, **kwargs):
+        return super(GoodJSONEncoder, self).encode({
+            key: self.__check(value) for (key, value) in o.items()
+        }, **kwargs)
 
-        ret = {
-            key: check(value) for (key, value) in o.items()
-        } if isinstance(o, dict) else [
-            check(value) for value in o
-        ] if not isinstance(o, str) and \
-            isinstance(o, collections.Iterable) else o
-        return super(GoodJSONEncoder, self).encode(ret, **kwargs)
+    @encode.register(str)
+    def __encode_str(self, o, **kwargs):
+        return super(GoodJSONEncoder, self).encode(o, **kwargs)
+
+    @encode.register(collections.Iterable)
+    def __envode_list(self, o, **kwargs):
+        return super(GoodJSONEncoder, self).encode([
+            self.__check(value) for value in o
+        ], **kwargs)

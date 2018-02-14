@@ -11,7 +11,6 @@ before_script:
   - "pip install --upgrade 'coverage<4.4'"
 script:
   - "flake8 mongoengine_goodjson tests"
-  - "radon cc -nc mongoengine_goodjson"
   - "detox"
 after_success:
   - "coverage erase"
