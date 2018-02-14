@@ -220,37 +220,28 @@ class Helper(object):
         use_db_field = kwargs.pop('use_db_field', True)
         follow_reference = kwargs.pop("follow_reference", False)
         max_depth = kwargs.pop("max_depth", 3)
-        current_depth = kwargs.pop("current_depth", 0) or 0
-
-        if "cls" not in kwargs:
-            kwargs["cls"] = GoodJSONEncoder
+        current_depth = kwargs.pop("current_depth", 0)
+        kwargs.setdefault("cls", GoodJSONEncoder)
 
         data = self.to_mongo(
             use_db_field, cur_depth=current_depth, good_json=True
         )
-        if "_id" in data and "id" not in data:
-            data["id"] = data.pop("_id", None)
+        if "_id" in data:
+            data.setdefault("id", data.pop("_id", None))
 
         if follow_reference:
             max_depth_value = None
-            func_call = False
             try:
                 max_depth_value = max_depth(self, current_depth)
-                func_call = True
             except TypeError:
                 max_depth_value = max_depth
+            max_depth_value = max_depth_value or 0
 
-            if (func_call and not max_depth_value) or (
-                isinstance(max_depth_value, int) and (
-                    current_depth < max_depth_value or max_depth_value < 0
-                )
-            ) or max_depth_value is None:
-                data.update(
-                    self._follow_reference(
-                        max_depth, current_depth, use_db_field,
-                        data, *args, **kwargs
-                    )
-                )
+            if not (0 < max_depth_value <= current_depth):
+                data.update(self._follow_reference(
+                    max_depth, current_depth, use_db_field,
+                    data, *args, **kwargs
+                ))
 
         data = self.__to_json_drop_excluded_data(data)
 
