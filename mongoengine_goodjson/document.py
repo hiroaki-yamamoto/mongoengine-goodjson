@@ -5,17 +5,12 @@
 
 import json
 
-# functools.partial is not supported on Python2... :x:
-try:
-    from functools import singledispatch
-except ImportError:
-    from singledispatch import singledispatch
-
 import mongoengine as db
 from bson import SON, DBRef
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .queryset import QuerySet
+from .utils import singledispatch, normalize_reference
 
 
 class Helper(object):
@@ -269,21 +264,6 @@ class Helper(object):
             ]):
                 dct.pop(name, None)
         from_son_result = cls._from_son(SON(dct), created=created)
-
-        @singledispatch
-        def normalize_reference(ref_id, fld):
-            """Normalize Reference."""
-            return ref_id and fld.to_python(ref_id) or None
-
-        @normalize_reference.register(dict)
-        def normalize_reference_dict(ref_id, fld):
-            """Normalize Reference for dict."""
-            return fld.to_python(ref_id.get("id") or ref_id["_id"])
-
-        @normalize_reference.register(list)
-        def normalize_reference_list(ref_id, fld):
-            """Normalize Reference for list."""
-            return [normalize_reference(ref.id, fld) for ref in ref_id]
 
         for fldname, fld in cls._fields.items():
             target = fld.field if isinstance(fld, db.ListField) else fld
