@@ -70,6 +70,22 @@ class QuerySet(db.QuerySet):
                 item["id"] = item.pop("_id")
         return lst
 
+    def __cut_excluded_field(self, doc_list, exclude_attrs):
+        lst = [item for item in doc_list]
+        # Using for loop twice is not good in the case that there's
+        # a lot of data, and to reduce for loop, picking out the field of
+        # which exclude fields are truhty is the idea (If you know more
+        # suitable idea, make a PR.).
+        exclude = [
+            name for (name, fld) in self._document._fields.items() if any([
+                getattr(fld, "exclude_json", None)
+            ] + [getattr(fld, item, None) for item in exclude_attrs])
+        ]
+        for dct in lst:
+            for exc in exclude:
+                dct.pop(exc, None)
+        return lst
+
     def to_json(self, *args, **kwargs):
         """Convert to JSON."""
         from .document import Document
@@ -78,36 +94,15 @@ class QuerySet(db.QuerySet):
             self.__start_good_json()
             lst = self.as_pymongo()
             self.__end_good_json()
-            # Using for loop twice is not good in the case that there's
-            # a lot of data, and to reduce for loop, picking out the field of
-            # which exclude fields are truhty is the idea (If you know more
-            # suitable idea, make a PR.).
-            exclude = [
-                name for (name, fld) in self._document._fields.items() if any([
-                    getattr(fld, "exclude_to_json", None),
-                    getattr(fld, "exclude_json", None)
-                ])
-            ]
-            for dct in lst:
-                for exc in exclude:
-                    dct.pop(exc, None)
+            lst = self.__cut_excluded_field(lst, ["exclude_to_json"])
             return json.dumps(lst, *args, **kwargs)
         return super(QuerySet, self).to_json()
 
     def from_json(self, json_data):
         """Convert from JSON."""
-        mongo_data = json.loads(
+        mongo_data = self.__cut_excluded_field(json.loads(
             json_data, object_hook=generate_object_hook(self._document)
-        )
-        exclude = [
-            name for (name, fld) in self._document._fields.items() if any([
-                getattr(fld, "exclude_from_json", None),
-                getattr(fld, "exclude_json", None)
-            ])
-        ]
-        for item in mongo_data:
-            for exc in exclude:
-                item.pop(exc, None)
+        ), ["exclude_from_json"])
         return [
             self._document._from_son(bson.SON(data)) for data in mongo_data
         ]
