@@ -112,7 +112,7 @@ class Helper(object):
                 if isinstance(obj, list):
                     for item in obj:
                         getattr(item, flagfunc_attr)()
-                elif obj:
+                elif obj is not None:
                     getattr(obj, flagfunc_attr)(cur_depth)
 
         @recursive_apply_flag.register(FollowReferenceField)
@@ -133,13 +133,11 @@ class Helper(object):
     def __unset_gj_flag_sub_field(self, name, fld, cur_depth):
         """Remove current depth to subfield."""
         def unset_flag(fld, depth_lv):
-            try:
-                setattr(fld, "$$cur_depth$$", depth_lv - 1)
-                cur_depth_attr = getattr(fld, "$$cur_depth$$")
-                if (not isinstance(cur_depth_attr, int)) or cur_depth_attr < 0:
-                    delattr(fld, "$$cur_depth$$")
-            except Exception as e:
-                pass
+            setattr(fld, "$$cur_depth$$", depth_lv - 1)
+            cur_depth_attr = getattr(fld, "$$cur_depth$$")
+            if (not isinstance(cur_depth_attr, int)) or cur_depth_attr < 0:
+                delattr(fld, "$$cur_depth$$")
+
 
         self.__apply_element(
             name, fld, cur_depth, unset_flag, "end_goodjson"
