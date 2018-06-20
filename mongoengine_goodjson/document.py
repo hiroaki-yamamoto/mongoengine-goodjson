@@ -138,7 +138,6 @@ class Helper(object):
             if (not isinstance(cur_depth_attr, int)) or cur_depth_attr < 0:
                 delattr(fld, "$$cur_depth$$")
 
-
         self.__apply_element(
             name, fld, cur_depth, unset_flag, "end_goodjson"
         )
