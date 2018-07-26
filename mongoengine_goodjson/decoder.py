@@ -57,6 +57,14 @@ class ObjectHook(object):
     def __decode(self, field_type, field_name, obj):
         return {field_name: field_type.to_python(obj)}
 
+    @__decode.register(db.BooleanField)
+    def __decode_boolean(selfself, field_type, field_name, obj):
+        if (isinstance(obj, bool)):
+            result = obj
+        else:
+            result = obj.lower() in ('true', 'yes', '1', 't')
+        return {field_name: result}
+
     @__decode.register(db.ReferenceField)
     def __deocde_reference(self, field_type, field_name, obj):
         return {
