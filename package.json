@@ -14,12 +14,7 @@
   "author": "Hiroaki Yamamoto <hiroaki@hysoftware.net>",
   "license": "MIT",
   "devDependencies": {
-    "coffee-script": "^1.10.0",
-    "colors": "^1.1.2",
-    "gulp": "^3.9.1",
-    "gulp-notify": "^3.0.0",
-    "gulp-plumber": "^1.1.0",
-    "q": "^1.4.1",
+    "gulp": "^4.0.0",
     "rimraf": "^2.5.2"
   }
 }

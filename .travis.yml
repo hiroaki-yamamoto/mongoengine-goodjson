@@ -10,13 +10,12 @@ addons:
 before_script:
   - "pip install --upgrade 'coverage<4.4'"
 script:
-  - "flake8 mongoengine_goodjson tests"
   - "detox"
 after_success:
-  - "coverage erase"
   - "coverage combine *.coverage"
   - "coveralls"
   - "codeclimate-test-reporter"
+  - "coverage erase"
 before_deploy:
   - "pandoc -f markdown -t rst -o README.rst README.md"
   - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
