@@ -429,13 +429,8 @@ Use `FollowReferenceField`.
 ## Contribute
 This scirpt is coded on TDD. i.e. Writing a test that fails, and then write
 the actual code to pass the test. Therefore, `virtualenv`, `nose` and `tox`
-will be needed to code this script. In addtion, you will need to have
-[MongoDB] installed and it must be running on the computer to run the tests.
-
-In addition, you can use [gulp] to watch the file changes.
-
-[MongoDB]: https://www.mongodb.org/
-[gulp]: http://gulpjs.com/
+will be needed to code this script (however, using `detox` instead of tox
+might be more effective.).
 
 ## License (MIT License)
 See [LICENSE.md](LICENSE.md)
