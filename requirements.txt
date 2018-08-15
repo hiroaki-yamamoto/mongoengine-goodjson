@@ -4,6 +4,8 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
+alabaster==0.7.11         # via sphinx
+babel==2.6.0              # via sphinx
 certifi==2018.8.13        # via requests
 chardet==3.0.4            # via requests
 click==6.7                # via pip-tools
@@ -14,6 +16,7 @@ coveralls==1.3.0
 detox==0.12
 dnspython==1.15.0         # via eventlet
 docopt==0.6.2             # via coveralls
+docutils==0.14            # via sphinx
 eventlet==0.24.1          # via detox
 first==2.0.1              # via pip-tools
 flake8-docstrings==1.3.0
@@ -21,21 +24,30 @@ flake8-polyfill==1.0.2    # via flake8-docstrings, radon
 flake8==3.5.0
 greenlet==0.4.14          # via eventlet
 idna==2.7                 # via requests
+imagesize==1.0.0          # via sphinx
+jinja2==2.10              # via sphinx
 mando==0.6.4              # via radon
+markupsafe==1.0           # via jinja2
 mccabe==0.6.1             # via flake8
 mongoengine==0.15.3
 monotonic==1.5            # via eventlet
+packaging==17.1           # via sphinx
 pip-tools==2.0.2
 pluggy==0.7.1             # via tox
 py==1.5.4                 # via detox, tox
 pycodestyle==2.3.1        # via flake8
 pydocstyle==2.1.1         # via flake8-docstrings
 pyflakes==1.6.0           # via flake8
+pygments==2.2.0           # via sphinx
 pymongo==3.7.1            # via mongoengine
+pyparsing==2.2.0          # via packaging
+pytz==2018.5              # via babel
 radon==2.2.0
-requests==2.19.1          # via codeclimate-test-reporter, coveralls
-six==1.11.0               # via eventlet, mando, mongoengine, pip-tools, pydocstyle, tox
-snowballstemmer==1.2.1    # via pydocstyle
+requests==2.19.1          # via codeclimate-test-reporter, coveralls, sphinx
+six==1.11.0               # via eventlet, mando, mongoengine, packaging, pip-tools, pydocstyle, sphinx, tox
+snowballstemmer==1.2.1    # via pydocstyle, sphinx
+sphinx==1.7.6
+sphinxcontrib-websupport==1.1.0  # via sphinx
 tox==3.2.1                # via detox
 urllib3==1.23             # via requests
 virtualenv==16.0.0
