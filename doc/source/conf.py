@@ -14,11 +14,7 @@
 #
 import os
 import sys
-
-sys.path.insert(
-    0, os.path.abspath("../..")
-)
-print(sys.path[0])
+sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -28,9 +24,9 @@ copyright = '2018, Hiroaki Yamamoto'
 author = 'Hiroaki Yamamoto'
 
 # The short X.Y version
-version = '0.0'
+version = ''
 # The full version, including alpha/beta/rc tags
-release = '000'
+release = ''
 
 
 # -- General configuration ---------------------------------------------------
@@ -46,6 +42,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
@@ -169,7 +166,14 @@ texinfo_documents = [
 
 # -- Extension configuration -------------------------------------------------
 
+autodoc_mock_imports = ['dateutil', ]
+
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# -- Options for todo extension ----------------------------------------------
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = True
