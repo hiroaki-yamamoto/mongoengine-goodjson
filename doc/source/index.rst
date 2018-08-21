@@ -6,14 +6,22 @@
 Welcome to MongoEngine GoodJSON's documentation!
 ================================================
 
+This document describes how to use MongoEngine GoodJSON and FAQs that is asked
+on `issues tracker`_
+
+.. _`issues tracker`: https://github.com/hiroaki-yamamoto/mongoengine-goodjson
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   get_started
 
 
 
 Indices and tables
 ==================
+
 
 * :ref:`genindex`
 * :ref:`modindex`
