@@ -43,6 +43,59 @@ To solve the problems, the generated data should be like this:
     "registered_date": 1459667811724
   }
 
+Making above structure can be possible by doing re-mapping, but if we do it on
+API's controller object, the code might get super-dirty:
+
+.. code:: python
+
+  """Dirty code."""
+  import mongoengine as db
+
+
+  class User(db.Document):
+    """User class."""
+    name = db.StringField(required=True, unique=True)
+    registered_date = db.DateTimeField()
+
+
+  def get_user(self):
+    """Get user."""
+    models = [
+      {
+        ("id" if key == "_id" else key): (
+          value.pop("$oid") if "$oid" in value and isinstance(value, dict)
+          else value.pop("$date") if "$date" in value and isinstance(value, dict)
+          else value  #What if there are the special fields in child dict?
+        )
+        for (key, value) in doc.items()
+      } for doc in User.objects(pk=ObjectId("5700c32a1cbd5856815051ce"))
+    ]
+    return json.dumps(models, indent=2)
+
+
+To give the solution of this problem, I developed this scirpt.
+By using this script, you will not need to make the transform like above. i.e.
+
+.. code:: python
+
+  """A little-bit clean code."""
+
+  import mongoengine as db
+  import mongoengine_goodjson as gj
+
+
+  class User(gj.Document):
+    """User class."""
+    name = db.StringField(required=True, unique=True)
+    registered_date = db.DateTimeField()
+
+
+  def get_user(self):
+    """Get user."""
+    return model_cls.objects(
+      pk=ObjectId("5700c32a1cbd5856815051ce")
+    ).to_json(indent=2)
+
 
 Installation
 -------------
@@ -63,3 +116,12 @@ extract the tgz archive, and execute setup.py:
   python setup.py install
 
 .. _`github release`: https://github.com/hiroaki-yamamoto/mongoengine-goodjson/releases
+
+However, if you are able to create `virtual environment`_, you can create one
+**before installing this script**.:
+
+.. code:: bash
+
+  python -m venv venv
+
+.. _`virtual environment`: https://docs.python.org/3/tutorial/venv.html
