@@ -16,6 +16,7 @@ on `issues tracker`_
    :caption: Contents:
 
    get_started
+   basic_use
 
 
 
