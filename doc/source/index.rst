@@ -17,6 +17,7 @@ on `issues tracker`_
 
    get_started
    basic_use
+   additional_features
 
 
 
