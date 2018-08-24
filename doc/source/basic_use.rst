@@ -183,3 +183,39 @@ like this:
       "isbn": "978-4041366042"
     }
   }
+
+Of course, you can generate the json document by calling :code:`to_json()`
+many times like this:
+
+.. code:: python
+
+  def output_references():
+    user = User.objects(pk=ObjectId("570ee9d1fec55e755db82129")).get()
+    user_dct = json.loads(user.to_json())
+    user_dct["books"] = [
+      json.loads(book.to_json()) for book in user.books_bought
+    ]
+    user_dct["favorite_one"] = json.loads(user.favorite_one.to_json())
+    return jsonify(user_dct)
+    # ...And what if there are references in the referenced document??
+
+However, as you can see, that code is messy and it has a problem that causes
+code-bloat. To avoid the problem, this script has a function called
+:code:`Follow Reference` since version 0.9. To use it, you can just pass
+:code:`follow_reference=True` to :code:`to_json` function like this:
+
+.. code:: python
+
+  def output_references():
+    user = User.objects(pk=ObjectId("570ee9d1fec55e755db82129")).get()
+    return jsonify(json.loads(user.to_json(follow_reference=True)))
+
+Note that setting :code:`follow_reference=True`, :code:`Document.to_json`
+checks the reference recursively until the depth reaches 3rd depth. To change
+the maximum recursion depth, you can set the value you want to :code:`max_depth`:
+
+.. code:: python
+
+  def output_references():
+    user = User.objects(pk=ObjectId("570ee9d1fec55e755db82129")).get()
+    return jsonify(json.loads(user.to_json(follow_reference=True, max_depth=5)))
