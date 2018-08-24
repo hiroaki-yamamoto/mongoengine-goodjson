@@ -348,8 +348,9 @@ def get_list_from_json(json_text):
 ## Feature 3: Reference Limit
 
 Since version 1.0.0, the method to limit recursive depth is implemented.
-Currently, this supports only "depth-level" limit, however, limit circuit
-references by condition will be implemented in the future.
+~~Currently, this supports only "depth-level" limit, however, limit circuit
+references by condition will be implemented in the future.~~ Implemented
+callable recursion limit for `FollowReferenceField` since 1.1.0.
 
 By default, `to_json` serializes the document until the cursor reaches 3rd
 level. To change the maximum depth level, change `max_depth` kwargs.
