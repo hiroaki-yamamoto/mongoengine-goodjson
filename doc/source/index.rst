@@ -6,7 +6,7 @@
 Welcome to MongoEngine GoodJSON's documentation!
 ================================================
 
-This document describes how to use MongoEngine GoodJSON and FAQs that is asked
+This document describes how to use MongoEngine GoodJSON and FAQs that was asked
 on `issues tracker`_
 
 .. _`issues tracker`: https://github.com/hiroaki-yamamoto/mongoengine-goodjson
@@ -18,6 +18,7 @@ on `issues tracker`_
    get_started
    basic_use
    additional_features
+   dive_in_deep
 
 
 
