@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.7"
+  - "3.6"
 sudo: false
 cache: "pip"
 addons:
@@ -39,7 +39,7 @@ deploy:
     distributions: sdist
     on:
       tags: true
-      python: "3.7"
+      python: "3.6"
     user:
       secure: >-
         gI74GkBa26PaoXwMiYB0pSj9+B6LydY0bixIRQn6qqjSVrDYv9stDqILhlJ2lhHqOLOkg9
