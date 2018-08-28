@@ -19,6 +19,7 @@ on `issues tracker`_
    basic_use
    additional_features
    dive_in_deep
+   license
 
 
 
