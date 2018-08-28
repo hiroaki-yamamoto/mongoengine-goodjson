@@ -20,6 +20,7 @@ on `issues tracker`_
    additional_features
    dive_in_deep
    license
+   contribution
 
 
 
