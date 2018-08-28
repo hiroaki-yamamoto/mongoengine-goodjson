@@ -74,7 +74,7 @@ Sending pull request is very appreciated, but please note:
 - **Not all pull request is merged.** Your pull request is not always accepted
   and/or merged. However, Hiro_ absolutely appreciate your contribution.
 
-Note pull requests that don't follow the above rule might not merged.
+Note pull requests that don't follow the above rule might not be merged.
 
 .. _`Pull Request`: https://github.com/hiroaki-yamamoto/mongoengine-goodjson/pulls
 .. _Hiro: https://github.com/hiroaki-yamamoto
