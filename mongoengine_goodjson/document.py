@@ -112,7 +112,7 @@ class Helper(object):
                 if isinstance(obj, list):
                     for item in obj:
                         getattr(item, flagfunc_attr)()
-                elif obj:
+                elif obj is not None:
                     getattr(obj, flagfunc_attr)(cur_depth)
 
         @recursive_apply_flag.register(FollowReferenceField)
