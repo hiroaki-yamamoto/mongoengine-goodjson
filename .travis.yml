@@ -10,7 +10,7 @@ addons:
 before_script:
   - "pip install --upgrade 'coverage<4.4'"
 script:
-  - "detox"
+  - "tox"
 after_success:
   - "coverage combine *.coverage"
   - "coveralls"
