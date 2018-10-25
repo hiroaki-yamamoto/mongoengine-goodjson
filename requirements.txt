@@ -8,7 +8,7 @@ alabaster==0.7.12         # via sphinx
 babel==2.6.0              # via sphinx
 certifi==2018.10.15        # via requests
 chardet==3.0.4            # via requests
-click==6.7                # via pip-tools
+click==7.0                # via pip-tools
 codeclimate-test-reporter==0.2.3
 colorama==0.4.0           # via radon
 coverage==4.5.1
@@ -31,13 +31,13 @@ markupsafe==1.0           # via jinja2
 mccabe==0.6.1             # via flake8
 mongoengine==0.15.3
 monotonic==1.5            # via eventlet
-packaging==17.1           # via sphinx
-pip-tools==2.0.2
+packaging==18.0           # via sphinx
+pip-tools==3.1.0
 pluggy==0.8.0             # via tox
 py==1.7.0                 # via detox, tox
 pycodestyle==2.4.0        # via flake8
-pydocstyle==2.1.1         # via flake8-docstrings
-pyflakes==1.6.0           # via flake8
+pydocstyle==3.0.0         # via flake8-docstrings
+pyflakes==2.0.0           # via flake8
 pygments==2.2.0           # via sphinx
 pymongo==3.7.2            # via mongoengine
 pyparsing==2.2.2          # via packaging
