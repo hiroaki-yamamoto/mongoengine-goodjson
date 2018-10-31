@@ -50,4 +50,4 @@ sphinx==1.8.1
 sphinxcontrib-websupport==1.1.0  # via sphinx
 tox==3.5.3                # via detox
 urllib3==1.24             # via requests
-virtualenv==16.0.0
+virtualenv==16.1.0
