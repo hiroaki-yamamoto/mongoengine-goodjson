@@ -40,7 +40,7 @@ pydocstyle==3.0.0         # via flake8-docstrings
 pyflakes==2.0.0           # via flake8
 pygments==2.2.0           # via sphinx
 pymongo==3.7.2            # via mongoengine
-pyparsing==2.2.2          # via packaging
+pyparsing==2.3.0          # via packaging
 pytz==2018.7              # via babel
 radon==2.4.0
 requests==2.20.0          # via codeclimate-test-reporter, coveralls, sphinx
