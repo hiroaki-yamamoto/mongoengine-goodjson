@@ -49,5 +49,5 @@ snowballstemmer==1.2.1    # via pydocstyle, sphinx
 sphinx==1.8.1
 sphinxcontrib-websupport==1.1.0  # via sphinx
 tox==3.5.3                # via detox
-urllib3==1.24             # via requests
+urllib3==1.24.1             # via requests
 virtualenv==16.1.0
