@@ -1,1 +1,2 @@
-recursive-include doc/ *
+include VERSION
+include README.md

@@ -1,11 +1,8 @@
 coverage
-coveralls
-codeclimate-test-reporter
 flake8
 flake8-docstrings
 mongoengine
 radon
 detox
-virtualenv
 pip-tools
 sphinx

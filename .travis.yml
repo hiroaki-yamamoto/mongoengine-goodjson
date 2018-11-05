@@ -4,43 +4,27 @@ dist: xenial
 python:
   - "3.7"
 cache: "pip"
-addons:
-  apt:
-    packages:
-      - pandoc
 before_script:
-  - "pip install --upgrade 'coverage<4.4'"
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
   - "tox"
 after_success:
-  - "coverage combine *.coverage"
-  - "coveralls"
-  - "codeclimate-test-reporter"
+  - "coverage erase"
+  - "coverage combine"
+  - "coverage xml"
+  - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t coverage.py"
   - "coverage erase"
 before_deploy:
-  - "pandoc -f markdown -t rst -o README.rst README.md"
-  - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
-  - "mv setup.py.new setup.py"
-  - >
-      git archive --format tar
-      --prefix=mongoengine_goodjson-${TRAVIS_TAG}/
-      -o ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tar HEAD
-  - "cd ${HOME}"
-  - tar xf ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tar
-  - "cd ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}"
-  - "perl -pe \"s/\\[VERSION\\]/${TRAVIS_TAG}/\" setup.py > setup.py.new"
-  - "mv setup.py.new setup.py"
-  - "cd ${HOME}"
-  - tar czf ${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tgz mongoengine_goodjson-${TRAVIS_TAG}
-  - rm -rf mongoengine_goodjson-${TRAVIS_TAG}
-  - "cd ${TRAVIS_BUILD_DIR}"
+  - "echo ${TRAVIS_TAG} > VERSION"
+  - "python setup.py sdist"
 deploy:
   - provider: pypi
     skip_cleanup: true
     distributions: sdist
     on:
       tags: true
-      python: "3.6"
     user:
       secure: >-
         gI74GkBa26PaoXwMiYB0pSj9+B6LydY0bixIRQn6qqjSVrDYv9stDqILhlJ2lhHqOLOkg9
@@ -66,11 +50,10 @@ deploy:
         PY8qCIjDHdD/gz7sSOoi4Zg1+59fgbycjnJItMxymsKesh7l7J3rMkMoeBIPgRCHOPJAix
         jWQa4OpcDhXUyh26liws6MI5e7ESigthN4ksS+LAFWP2jxOdxU+oE=
   - provider: releases
-    file: "${HOME}/mongoengine_goodjson-${TRAVIS_TAG}.tgz"
+    file: "dist/mongoengine_goodjson-${TRAVIS_TAG}.tar.gz"
     skip_cleanup: true
     on:
       tags: true
-      python: "3.6"
     api_key:
       secure: >-
         K38bWhQWubBzIYuGuV96VBJRV1BPQmKAIzmjOJgPv76kRH2bvCGf4ekFKqnT2CVPWnSNGd
