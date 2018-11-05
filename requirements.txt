@@ -13,7 +13,7 @@ codeclimate-test-reporter==0.2.3
 colorama==0.4.0           # via radon
 coverage==4.5.1
 coveralls==1.5.1
-detox==0.15
+detox==0.18
 dnspython==1.15.0         # via eventlet
 docopt==0.6.2             # via coveralls
 docutils==0.14            # via sphinx
