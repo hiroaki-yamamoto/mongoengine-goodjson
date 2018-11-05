@@ -1,14 +1,14 @@
 # More human readable JSON serializer/de-serializer for MongoEngine
 [![Build Status]][Status Link]
-[![Coverage Status]][Coverage Link]
+[![Test Coverage]][Test Coverage Link]
 [![Maintainability]][Maintainability Link]
 [![PyPI version]][PyPI link]
 [![Documentation Status Image]][DocLink]
 
 [Build Status]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson.svg?branch=master
 [Status Link]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson
-[Coverage Status]: https://coveralls.io/repos/github/hiroaki-yamamoto/mongoengine-goodjson/badge.svg?branch=master
-[Coverage Link]: https://coveralls.io/github/hiroaki-yamamoto/mongoengine-goodjson?branch=master
+[Test Coverage]: https://api.codeclimate.com/v1/badges/7efc2a1bb3040cda0d4f/test_coverage
+[Test Coverage Link]: https://codeclimate.com/github/hiroaki-yamamoto/mongoengine-goodjson/test_coverage
 [Maintainability]: https://api.codeclimate.com/v1/badges/7efc2a1bb3040cda0d4f/maintainability
 [Maintainability Link]: https://codeclimate.com/github/hiroaki-yamamoto/mongoengine-goodjson/maintainability
 [Documentation Status Image]: https://readthedocs.org/projects/mongoengine-goodjson/badge/?version=latest
