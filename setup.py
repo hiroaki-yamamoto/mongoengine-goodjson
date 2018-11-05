@@ -7,11 +7,19 @@ from setuptools import setup, find_packages
 
 dependencies = ["mongoengine", "dateutils"]
 desc = "More human readable JSON serializer/de-serializer for MongoEngine"
+version = "0.0.0"
+
+# For compatibility with py2
+file_not_found_err = None
+try:
+    file_not_found_err = FileNotFoundError
+except NameError:
+    file_not_found_err = IOError
 
 try:
     with open("VERSION") as v:
         version = v.read()
-except FileNotFoundError:
+except file_not_found_err:
     version = "0.0.0"
 
 if sys.version_info < (2, 7):
