@@ -1,6 +1,7 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    "schedule:weekends"
   ],
   "rangeStrategy": "replace",
   "lockFileMaintenance": {
@@ -11,5 +12,11 @@
   },
   "assignees": ["hiroaki-yamamoto"],
   "reviewers": ["hiroaki-yamamoto"],
-  "groupName": "group"
+  "groupName": "Updates",
+  "automerge": true,
+  "major": {
+      "groupName": "Major Updates",
+      "automerge": false
+  }
 }
+
