@@ -24,9 +24,9 @@ idna==2.7                 # via requests
 imagesize==1.1.0          # via sphinx
 jinja2==2.10              # via sphinx
 mando==0.6.4              # via radon
-markupsafe==1.0           # via jinja2
+markupsafe==1.1.0           # via jinja2
 mccabe==0.6.1             # via flake8
-mongoengine==0.15.3
+mongoengine==0.16.0
 monotonic==1.5            # via eventlet
 packaging==18.0           # via sphinx
 pip-tools==3.1.0
@@ -40,7 +40,7 @@ pymongo==3.7.2            # via mongoengine
 pyparsing==2.3.0          # via packaging
 pytz==2018.7              # via babel
 radon==2.4.0
-requests==2.20.0          # via sphinx
+requests==2.20.1          # via sphinx
 six==1.11.0               # via eventlet, mando, mongoengine, packaging, pip-tools, pydocstyle, sphinx, tox
 snowballstemmer==1.2.1    # via pydocstyle, sphinx
 sphinx==1.8.1
