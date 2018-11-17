@@ -10,7 +10,7 @@ certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
 colorama==0.4.0           # via radon
-coverage==4.5.1
+coverage==4.5.2
 detox==0.18
 dnspython==1.15.0         # via eventlet
 docutils==0.14            # via sphinx
@@ -26,7 +26,7 @@ jinja2==2.10              # via sphinx
 mando==0.6.4              # via radon
 markupsafe==1.1.0           # via jinja2
 mccabe==0.6.1             # via flake8
-mongoengine==0.16.0
+mongoengine==0.16.1
 monotonic==1.5            # via eventlet
 packaging==18.0           # via sphinx
 pip-tools==3.1.0
