@@ -9,7 +9,7 @@ babel==2.6.0              # via sphinx
 certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
-colorama==0.4.0           # via radon
+colorama==0.4.1           # via radon
 coverage==4.5.2
 detox==0.18
 dnspython==1.15.0         # via eventlet
@@ -35,7 +35,7 @@ py==1.7.0                 # via detox, tox
 pycodestyle==2.4.0        # via flake8
 pydocstyle==3.0.0         # via flake8-docstrings
 pyflakes==2.0.0           # via flake8
-pygments==2.2.0           # via sphinx
+pygments==2.3.0           # via sphinx
 pymongo==3.7.2            # via mongoengine
 pyparsing==2.3.0          # via packaging
 pytz==2018.7              # via babel
