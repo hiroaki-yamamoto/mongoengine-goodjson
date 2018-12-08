@@ -12,7 +12,7 @@ click==7.0                # via pip-tools
 colorama==0.4.1           # via radon
 coverage==4.5.2
 detox==0.18
-dnspython==1.15.0         # via eventlet
+dnspython==1.16.0         # via eventlet
 docutils==0.14            # via sphinx
 eventlet==0.24.1          # via detox
 filelock==3.0.10          # via tox
