@@ -29,7 +29,7 @@ mccabe==0.6.1             # via flake8
 mongoengine==0.16.3
 monotonic==1.5            # via eventlet
 packaging==18.0           # via sphinx
-pip-tools==3.1.0
+pip-tools==3.2.0
 pluggy==0.8.0             # via tox
 py==1.7.0                 # via detox, tox
 pycodestyle==2.4.0        # via flake8
