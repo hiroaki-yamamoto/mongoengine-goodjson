@@ -119,7 +119,7 @@ def get_user(self):
 ## How to use it
 
 Generally you can define the document as usual, but you might want to inherits
-`mongoengnie_goodjson.Document` or `mongoengnie_goodjson.EmbeddedDocument`.
+`mongoengine_goodjson.Document` or `mongoengine_goodjson.EmbeddedDocument`.
 
 Here is the example:
 
