@@ -10,7 +10,7 @@ from bson import SON, DBRef
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .queryset import QuerySet
-from .utils import singledispatch, normalize_reference
+from .utils import singledispatch, normalize_reference, id_first
 
 
 class Helper(object):
@@ -39,7 +39,7 @@ class Helper(object):
                 id=doc.id
             ).get() if isinstance(doc, DBRef) else doc
             dct = self.__serialize_doc_to_dict(fld, tdoc, *args, **kwargs)
-            value.append(dct)
+            value.append(id_first(dct))
         return value
 
     def __serialize_doc_to_dict(self, fld, doc, *args, **kwargs):
@@ -89,7 +89,7 @@ class Helper(object):
                 if value is not None:
                     ret[fldname] = value
                     # ret.update({fldname: value})
-        return ret
+        return id_first(ret)
 
     def __apply_element(
         self, name, fld, cur_depth, func=None, flagfunc_attr=None
@@ -238,9 +238,10 @@ class Helper(object):
                     data, *args, **kwargs
                 ))
 
-        data = self.__to_json_drop_excluded_data(data)
+        data = id_first(self.__to_json_drop_excluded_data(data))
+        ret = json.dumps(data, *args, **kwargs)
 
-        return json.dumps(data, *args, **kwargs)
+        return ret
 
     @classmethod
     def from_json(cls, json_str, created=False, *args, **kwargs):

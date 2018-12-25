@@ -11,7 +11,7 @@ from datetime import datetime
 from calendar import timegm
 from uuid import UUID
 
-from .utils import method_dispatch
+from .utils import method_dispatch, id_first
 
 from bson import (
     ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary,
@@ -140,9 +140,9 @@ class GoodJSONEncoder(json.JSONEncoder):
 
     @encode.register(dict)
     def __envode_dict(self, o, **kwargs):
-        return super(GoodJSONEncoder, self).encode({
+        return super(GoodJSONEncoder, self).encode(id_first({
             key: self.__check(value) for (key, value) in o.items()
-        }, **kwargs)
+        }), **kwargs)
 
     @encode.register(collections.Iterable)
     def __envode_list(self, o, **kwargs):

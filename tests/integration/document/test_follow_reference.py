@@ -3,6 +3,7 @@
 
 """Document follow reference flag test."""
 
+from collections import OrderedDict
 import json
 
 try:
@@ -33,7 +34,14 @@ class FollowReferenceTest(DBConBase):
 
     def test_encode_follow_reference_data(self):
         """Reference data should follow ReferenceField."""
-        result = json.loads(self.reference.to_json(follow_reference=True))
+        result = json.loads(
+            self.reference.to_json(follow_reference=True),
+            object_pairs_hook=OrderedDict
+        )
+        self.assertEqual(
+            list(result.items())[0][0], 'id',
+            'The key of the first element must be "id".'
+        )
         self.assertDictEqual(self.reference_dict, result)
 
     def test_decode_reference(self):

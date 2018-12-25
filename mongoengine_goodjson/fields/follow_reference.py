@@ -8,7 +8,7 @@ import logging
 from bson import SON
 import mongoengine as db
 from ..document import Document
-from ..utils import method_dispatch
+from ..utils import method_dispatch, id_first
 
 log = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ class FollowReferenceField(db.ReferenceField):
         )
         if issubclass(self.document_type, Document):
             ret.setdefault("id", ret.pop("_id", None))
-        return ret
+        return id_first(ret)
 
     def to_python(self, value):
         """

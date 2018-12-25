@@ -4,6 +4,7 @@
 """Test normal document."""
 
 from calendar import timegm
+from collections import OrderedDict
 import json
 from six import text_type
 
@@ -34,12 +35,25 @@ class NormalDocumentTest(DBConBase):
 
     def test_encode_user_data(self):
         """User model should be encoded properly."""
-        result = json.loads(self.user.to_json())
+        result = json.loads(
+            self.user.to_json(), object_pairs_hook=OrderedDict
+        )
+        self.assertEqual(
+            list(result.items())[0][0], 'id',
+            'The key of the first element must be "id".'
+        )
         self.assertEqual(self.user_dict, result)
 
     def test_encode_article_data(self):
         """Article model should be encoded properly."""
-        result = json.loads(self.article.to_json())
+        result = json.loads(
+            self.article.to_json(),
+            object_pairs_hook=OrderedDict
+        )
+        self.assertEqual(
+            list(result.items())[0][0], 'id',
+            'The key of the first element must be "id".'
+        )
         self.assertEqual(self.article_dict, result)
 
     def test_encode_article_data_epoch_flag(self):

@@ -4,6 +4,7 @@
 """Utility functions."""
 
 from functools import update_wrapper
+import collections as cl
 
 try:
     from functools import singledispatch
@@ -42,3 +43,19 @@ def normalize_reference_dict(ref_id, fld):
 def normalize_reference_list(ref_id, fld):
     """Normalize Reference for list."""
     return [normalize_reference(ref.id, fld) for ref in ref_id]
+
+
+def id_first(dct):
+    """
+    Return dict that comes id first.
+
+    Note that this func returns dct as it is if "id" is not found in dct.
+
+    """
+
+    if "id" in list(dct.keys()):
+        items = [("id", dct.pop("id"))]
+        items.extend(dct.items())
+        return cl.OrderedDict(items)
+    else:
+        return dct
