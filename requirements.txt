@@ -43,9 +43,9 @@ radon==2.4.0
 requests==2.21.0          # via sphinx
 six==1.12.0               # via eventlet, mando, mongoengine, packaging, pip-tools, pydocstyle, sphinx, tox
 snowballstemmer==1.2.1    # via pydocstyle, sphinx
-sphinx==1.8.2
+sphinx==1.8.3
 sphinxcontrib-websupport==1.1.0  # via sphinx
 toml==0.10.0              # via tox
-tox==3.6.0                # via detox
+tox==3.6.1                # via detox
 urllib3==1.24.1           # via requests
 virtualenv==16.1.0        # via tox
