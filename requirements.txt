@@ -48,4 +48,4 @@ sphinxcontrib-websupport==1.1.0  # via sphinx
 toml==0.10.0              # via tox
 tox==3.6.1                # via detox
 urllib3==1.24.1           # via requests
-virtualenv==16.1.0        # via tox
+virtualenv==16.2.0        # via tox
