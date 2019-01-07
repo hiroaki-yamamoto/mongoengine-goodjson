@@ -5,18 +5,20 @@
   ],
   "rangeStrategy": "replace",
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "schedule": "every weekend"
   },
   "vulnerabilityAlerts": {
-    "enabled": true
+    "enabled": true,
+    "schedule": "every weekend"
   },
   "assignees": ["hiroaki-yamamoto"],
   "reviewers": ["hiroaki-yamamoto"],
   "groupName": "Updates",
   "automerge": true,
   "major": {
-      "groupName": "Major Updates",
-      "automerge": false
+    "automerge": false,
+    "groupName": "Major Updates",
+    "schedule": "every weekend"
   }
 }
-
