@@ -32,7 +32,7 @@ jobs:
           command: |
             source ./venv/bin/activate &&
             ../cc-test-reporter before-build &&
-            tox;
+            tox -p all;
             export EXIT_CODE=${?};
             coverage erase &&
             coverage combine &&

@@ -3,6 +3,6 @@ flake8
 flake8-docstrings
 mongoengine
 radon
-detox
+tox
 pip-tools
 sphinx
