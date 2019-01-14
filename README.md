@@ -5,8 +5,8 @@
 [![PyPI version]][PyPI link]
 [![Documentation Status Image]][DocLink]
 
-[Build Status]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson.svg?branch=master
-[Status Link]: https://travis-ci.org/hiroaki-yamamoto/mongoengine-goodjson
+[Build Status]: https://circleci.com/gh/hiroaki-yamamoto/mongoengine-goodjson.svg?style=svg
+[Status Link]: https://circleci.com/gh/hiroaki-yamamoto/mongoengine-goodjson
 [Test Coverage]: https://api.codeclimate.com/v1/badges/7efc2a1bb3040cda0d4f/test_coverage
 [Test Coverage Link]: https://codeclimate.com/github/hiroaki-yamamoto/mongoengine-goodjson/test_coverage
 [Maintainability]: https://api.codeclimate.com/v1/badges/7efc2a1bb3040cda0d4f/maintainability
