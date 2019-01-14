@@ -47,13 +47,15 @@ you can make virtual environment before installing the packages:
 
 Then, run the pip.
 
-To test the code, you can use tox_ or detox_ that is installed by pip:
+To test the code, you can use tox_ that is installed by pip:
 
 .. code:: bash
 
   (venv)$ tox
   # or...
-  (venv)$ detox
+  (venv)$ tox -p all
+  # or...
+  (venv)$ tox -p auto
 
 .. _`pip-tools`: https://github.com/jazzband/pip-tools
 .. _tox: https://tox.readthedocs.io/en/latest/
@@ -68,9 +70,9 @@ Before sending pull request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sending pull request is very appreciated, but please note:
 
-- **Test code is mandatory.** Your bug must be re-producible, and writing test code
-  is showing the proof of the bug. Pull requests that doesn't have test code might
-  be rejected.
+- **Test code is mandatory.** Your bug must be reproducible, and writing test
+  code is showing the proof of the bug. Any pull requests that don't have test
+  code might be rejected.
 - **Not all pull request is merged.** Your pull request is not always accepted
   and/or merged. However, Hiro_ absolutely appreciate your contribution.
 

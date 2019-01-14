@@ -2,7 +2,6 @@
 [![Build Status]][Status Link]
 [![Test Coverage]][Test Coverage Link]
 [![Maintainability]][Maintainability Link]
-[![PyPI version]][PyPI link]
 [![Documentation Status Image]][DocLink]
 
 [Build Status]: https://circleci.com/gh/hiroaki-yamamoto/mongoengine-goodjson.svg?style=svg
@@ -13,8 +12,6 @@
 [Maintainability Link]: https://codeclimate.com/github/hiroaki-yamamoto/mongoengine-goodjson/maintainability
 [Documentation Status Image]: https://readthedocs.org/projects/mongoengine-goodjson/badge/?version=latest
 [DocLink]: https://mongoengine-goodjson.readthedocs.io/en/latest/?badge=latest
-[PyPI version]: https://badge.fury.io/py/mongoengine_goodjson.svg
-[PyPI link]: https://badge.fury.io/py/mongoengine_goodjson
 
 ## What This?
 This script has MongoEngine Document json serialization more-natural.
@@ -151,10 +148,7 @@ If you want to know more, there's [read the doc] that you want to read.
 You can now [read the doc] with drinking a cup of coffee!!
 
 ## Contribute
-This scirpt is coded on TDD. i.e. Writing a test that fails, and then write
-the actual code to pass the test. Therefore, `virtualenv`, `nose` and `tox`
-will be needed to code this script (however, using `detox` instead of tox
-might be more effective.). Please [read the doc] for the detail.
+Please [read the doc] for the detail.
 
 [read the doc]: https://mongoengine-goodjson.readthedocs.io/
 
