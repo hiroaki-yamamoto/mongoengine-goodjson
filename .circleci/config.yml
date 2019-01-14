@@ -1,0 +1,88 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: python:latest
+    working_directory: ~/ci
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
+      - run :
+          name: "Run Venv"
+          command: "python -m venv venv"
+      - run:
+          name: "Download Code Climate App"
+          command: |
+            curl -o ../cc-test-reporter -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 &&
+            chmod +x ../cc-test-reporter
+      - run:
+          name: "Install Dependencies"
+          command: |
+            source ./venv/bin/activate &&
+            pip install -r requirements.txt &&
+            pip install twine bump
+      - save_cache:
+          key: ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          paths:
+            - "./venv"
+      - run:
+          name: "Test & Upload the coverage"
+          command: |
+            source ./venv/bin/activate &&
+            ../cc-test-reporter before-build &&
+            tox;
+            export EXIT_CODE=${?};
+            coverage erase &&
+            coverage combine &&
+            coverage xml &&
+            ../cc-test-reporter after-build --exit-code $EXIT_CODE -t coverage.py
+      - persist_to_workspace:
+          root: ../
+          paths:
+            - ci
+  deploy:
+    docker:
+      - image: python:latest
+    working_directory: ~/ci
+    steps:
+      - attach_workspace:
+          at: ../
+      - run:
+          name: "Generating version info"
+          command: "echo -n ${CIRCLE_TAG} > VERSION"
+      - run:
+          name: "Generate the package"
+          command: "source ./venv/bin/activate && python setup.py sdist"
+      - run:
+          name: "Deploy"
+          command: "source ./venv/bin/activate && twine upload dist/*"
+
+release_filter: &release_filter
+  tags:
+    only: /^(?:[0-9]+\.){2}[0-9].*/
+  branches:
+    ignore: /.*/
+
+dev_filter: &dev_filter
+  tags:
+    ignore: /^(?:[0-9]+\.){2}[0-9].*/
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build:
+          filters:
+            << : *dev_filter
+  version_tag:
+    jobs:
+      - build:
+          filters:
+            << : *release_filter
+      - deploy:
+          requires:
+            - build
+          filters:
+            << : *release_filter
