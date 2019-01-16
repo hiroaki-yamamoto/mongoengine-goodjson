@@ -87,3 +87,19 @@ class NormalDocumentTest(DBConBase):
             json.loads(self.article.to_json(follow_reference=True)),
             self.article_ref_fld_dict
         )
+
+
+class NormalDocumentWithEmptyListTest(DBConBase):
+    """Normal document test with empty list."""
+
+    def setUp(self):
+        """Setup."""
+        self.user = User.generate_test_data()
+        self.user.address = []
+
+    def test_serialize(self):
+        """The user data should be serialized properly."""
+        self.assertEqual(
+            json.loads(self.user.to_json(), object_pairs_hook=OrderedDict),
+            self.user.to_dict()
+        )
