@@ -96,6 +96,7 @@ class NormalDocumentWithEmptyListTest(DBConBase):
         """Setup."""
         self.user = User.generate_test_data()
         self.user.address = []
+        self.user.metalist = []
 
     def test_serialize(self):
         """The user data should be serialized properly."""

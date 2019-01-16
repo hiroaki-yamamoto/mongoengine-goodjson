@@ -39,6 +39,7 @@ class FollowReferenceFieldTest(DBConBase):
                 u"name": self.ref_docs[0].name,
                 u"address": [],
                 u"metadata": {},
+                u"metalist": [],
             },
             u"refs": []
         }

@@ -35,6 +35,7 @@ class User(Dictable, gj.Document):
     email = db.EmailField()
     address = db.EmbeddedDocumentListField(Address)
     metadata = db.DictField()
+    metalist = db.ListField()
 
     @classmethod
     def generate_test_data(cls, additional_suffix=""):
@@ -58,6 +59,7 @@ class User(Dictable, gj.Document):
             }
             for counter1 in range(5)
         }
+        user.metalist = list(user.metadata.values())
         return user
 
 

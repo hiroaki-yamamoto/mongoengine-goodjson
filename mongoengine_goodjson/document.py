@@ -92,7 +92,7 @@ class Helper(object):
         return id_first(ret)
 
     def __apply_element(
-        self, name, fld, cur_depth, func=None, flagfunc_attr=None
+        self, name, fld, cur_depth, func, flagfunc_attr=None
     ):
         """Apply field flag by calling parameter func."""
         from mongoengine_goodjson.fields import FollowReferenceField
@@ -103,7 +103,8 @@ class Helper(object):
 
         @recursive_apply_flag.register(db.ListField)
         def set_flag_list(fld):
-            recursive_apply_flag(fld.field)
+            if fld.field:
+                recursive_apply_flag(fld.field)
 
         @recursive_apply_flag.register(db.EmbeddedDocumentField)
         def set_flag_emb(fld):
