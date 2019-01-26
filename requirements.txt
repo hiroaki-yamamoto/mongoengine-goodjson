@@ -24,12 +24,12 @@ markupsafe==1.1.0         # via jinja2
 mccabe==0.6.1             # via flake8
 mongoengine==0.16.3
 packaging==19.0           # via sphinx
-pip-tools==3.2.0
+pip-tools==3.3.1
 pluggy==0.8.1             # via tox
 py==1.7.0                 # via tox
 pycodestyle==2.4.0        # via flake8
 pydocstyle==3.0.0         # via flake8-docstrings
-pyflakes==2.0.0           # via flake8
+pyflakes==2.1.0           # via flake8
 pygments==2.3.1           # via sphinx
 pymongo==3.7.2            # via mongoengine
 pyparsing==2.3.1          # via packaging
@@ -43,4 +43,4 @@ sphinxcontrib-websupport==1.1.0  # via sphinx
 toml==0.10.0              # via tox
 tox==3.7.0
 urllib3==1.24.1           # via requests
-virtualenv==16.2.0        # via tox
+virtualenv==16.3.0        # via tox
