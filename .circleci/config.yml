@@ -8,7 +8,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
+            - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run :
           name: "Run Venv"
           command: "python -m venv venv"
@@ -24,7 +24,7 @@ jobs:
             pip install --upgrade poetry &&
             poetry install
       - save_cache:
-          key: ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}
           paths:
             - "./venv"
       - run:
