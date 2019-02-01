@@ -21,8 +21,8 @@ jobs:
           name: "Install Dependencies"
           command: |
             source ./venv/bin/activate &&
-            pip install -r requirements.txt &&
-            pip install twine bump
+            pip install --upgrade poetry &&
+            poetry install
       - save_cache:
           key: ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
@@ -53,11 +53,11 @@ jobs:
           name: "Generating version info"
           command: "echo -n ${CIRCLE_TAG} > VERSION"
       - run:
-          name: "Generate the package"
-          command: "source ./venv/bin/activate && python setup.py sdist"
+          name: "Deploy"
+          command: "source ./venv/bin/activate && poetry build -f sdist"
       - run:
           name: "Deploy"
-          command: "source ./venv/bin/activate && twine upload dist/*"
+          command: "source ./venv/bin/activate && poetry publish"
 
 release_filter: &release_filter
   tags:

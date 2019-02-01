@@ -52,7 +52,6 @@ def id_first(dct):
     Note that this func returns dct as it is if "id" is not found in dct.
 
     """
-
     if "id" in list(dct.keys()):
         items = [("id", dct.pop("id"))]
         items.extend(dct.items())
