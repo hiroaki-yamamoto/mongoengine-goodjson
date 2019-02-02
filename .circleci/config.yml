@@ -75,7 +75,7 @@ jobs:
     <<: *testSteps
   aggregate:
     docker:
-      - image: ubuntu:latest
+      - image: buildpack-deps:latest
     working_directory: ~/reporter
     steps:
       - attach_workspace:
