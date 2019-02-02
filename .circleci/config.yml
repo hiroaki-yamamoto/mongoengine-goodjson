@@ -36,9 +36,9 @@ testSteps: &testSteps
           ../reporter/cc-test-reporter format-coverage \
             -t coverage.py -o ../reporter/coverage.${PYENV}.json
     - persist_to_workspace:
-        root: ../reporter
+        root: ../
         paths:
-          - coverage.${PYENV}.json
+          - reporter
 jobs:
   build:
     docker:
@@ -57,8 +57,8 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - ./reporter/cc-test-reporter
-            - ./ci
+            - reporter
+            - ci
   testPy3:
     docker:
       - image: python:3
