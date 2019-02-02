@@ -5,7 +5,7 @@ testSteps: &testSteps
         at: ../
     - restore_cache:
         keys:
-          - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+          - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-{{ .Environment.PYENV }}
     - run :
         name: "Run Venv"
         command: |
@@ -21,7 +21,7 @@ testSteps: &testSteps
           pip install --upgrade poetry &&
           poetry install
     - save_cache:
-        key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+        key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-{{ .Environment.PYENV }}
         paths:
           - "./venv"
     - run:
@@ -89,9 +89,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ../
-      - run:
-          name: "Generating version info"
-          command: "echo -n ${CIRCLE_TAG} > VERSION"
       - run:
           name: "Deploy"
           command: "source ./venv/bin/activate && poetry build -f sdist"
