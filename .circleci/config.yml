@@ -34,11 +34,11 @@ testSteps: &testSteps
           coverage combine &&
           coverage xml &&
           ../reporter/cc-test-reporter format-coverage \
-            -t coverage.py -o ../reporter/coverage.${PYENV}.json
+            -t coverage.py -o ../reporter/covs/coverage.${PYENV}.json
     - persist_to_workspace:
         root: ../
         paths:
-          - reporter
+          - reporter/covs
 jobs:
   build:
     docker:
@@ -57,7 +57,7 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - reporter
+            - reporter/cc-test-reporter
             - ci
   testPy3:
     docker:
@@ -80,7 +80,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ../
-      - run: ./cc-test-reporter sum-coverage *.json -p 2 -o /tmp/covsum.json
+      - run: ./cc-test-reporter sum-coverage covs/*.json -p 2 -o /tmp/covsum.json
       - run: ./cc-test-reporter upload-coverage -i /tmp/covsum.json
   deploy:
     docker:
