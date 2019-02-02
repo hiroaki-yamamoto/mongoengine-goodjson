@@ -75,7 +75,7 @@ jobs:
     <<: *testSteps
   aggregate:
     docker:
-      - image: alpine:latest
+      - image: ubuntu:latest
     working_directory: ~/reporter
     steps:
       - attach_workspace:
@@ -84,7 +84,7 @@ jobs:
       - run: ./cc-test-reporter upload-coverage -i /tmp/covsum.json
   deploy:
     docker:
-      - image: buildpack-deps:latest
+      - image: python:latest
     working_directory: ~/ci
     steps:
       - attach_workspace:
