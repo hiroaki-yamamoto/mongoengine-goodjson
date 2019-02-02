@@ -84,7 +84,7 @@ jobs:
       - run: ./cc-test-reporter upload-coverage -i /tmp/covsum.json
   deploy:
     docker:
-      - image: python:latest
+      - image: ubuntu:latest
     working_directory: ~/ci
     steps:
       - attach_workspace:
