@@ -3,9 +3,9 @@ testSteps: &testSteps
   steps:
     - attach_workspace:
         at: ../
-    - restore_cache:
-        keys:
-          - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+    # - restore_cache:
+    #     keys:
+    #       - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
     - run :
         name: "Run Venv"
         command: |
@@ -20,10 +20,10 @@ testSteps: &testSteps
           source ./venv/bin/activate &&
           pip install --upgrade poetry &&
           poetry install
-    - save_cache:
-        key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
-        paths:
-          - "./venv"
+    # - save_cache:
+    #     key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+    #     paths:
+    #       - "./venv"
     - run:
         name: "Test & Upload the coverage"
         command: |
@@ -36,7 +36,7 @@ testSteps: &testSteps
           ../reporter/cc-test-reporter format-coverage \
             -t coverage.py -o ../reporter/coverage.${PYENV}.json
     - persist_to_workspace:
-        root: ../
+        root: ../reporter
         paths:
           - coverage.${PYENV}.json
 jobs:
