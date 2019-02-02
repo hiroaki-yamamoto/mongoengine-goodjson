@@ -41,6 +41,7 @@ jobs:
     steps:
       - checkout:
           path: ./ci
+      - run: mkdir reporter
       - run:
           name: Download coverage reporter
           command: |
