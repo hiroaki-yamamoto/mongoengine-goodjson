@@ -1,47 +1,81 @@
 version: 2
+testSteps: &testSteps
+  - attach_workspace:
+      at: ../
+  - restore_cache:
+      keys:
+        - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+  - run :
+      name: "Run Venv"
+      command: "python -m venv venv"
+  - run:
+      name: "Install Dependencies"
+      command: |
+        source ./venv/bin/activate &&
+        pip install --upgrade poetry &&
+        poetry install
+  - save_cache:
+      key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+      paths:
+        - "./venv"
+  - run:
+      name: "Test & Upload the coverage"
+      command: |
+        source ./venv/bin/activate &&
+        ../reporter/cc-test-reporter before-build &&
+        tox -e ${PYENV};
+        coverage erase &&
+        coverage combine &&
+        coverage xml &&
+        ../reporter/cc-test-reporter format-coverage \
+          -t coverage.py -o ../reporter/coverage.${PYENV}.json
+  - persist_to_workspace:
+      root: ../reporter
+      paths: coverage.${PYENV}.json
 jobs:
   build:
     docker:
-      - image: python:latest
-    working_directory: ~/ci
+      - image: alpine:latest
+    working_directory: ~/
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}
-      - run :
-          name: "Run Venv"
-          command: "python -m venv venv"
+          path: ./ci
       - run:
-          name: "Download Code Climate App"
+          name: Download coverage reporter
           command: |
-            curl -o ../cc-test-reporter -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 &&
-            chmod +x ../cc-test-reporter
-      - run:
-          name: "Install Dependencies"
-          command: |
-            source ./venv/bin/activate &&
-            pip install --upgrade poetry &&
-            poetry install
-      - save_cache:
-          key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}
-          paths:
-            - "./venv"
-      - run:
-          name: "Test & Upload the coverage"
-          command: |
-            source ./venv/bin/activate &&
-            ../cc-test-reporter before-build &&
-            tox -p all;
-            export EXIT_CODE=${?};
-            coverage erase &&
-            coverage combine &&
-            coverage xml &&
-            ../cc-test-reporter after-build --exit-code $EXIT_CODE -t coverage.py
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 \
+              -o ./reporter/cc-test-reporter
+      - run: chmod uog+x ./reporter/cc-test-reporter
       - persist_to_workspace:
-          root: ../
+          root: ./
           paths:
-            - ci
+            - ./reporter/cc-test-reporter
+            - ./ci
+  testPy3:
+    docker:
+      - image: python:3
+        environment:
+          PYENV: 3
+    working_directory: ~/ci
+    steps:
+      <<: *testSteps
+  testPy2:
+    docker:
+      - image: python:2
+        environment:
+          PYENV: 2
+    working_directory: ~/ci
+    steps:
+      <<: *testSteps
+  aggregate:
+    docker:
+      - image: alpine:latest
+    working_directory: ~/reporter
+    steps:
+      - attach_workspace:
+          at: ../
+      - run: ./cc-test-reporter sum-coverage *.json -p 2 -o /tmp/covsum.json
+      - run: ./cc-test-reporter upload-coverage -i /tmp/covsum.json
   deploy:
     docker:
       - image: python:latest
@@ -76,13 +110,46 @@ workflows:
       - build:
           filters:
             << : *dev_filter
+      - testPy2:
+          requires:
+            - build
+          filters:
+            << : *dev_filter
+      - testPy3:
+          requires:
+            - build
+          filters:
+            << : *dev_filter
+      - aggregate:
+          requires:
+            - testPy2
+            - testPy3
+          filters:
+            << : *dev_filter
   version_tag:
     jobs:
       - build:
           filters:
             << : *release_filter
-      - deploy:
+      - testPy2:
           requires:
             - build
+          filters:
+            << : *release_filter
+      - testPy3:
+          requires:
+            - build
+          filters:
+            << : *release_filter
+      - aggregate:
+          requires:
+            - testPy2
+            - testPy3
+          filters:
+            << : *release_filter
+      - deploy:
+          requires:
+            - testPy2
+            - testPy3
           filters:
             << : *release_filter
