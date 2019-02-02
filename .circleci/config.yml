@@ -1,37 +1,38 @@
 version: 2
 testSteps: &testSteps
-  - attach_workspace:
-      at: ../
-  - restore_cache:
-      keys:
-        - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
-  - run :
-      name: "Run Venv"
-      command: "python -m venv venv"
-  - run:
-      name: "Install Dependencies"
-      command: |
-        source ./venv/bin/activate &&
-        pip install --upgrade poetry &&
-        poetry install
-  - save_cache:
-      key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
-      paths:
-        - "./venv"
-  - run:
-      name: "Test & Upload the coverage"
-      command: |
-        source ./venv/bin/activate &&
-        ../reporter/cc-test-reporter before-build &&
-        tox -e ${PYENV};
-        coverage erase &&
-        coverage combine &&
-        coverage xml &&
-        ../reporter/cc-test-reporter format-coverage \
-          -t coverage.py -o ../reporter/coverage.${PYENV}.json
-  - persist_to_workspace:
-      root: ../reporter
-      paths: coverage.${PYENV}.json
+  steps:
+    - attach_workspace:
+        at: ../
+    - restore_cache:
+        keys:
+          - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+    - run :
+        name: "Run Venv"
+        command: "python -m venv venv"
+    - run:
+        name: "Install Dependencies"
+        command: |
+          source ./venv/bin/activate &&
+          pip install --upgrade poetry &&
+          poetry install
+    - save_cache:
+        key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
+        paths:
+          - "./venv"
+    - run:
+        name: "Test & Upload the coverage"
+        command: |
+          source ./venv/bin/activate &&
+          ../reporter/cc-test-reporter before-build &&
+          tox -e ${PYENV};
+          coverage erase &&
+          coverage combine &&
+          coverage xml &&
+          ../reporter/cc-test-reporter format-coverage \
+            -t coverage.py -o ../reporter/coverage.${PYENV}.json
+    - persist_to_workspace:
+        root: ../reporter
+        paths: coverage.${PYENV}.json
 jobs:
   build:
     docker:
@@ -57,16 +58,14 @@ jobs:
         environment:
           PYENV: 3
     working_directory: ~/ci
-    steps:
-      <<: *testSteps
+    <<: *testSteps
   testPy2:
     docker:
       - image: python:2
         environment:
           PYENV: 2
     working_directory: ~/ci
-    steps:
-      <<: *testSteps
+    <<: *testSteps
   aggregate:
     docker:
       - image: alpine:latest
