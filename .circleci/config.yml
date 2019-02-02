@@ -9,7 +9,7 @@ testSteps: &testSteps
     - run :
         name: "Run Venv"
         command: |
-          if [ ${PYENV} -ge 2 ]; then
+          if [ ${PYENV} -ge 3 ]; then
             python -m venv ./venv
           else
             virtualenv ./venv
