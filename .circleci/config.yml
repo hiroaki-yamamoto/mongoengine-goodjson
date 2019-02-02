@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 testSteps: &testSteps
   steps:
     - attach_workspace:
@@ -8,7 +8,12 @@ testSteps: &testSteps
           - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}-${PYENV}
     - run :
         name: "Run Venv"
-        command: "python -m venv venv"
+        command: |
+          if [ ${PYENV} -ge 2 ]; then
+            python -m venv ./venv
+          else
+            virtualenv ./venv
+          fi
     - run:
         name: "Install Dependencies"
         command: |
@@ -31,8 +36,9 @@ testSteps: &testSteps
           ../reporter/cc-test-reporter format-coverage \
             -t coverage.py -o ../reporter/coverage.${PYENV}.json
     - persist_to_workspace:
-        root: ../reporter
-        paths: coverage.${PYENV}.json
+        root: ../
+        paths:
+          - coverage.${PYENV}.json
 jobs:
   build:
     docker:
