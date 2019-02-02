@@ -38,7 +38,7 @@ jobs:
       - image: alpine:latest
     working_directory: ~/
     steps:
-      - checkout
+      - checkout:
           path: ./ci
       - run:
           name: Download coverage reporter
