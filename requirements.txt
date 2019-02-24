@@ -20,7 +20,7 @@ idna==2.8                 # via requests
 imagesize==1.1.0          # via sphinx
 jinja2==2.10              # via sphinx
 mando==0.6.4              # via radon
-markupsafe==1.1.0         # via jinja2
+markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
 mongoengine==0.16.3
 packaging==19.0           # via sphinx
