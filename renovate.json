@@ -6,11 +6,11 @@
   "rangeStrategy": "replace",
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": "every weekend"
+    "extends": ["schedule:weekends"]
   },
   "vulnerabilityAlerts": {
     "enabled": true,
-    "schedule": "every weekend"
+    "extends": ["schedule:weekends"]
   },
   "assignees": ["hiroaki-yamamoto"],
   "reviewers": ["hiroaki-yamamoto"],
@@ -19,6 +19,6 @@
   "major": {
     "automerge": false,
     "groupName": "Major Updates",
-    "schedule": "every weekend"
+    "extends": ["schedule:weekends"]
   }
 }
