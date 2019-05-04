@@ -42,5 +42,5 @@ sphinx==2.0.1
 sphinxcontrib-websupport==1.1.0  # via sphinx
 toml==0.10.0              # via tox
 tox==3.9.0
-urllib3==1.25.1           # via requests
+urllib3==1.25.2           # via requests
 virtualenv==16.5.0        # via tox
