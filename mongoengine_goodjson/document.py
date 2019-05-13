@@ -298,3 +298,12 @@ class EmbeddedDocument(Helper, db.EmbeddedDocument):
         "abstract": True,
         "queryset_class": QuerySet
     }
+
+
+class DynamicDocument(Helper, db.DynamicDocument):
+    """EmbeddedDocument implementing human-readable JSON serializer."""
+
+    meta = {
+        "abstract": True,
+        "queryset_class": QuerySet
+    }
