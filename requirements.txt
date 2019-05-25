@@ -30,7 +30,7 @@ py==1.8.0                 # via tox
 pycodestyle==2.5.0        # via flake8
 pydocstyle==3.0.0         # via flake8-docstrings
 pyflakes==2.1.1           # via flake8
-pygments==2.4.0           # via sphinx
+pygments==2.4.1           # via sphinx
 pymongo==3.8.0            # via mongoengine
 pyparsing==2.4.0          # via packaging
 pytz==2019.1              # via babel
@@ -41,6 +41,6 @@ snowballstemmer==1.2.1    # via pydocstyle, sphinx
 sphinx==2.0.1
 sphinxcontrib-websupport==1.1.2  # via sphinx
 toml==0.10.0              # via tox
-tox==3.11.1
-urllib3==1.25.2           # via requests
+tox==3.12.1
+urllib3==1.25.3           # via requests
 virtualenv==16.6.0        # via tox
