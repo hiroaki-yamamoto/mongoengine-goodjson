@@ -5,7 +5,7 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 alabaster==0.7.12         # via sphinx
-babel==2.6.0              # via sphinx
+babel==2.7.0              # via sphinx
 certifi==2019.3.9       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
@@ -25,12 +25,12 @@ mccabe==0.6.1             # via flake8
 mongoengine==0.17.0
 packaging==19.0           # via sphinx
 pip-tools==3.7.0
-pluggy==0.11.0             # via tox
+pluggy==0.12.0             # via tox
 py==1.8.0                 # via tox
 pycodestyle==2.5.0        # via flake8
 pydocstyle==3.0.0         # via flake8-docstrings
 pyflakes==2.1.1           # via flake8
-pygments==2.4.1           # via sphinx
+pygments==2.4.2           # via sphinx
 pymongo==3.8.0            # via mongoengine
 pyparsing==2.4.0          # via packaging
 pytz==2019.1              # via babel
