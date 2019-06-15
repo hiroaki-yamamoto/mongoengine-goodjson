@@ -22,7 +22,7 @@ jinja2==2.10.1              # via sphinx
 mando==0.6.4              # via radon
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
-mongoengine==0.17.0
+mongoengine==0.18.0
 packaging==19.0           # via sphinx
 pip-tools==3.8.0
 pluggy==0.12.0             # via tox
@@ -38,7 +38,7 @@ radon==3.0.3
 requests==2.22.0          # via sphinx
 six==1.12.0               # via mando, mongoengine, packaging, pip-tools, pydocstyle, sphinx, tox
 snowballstemmer==1.2.1    # via pydocstyle, sphinx
-sphinx==2.1.0
+sphinx==2.1.1
 sphinxcontrib-websupport==1.1.2  # via sphinx
 toml==0.10.0              # via tox
 tox==3.12.1
