@@ -6,7 +6,7 @@
 #
 alabaster==0.7.12         # via sphinx
 babel==2.7.0              # via sphinx
-certifi==2019.3.9       # via requests
+certifi==2019.6.16       # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
 colorama==0.4.1           # via radon
@@ -43,4 +43,4 @@ sphinxcontrib-websupport==1.1.2  # via sphinx
 toml==0.10.0              # via tox
 tox==3.12.1
 urllib3==1.25.3           # via requests
-virtualenv==16.6.0        # via tox
+virtualenv==16.6.1        # via tox
