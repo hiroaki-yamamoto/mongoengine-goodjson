@@ -6,7 +6,7 @@
 #
 alabaster==0.7.12         # via sphinx
 babel==2.7.0              # via sphinx
-certifi==2019.6.16        # via requests
+certifi==2019.9.11        # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
 colorama==0.4.1           # via radon
@@ -20,7 +20,7 @@ flake8==3.7.8
 future==0.17.1            # via radon
 idna==2.8                 # via requests
 imagesize==1.1.0          # via sphinx
-importlib-metadata==0.20  # via pluggy, tox
+importlib-metadata==0.22  # via pluggy, tox
 jinja2==2.10.1            # via sphinx
 mando==0.6.4              # via radon
 markupsafe==1.1.1         # via jinja2
@@ -28,7 +28,7 @@ mccabe==0.6.1             # via flake8
 mongoengine==0.18.2
 packaging==19.1           # via sphinx, tox
 pip-tools==4.1.0
-pluggy==0.12.0            # via tox
+pluggy==0.13.0            # via tox
 py==1.8.0                 # via tox
 pycodestyle==2.5.0        # via flake8
 pydocstyle==4.0.1         # via flake8-docstrings
