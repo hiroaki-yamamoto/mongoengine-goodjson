@@ -14,14 +14,14 @@ coverage==4.5.4
 docutils==0.15.2    # via sphinx
 entrypoints==0.3          # via flake8
 filelock==3.0.12          # via tox
-flake8-docstrings==1.4.0
+flake8-docstrings==1.5.0
 flake8-polyfill==1.0.2    # via flake8-docstrings, radon
 flake8==3.7.8
 future==0.17.1            # via radon
 idna==2.8                 # via requests
 imagesize==1.1.0          # via sphinx
 importlib-metadata==0.23  # via pluggy, tox
-jinja2==2.10.1            # via sphinx
+jinja2==2.10.3            # via sphinx
 mando==0.6.4              # via radon
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
