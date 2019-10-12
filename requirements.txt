@@ -27,7 +27,7 @@ markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
 mongoengine==0.18.2
 packaging==19.2           # via sphinx, tox
-pip-tools==4.1.0
+pip-tools==4.2.0
 pluggy==0.13.0            # via tox
 py==1.8.0                 # via tox
 pycodestyle==2.5.0        # via flake8
