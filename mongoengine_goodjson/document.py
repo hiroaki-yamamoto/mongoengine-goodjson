@@ -188,6 +188,7 @@ class Helper(object):
             data: The return value of to_mongo from the top-level document.
             flds: The fields of child document. In usual use, this parameter
                 should be None, because this is used internally.
+
         """
         ret = data.copy()
         for name, fld in (flds or self._fields).items():
