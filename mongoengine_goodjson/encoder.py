@@ -139,13 +139,13 @@ class GoodJSONEncoder(json.JSONEncoder):
     encode.register(string_type)(encode.dispatch(str))
 
     @encode.register(dict)
-    def __envode_dict(self, o, **kwargs):
+    def __encode_dict(self, o, **kwargs):
         return super(GoodJSONEncoder, self).encode(id_first({
             key: self.__check(value) for (key, value) in o.items()
         }), **kwargs)
 
     @encode.register(collections.Iterable)
-    def __envode_list(self, o, **kwargs):
+    def __encode_list(self, o, **kwargs):
         return super(GoodJSONEncoder, self).encode([
             self.__check(value) for value in o
         ], **kwargs)
