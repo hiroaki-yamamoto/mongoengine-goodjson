@@ -72,7 +72,7 @@ class Helper(object):
             fld = self._fields.get(fldname)
             is_list = isinstance(fld, db.ListField)
             is_dict = isinstance(fld, db.DictField)
-            target = fld.field if is_list else fld
+            target = fld.field if is_list or is_dict else fld
 
             if all([
                 isinstance(
