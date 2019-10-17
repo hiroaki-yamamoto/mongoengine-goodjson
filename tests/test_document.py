@@ -39,29 +39,48 @@ class ToJSONTest(TestCase):
 
         class TestDocument(Document):
             title = db.StringField()
-            references = db.ListField(
+            referencesList = db.ListField(
+                db.ReferenceField(SelfReferenceDocument)
+            )
+            referencesDict = db.DictField(
                 db.ReferenceField(SelfReferenceDocument)
             )
 
-        self.references = [
+        self.referencesList = [
             SelfReferenceDocument(
                 pk=ObjectId(), name=("test {}").format(counter)
             ) for counter in range(3)
         ]
-        for (index, srd) in enumerate(self.references):
-            srd.reference = self.references[
-                (index + 1) % len(self.references)
+        for (index, srd) in enumerate(self.referencesList):
+            srd.reference = self.referencesList[
+                (index + 1) % len(self.referencesList)
             ]
             srd.to_json = MagicMock(side_effect=srd.to_json)
+
+        self.referencesDict = {}
+        for counter in range(3):
+            self.referencesDict[counter] = SelfReferenceDocument(
+                pk=ObjectId(), name=("test {}").format(counter)
+            )
+        for (key, srd) in self.referencesDict.items():
+            srd.reference = self.referencesDict[
+                (key + 1) % len(self.referencesDict)
+            ]
+            srd.to_json = MagicMock(side_effect=srd.to_json)
+
         self.model_cls = TestDocument
         self.model = TestDocument(
-            pk=ObjectId(), title="Test", references=self.references
+            pk=ObjectId(),
+            title="Test",
+            referencesList=self.referencesList,
+            referencesDict=self.referencesDict
         )
         self.model.to_mongo = MagicMock(
             return_value={
                 "id": self.model.id,
                 "title": self.model.title,
-                "references": self.references
+                "referencesList": self.referencesList,
+                "referencesDict": self.referencesDict
             }
         )
 
@@ -76,7 +95,19 @@ class ToJSONTest(TestCase):
     def test_followreference(self):
         """self.references.to_json should be called 3 times for each."""
         self.model.to_json(follow_reference=True)
-        for (index, reference) in enumerate(self.references):
+        for (index, reference) in enumerate(self.referencesList):
+            self.assertEqual(
+                reference.to_json.call_count, 3,
+                ("Reference {} should call to_json 3 times").format(index)
+            )
+            reference.to_json.assert_has_calls([
+                call(
+                    cls=GoodJSONEncoder, follow_reference=True,
+                    use_db_field=True, max_depth=3, current_depth=counter
+                ) for counter in range(1, 4)
+            ], any_order=True)
+
+        for (key, reference) in self.referencesDict.items():
             self.assertEqual(
                 reference.to_json.call_count, 3,
                 ("Reference {} should call to_json 3 times").format(index)
@@ -91,7 +122,19 @@ class ToJSONTest(TestCase):
     def test_followreference_max_15(self):
         """self.references.to_json should be called 15 times for each."""
         self.model.to_json(follow_reference=True, max_depth=15)
-        for (index, reference) in enumerate(self.references):
+        for (index, reference) in enumerate(self.referencesList):
+            self.assertEqual(
+                reference.to_json.call_count, 15,
+                ("Reference {} should call to_json 15 times").format(index)
+            )
+            reference.to_json.assert_has_calls([
+                call(
+                    cls=GoodJSONEncoder, follow_reference=True,
+                    use_db_field=True, max_depth=15, current_depth=counter
+                ) for counter in range(1, 16)
+            ], any_order=True)
+
+        for (key, reference) in self.referencesDict.items():
             self.assertEqual(
                 reference.to_json.call_count, 15,
                 ("Reference {} should call to_json 15 times").format(index)

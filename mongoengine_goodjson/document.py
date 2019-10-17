@@ -42,6 +42,17 @@ class Helper(object):
             value.append(id_first(dct))
         return value
 
+    def __follow_reference_dict(self, fld, fldname, *args, **kwargs):
+        """Follow reference with dict."""
+        value = {}
+        for (key, doc) in getattr(self, fldname).items():
+            tdoc = fld.document_type.objects(
+                id=doc.id
+            ).get() if isinstance(doc, DBRef) else doc
+            dct = self.__serialize_doc_to_dict(fld, tdoc, *args, **kwargs)
+            value[key] = id_first(dct)
+        return value
+
     def __serialize_doc_to_dict(self, fld, doc, *args, **kwargs):
         """Serialize the document into dict."""
         dct = json.loads(doc.to_json(
@@ -60,6 +71,7 @@ class Helper(object):
         for fldname in self:
             fld = self._fields.get(fldname)
             is_list = isinstance(fld, db.ListField)
+            is_dict = isinstance(fld, db.DictField)
             target = fld.field if is_list else fld
 
             if all([
@@ -78,6 +90,10 @@ class Helper(object):
                     })
                 if is_list:
                     value = self.__follow_reference_list(
+                        target, fldname, *args, **ckwargs
+                    )
+                elif is_dict:
+                    value = self.__follow_reference_dict(
                         target, fldname, *args, **ckwargs
                     )
                 else:
