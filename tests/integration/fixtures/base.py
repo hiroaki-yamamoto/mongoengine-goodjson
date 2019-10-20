@@ -83,6 +83,10 @@ class Dictable(object):
         def value_list(value):
             return [to_primitive(item) for item in value]
 
+        @to_primitive.register(dict)
+        def value_primitive_dict(value):
+            return {k: to_primitive(v) for (k, v) in value.items()}
+
         return {
             key: to_primitive(getattr(self, key))
             for key in self._fields.keys() if getattr(self, key) is not None

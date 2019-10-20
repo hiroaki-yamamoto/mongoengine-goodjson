@@ -29,6 +29,8 @@ class FollowReferenceTest(DBConBase):
         self.reference.ex_ref.save()
         for ref in self.reference.ex_refs:
             ref.save()
+        for dct_ref in self.reference.ex_dict.values():
+            dct_ref.save()
         self.reference.save()
         self.reference_dict = self.reference.to_dict()
 
@@ -42,7 +44,7 @@ class FollowReferenceTest(DBConBase):
             list(result.items())[0][0], 'id',
             'The key of the first element must be "id".'
         )
-        self.assertDictEqual(self.reference_dict, result)
+        self.assertEqual(self.reference_dict, result)
 
     def test_decode_reference(self):
         """The decoded reference data should be self.reference."""
@@ -52,11 +54,19 @@ class FollowReferenceTest(DBConBase):
         self.assertIs(type(result), self.reference_cls)
         self.assertEqual(result.id, self.reference.id)
         self.assertEqual(result.name, self.reference.name)
-        self.assertListEqual(self.reference.references, result.references)
+        self.assertEqual(self.reference.references, result.references)
+        from pprint import pprint
+        pprint(result.ex_dict)
+        self.assertEqual(
+            self.reference.ex_dict, result.ex_dict
+        )
 
     def test_actual_data_store(self):
         """Actually data store."""
         for ref in self.reference.references:
+            ref.user.save()
+            ref.save()
+        for ref in self.reference.dict_references.values():
             ref.user.save()
             ref.save()
         self.reference.save()
