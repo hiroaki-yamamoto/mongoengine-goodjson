@@ -285,29 +285,18 @@ class Helper(object):
         from_son_result = cls._from_son(SON(dct), created=created)
 
         for fldname, fld in cls._fields.items():
-            is_dictfld = isinstance(fld, db.DictField)
-            is_listfld = isinstance(fld, db.ListField)
             target = fld.field \
-                if is_dictfld or is_listfld else fld
+                if isinstance(fld, (db.DictField, db.ListField)) else fld
 
             if not isinstance(target, db.ReferenceField) or \
                     isinstance(target, FollowReferenceField):
                 continue
 
             value = dct.get(fldname)
-            if is_dictfld:
-                setattr(
-                    from_son_result, fldname,
-                    {
-                        key: normalize_reference(v, target)
-                        for (key, v) in value.items()
-                    }
-                )
-            else:
-                setattr(
-                    from_son_result, fldname,
-                    normalize_reference(getattr(value, "id", value), target)
-                )
+            setattr(
+                from_son_result, fldname,
+                normalize_reference(getattr(value, "id", value), target)
+            )
         return from_son_result
 
 

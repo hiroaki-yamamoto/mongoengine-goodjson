@@ -55,8 +55,6 @@ class FollowReferenceTest(DBConBase):
         self.assertEqual(result.id, self.reference.id)
         self.assertEqual(result.name, self.reference.name)
         self.assertEqual(self.reference.references, result.references)
-        from pprint import pprint
-        pprint(result.ex_dict)
         self.assertEqual(
             self.reference.ex_dict, result.ex_dict
         )
