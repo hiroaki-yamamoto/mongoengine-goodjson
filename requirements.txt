@@ -35,11 +35,11 @@ pydocstyle==4.0.1         # via flake8-docstrings
 pyflakes==2.1.1           # via flake8
 pygments==2.4.2           # via sphinx
 pymongo==3.9.0            # via mongoengine
-pyparsing==2.4.2        # via packaging
+pyparsing==2.4.4        # via packaging
 pytz==2019.3              # via babel
 radon==4.0.0
 requests==2.22.0          # via sphinx
-six==1.12.0               # via mando, mongoengine, packaging, pip-tools, tox
+six==1.13.0               # via mando, mongoengine, packaging, pip-tools, tox
 snowballstemmer==2.0.0    # via pydocstyle, sphinx
 sphinx==2.2.1
 sphinxcontrib-applehelp==1.0.1  # via sphinx
