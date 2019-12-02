@@ -20,7 +20,7 @@ flake8==3.7.9
 future==0.18.2            # via radon
 idna==2.8                 # via requests
 imagesize==1.1.0          # via sphinx
-importlib-metadata==0.23  # via pluggy, tox
+importlib-metadata==1.1.0  # via pluggy, tox
 jinja2==2.10.3            # via sphinx
 mando==0.6.4              # via radon
 markupsafe==1.1.1         # via jinja2
