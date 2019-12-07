@@ -9,7 +9,7 @@ babel==2.7.0              # via sphinx
 certifi==2019.11.28        # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
-colorama==0.4.1           # via radon
+colorama==0.4.3           # via radon
 coverage==4.5.4
 docutils==0.15.2    # via sphinx
 entrypoints==0.3          # via flake8
@@ -20,7 +20,7 @@ flake8==3.7.9
 future==0.18.2            # via radon
 idna==2.8                 # via requests
 imagesize==1.1.0          # via sphinx
-importlib-metadata==1.1.0  # via pluggy, tox
+importlib-metadata==1.2.0  # via pluggy, tox
 jinja2==2.10.3            # via sphinx
 mando==0.6.4              # via radon
 markupsafe==1.1.1         # via jinja2
@@ -41,7 +41,7 @@ radon==4.0.0
 requests==2.22.0          # via sphinx
 six==1.13.0               # via mando, mongoengine, packaging, pip-tools, tox
 snowballstemmer==2.0.0    # via pydocstyle, sphinx
-sphinx==2.2.1
+sphinx==2.2.2
 sphinxcontrib-applehelp==1.0.1  # via sphinx
 sphinxcontrib-devhelp==1.0.1  # via sphinx
 sphinxcontrib-htmlhelp==1.0.2  # via sphinx
@@ -49,7 +49,7 @@ sphinxcontrib-jsmath==1.0.1  # via sphinx
 sphinxcontrib-qthelp==1.0.2  # via sphinx
 sphinxcontrib-serializinghtml==1.1.3  # via sphinx
 toml==0.10.0              # via tox
-tox==3.14.1
+tox==3.14.2
 urllib3==1.25.7           # via requests
 virtualenv==16.7.8        # via tox
 zipp==0.6.0               # via importlib-metadata
