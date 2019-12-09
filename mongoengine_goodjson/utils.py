@@ -30,7 +30,11 @@ def method_dispatch(func):
 @singledispatch
 def normalize_reference(ref_id, fld):
     """Normalize Reference."""
-    return ref_id and fld.to_python(ref_id) or None
+    try:
+        fld_to_python = fld.to_python(ref_id)
+    except AttributeError:
+        fld_to_python = fld
+    return ref_id and fld_to_python or None
 
 
 @normalize_reference.register(dict)

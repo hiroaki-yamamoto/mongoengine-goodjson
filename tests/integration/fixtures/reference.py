@@ -29,7 +29,7 @@ class ExtraInformation(Dictable, db.EmbeddedDocument):
         )
 
 
-class ExtraReference(Dictable, db.Document):
+class ExtraReference(Dictable, gj.Document):
     """Extran reference info."""
 
     ref_txt = db.StringField()
