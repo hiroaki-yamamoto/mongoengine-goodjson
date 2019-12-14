@@ -31,7 +31,7 @@ pip-tools==4.3.0
 pluggy==0.13.1            # via tox
 py==1.8.0                 # via tox
 pycodestyle==2.5.0        # via flake8
-pydocstyle==4.0.1         # via flake8-docstrings
+pydocstyle==5.0.1         # via flake8-docstrings
 pyflakes==2.1.1           # via flake8
 pygments==2.5.2           # via sphinx
 pymongo==3.10.0            # via mongoengine
