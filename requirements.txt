@@ -41,7 +41,7 @@ radon==4.0.0
 requests==2.22.0          # via sphinx
 six==1.13.0               # via mando, mongoengine, packaging, pip-tools, tox
 snowballstemmer==2.0.0    # via pydocstyle, sphinx
-sphinx==2.2.2
+sphinx==2.3.0
 sphinxcontrib-applehelp==1.0.1  # via sphinx
 sphinxcontrib-devhelp==1.0.1  # via sphinx
 sphinxcontrib-htmlhelp==1.0.2  # via sphinx
