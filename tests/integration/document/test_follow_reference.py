@@ -87,6 +87,7 @@ class FollowReferenceTest(DBConBase):
         """Id fields are not necessary in JSON files"""
 
         def remove_ids(d, new_dict):
+            # Recursively remove all id fields in the dictionary
             for k, v in d.items():
                 if isinstance(v, dict):
                     new_dict[k] = {}

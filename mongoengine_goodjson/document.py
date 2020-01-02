@@ -359,24 +359,21 @@ class Helper(object):
             # the master document. Otherwise, the referenced documents would
             # not be saved and the document would not be valid anymore after a
             # save and load from the database.
-            def save(self, **kwargs):
+            def save(self, *args, **kwargs):
                 for fldname, fld in cls._fields.items():
-                    if isinstance(fld, db.ReferenceField) or \
-                            isinstance(fld, FollowReferenceField):
-                        getattr(self, fldname).save(**kwargs)
-                    elif isinstance(fld, db.DictField) and \
-                        (isinstance(fld.field, db.ReferenceField) or
-                            isinstance(fld.field, FollowReferenceField)):
-                        field = getattr(self, fldname)
-                        for key, value in field.items():
-                            field[key].save(**kwargs)
-                    elif isinstance(fld, db.ListField) and \
-                        (isinstance(fld.field, db.ReferenceField) or
-                            isinstance(fld.field, FollowReferenceField)):
-                        field = getattr(self, fldname)
-                        for valueIndex in range(len(field)):
-                            field[valueIndex].save(**kwargs)
-                super().save(**kwargs)
+                    if isinstance(fld, (db.ReferenceField, FollowReferenceField)):
+                        getattr(self, fldname).save(*args, **kwargs)
+                    elif isinstance(fld, db.fields.ComplexBaseField):
+                        isReferences = isinstance(fld.field, (db.ReferenceField, FollowReferenceField))
+                        if isinstance(fld, db.DictField) and isReferences:
+                            field = getattr(self, fldname)
+                            for key, value in field.items():
+                                field[key].save(*args, **kwargs)
+                        elif isinstance(fld, db.ListField) and isReferences:
+                            field = getattr(self, fldname)
+                            for valueIndex in range(len(field)):
+                                field[valueIndex].save(*args, **kwargs)
+                super().save(*args, **kwargs)
 
             from_son_result.save = types.MethodType(save, from_son_result)
 

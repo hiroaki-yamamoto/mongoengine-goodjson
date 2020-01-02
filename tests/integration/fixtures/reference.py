@@ -30,7 +30,7 @@ class ExtraInformation(Dictable, db.EmbeddedDocument):
 
 
 class ExtraReference(Dictable, gj.Document):
-    """Extran reference info."""
+    """Extra reference info."""
 
     ref_txt = db.StringField()
 
