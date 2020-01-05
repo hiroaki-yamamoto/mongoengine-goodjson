@@ -10,7 +10,7 @@ certifi==2019.11.28        # via requests
 chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
 colorama==0.4.3           # via radon
-coverage==5.0.1
+coverage==5.0.2
 docutils==0.15.2    # via sphinx
 entrypoints==0.3          # via flake8
 filelock==3.0.12          # via tox
