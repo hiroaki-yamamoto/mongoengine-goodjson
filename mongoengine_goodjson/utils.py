@@ -30,10 +30,9 @@ def method_dispatch(func):
 @singledispatch
 def normalize_reference(ref_id, fld):
     """Normalize Reference."""
-    try:
-        fld_to_python = fld.to_python(ref_id)
-    except AttributeError:
-        fld_to_python = fld
+    # If fld has a "to_python" method (which should always be the case), call
+    # it. Else, simply use the value as is.
+    fld_to_python = getattr(fld, "to_python", lambda: fld)(ref_id)
     return ref_id and fld_to_python or None
 
 
