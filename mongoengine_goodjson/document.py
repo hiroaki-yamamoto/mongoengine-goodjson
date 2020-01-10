@@ -388,7 +388,7 @@ class Helper(object):
                             field = getattr(self, fldname)
                             for valueIndex in range(len(field)):
                                 field[valueIndex].save(*args, **kwargs)
-                super().save(*args, **kwargs)
+                super(self.__class__, self).save(*args, **kwargs)
 
             from_son_result.save = types.MethodType(save, from_son_result)
 
