@@ -60,7 +60,8 @@ class FollowReferenceTest(DBConBase):
         )
 
     def test_serialize_deserialize_reference(self):
-        """The data after serialization and deserialization should be exactly the same"""
+        """The data after serialization and deserialization should be exactly
+        the same"""
         result = self.reference.to_json(follow_reference=True)
 
         result = self.reference_cls.from_json(result)

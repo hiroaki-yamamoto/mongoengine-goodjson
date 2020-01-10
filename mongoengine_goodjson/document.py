@@ -305,7 +305,11 @@ class Helper(object):
                     valueDoc = value.as_doc()
                     if 'id' not in valueDoc['$id']:
                         valueDoc['$id']['id'] = str(ObjectId())
-                    getattr(from_son_result, fldname).append(target.document_type_obj.from_json(json.dumps(value.as_doc()['$id'])))
+                    getattr(from_son_result, fldname).append(
+                        target.document_type_obj.from_json(
+                            json.dumps(value.as_doc()['$id'])
+                        )
+                    )
             elif isinstance(fld, db.DictField):
                 target = fld.field
                 if not isinstance(target, db.ReferenceField) or \
@@ -321,7 +325,9 @@ class Helper(object):
                     valueDoc = value.as_doc()
                     if 'id' not in valueDoc['$id']:
                         valueDoc['$id']['id'] = str(ObjectId())
-                    getattr(from_son_result, fldname)[k] = target.document_type_obj.from_json(json.dumps(valueDoc['$id']))
+                    getattr(from_son_result, fldname)[k] = \
+                        target.document_type_obj.from_json(
+                            json.dumps(valueDoc['$id']))
             else:
                 target = fld
 
@@ -340,11 +346,17 @@ class Helper(object):
                     if 'id' not in valueDoc['$id']:
                         valueDoc['$id']['id'] = ObjectId()
                     valueDoc['$id']['id'] = str(valueDoc['$id']['id'])
-                    setattr(from_son_result, fldname, target.document_type_obj.from_json(json.dumps(valueDoc['$id'])))
+                    setattr(
+                        from_son_result,
+                        fldname,
+                        target.document_type_obj.from_json(
+                            json.dumps(valueDoc['$id']))
+                    )
                 except TypeError:
                     setattr(
                         from_son_result, fldname,
-                        normalize_reference(getattr(value, "id", value), target)
+                        normalize_reference(
+                            getattr(value, "id", value), target)
                     )
 
         # All fields have been changed, because the document was loaded from a
@@ -355,16 +367,19 @@ class Helper(object):
 
         if atLeastOneReference:
             # If the document contains at least one reference, override the
-            # save() method to save the referenced documents at the same time as
-            # the master document. Otherwise, the referenced documents would
+            # save() method to save the referenced documents at the same time
+            # as the master document. Otherwise, the referenced documents would
             # not be saved and the document would not be valid anymore after a
             # save and load from the database.
             def save(self, *args, **kwargs):
                 for fldname, fld in cls._fields.items():
-                    if isinstance(fld, (db.ReferenceField, FollowReferenceField)):
+                    if isinstance(fld, (db.ReferenceField,
+                                        FollowReferenceField)):
                         getattr(self, fldname).save(*args, **kwargs)
                     elif isinstance(fld, db.fields.ComplexBaseField):
-                        isReferences = isinstance(fld.field, (db.ReferenceField, FollowReferenceField))
+                        isReferences = isinstance(
+                            fld.field, (db.ReferenceField,
+                                        FollowReferenceField))
                         if isinstance(fld, db.DictField) and isReferences:
                             field = getattr(self, fldname)
                             for key, value in field.items():
