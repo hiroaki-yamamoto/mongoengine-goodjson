@@ -26,7 +26,7 @@ mando==0.6.4              # via radon
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
 mongoengine==0.19.1
-packaging==19.2           # via sphinx, tox
+packaging==20.0           # via sphinx, tox
 pip-tools==4.3.0
 pluggy==0.13.1            # via tox
 py==1.8.1                 # via tox
