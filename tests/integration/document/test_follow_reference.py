@@ -59,6 +59,70 @@ class FollowReferenceTest(DBConBase):
             self.reference.ex_dict, result.ex_dict
         )
 
+    def test_serialize_deserialize_reference(self):
+        """The data after serialization and deserialization should be exactly
+        the same"""
+        result = self.reference.to_json(follow_reference=True)
+
+        result = self.reference_cls.from_json(result)
+
+        resultDict = result.to_dict()
+
+        self.assertEqual(self.reference_dict, resultDict)
+
+    def test_save_deserialized_reference(self):
+        """The deserialized data should be saved correctly in the database"""
+        result = self.reference_cls.from_json(
+            json.dumps(self.reference_dict)
+        )
+
+        result.save()
+        savedResult = json.loads(
+            self.reference_cls.objects(
+                id=self.reference.id
+            ).get().to_json(follow_reference=True)
+        )
+        self.assertDictEqual(self.reference_dict, savedResult)
+
+    def test_deserialize_without_id(self):
+        """Id fields are not necessary in JSON files"""
+
+        def remove_ids(d, new_dict):
+            # Recursively remove all id fields in the dictionary
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    new_dict[k] = {}
+                    remove_ids(v, new_dict[k])
+                elif isinstance(v, list):
+                    new_dict[k] = []
+                    for item in v:
+                        if isinstance(item, dict):
+                            new_dict[k].append({})
+                            remove_ids(item, new_dict[k][-1])
+                        else:
+                            new_dict[k].append(item)
+                else:
+                    if k != 'id':
+                        new_dict[k] = v
+
+        reference_dict_no_id = {}
+        remove_ids(self.reference_dict, reference_dict_no_id)
+
+        result = self.reference_cls.from_json(
+            json.dumps(reference_dict_no_id)
+        )
+        result.save()
+        savedResult = json.loads(
+            self.reference_cls.objects(
+                id=result.id
+            ).get().to_json(follow_reference=True)
+        )
+
+        resultDict_no_id = {}
+        remove_ids(savedResult, resultDict_no_id)
+
+        self.assertDictEqual(reference_dict_no_id, resultDict_no_id)
+
     def test_actual_data_store(self):
         """Actually data store."""
         for ref in self.reference.references:
