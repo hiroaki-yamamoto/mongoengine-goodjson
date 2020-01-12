@@ -11,7 +11,7 @@ chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
 colorama==0.4.3           # via radon
 coverage==5.0.3
-docutils==0.15.2    # via sphinx
+docutils==0.16    # via sphinx
 entrypoints==0.3          # via flake8
 filelock==3.0.12          # via tox
 flake8-docstrings==1.5.0
