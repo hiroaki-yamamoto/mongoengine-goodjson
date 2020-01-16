@@ -4,9 +4,10 @@
 """Documents implementing human-readable JSON serializer."""
 
 import json
+import types
 
 import mongoengine as db
-from bson import SON, DBRef
+from bson import SON, DBRef, ObjectId
 from .encoder import GoodJSONEncoder
 from .decoder import generate_object_hook
 from .queryset import QuerySet
@@ -42,6 +43,17 @@ class Helper(object):
             value.append(id_first(dct))
         return value
 
+    def __follow_reference_dict(self, fld, fldname, *args, **kwargs):
+        """Follow reference with dict."""
+        value = {}
+        for (key, doc) in getattr(self, fldname).items():
+            tdoc = fld.document_type.objects(
+                id=doc.id
+            ).get() if isinstance(doc, DBRef) else doc
+            dct = self.__serialize_doc_to_dict(fld, tdoc, *args, **kwargs)
+            value[key] = id_first(dct)
+        return value
+
     def __serialize_doc_to_dict(self, fld, doc, *args, **kwargs):
         """Serialize the document into dict."""
         dct = json.loads(doc.to_json(
@@ -60,7 +72,8 @@ class Helper(object):
         for fldname in self:
             fld = self._fields.get(fldname)
             is_list = isinstance(fld, db.ListField)
-            target = fld.field if is_list else fld
+            is_dict = isinstance(fld, db.DictField)
+            target = fld.field if is_list or is_dict else fld
 
             if all([
                 isinstance(
@@ -78,6 +91,10 @@ class Helper(object):
                     })
                 if is_list:
                     value = self.__follow_reference_list(
+                        target, fldname, *args, **ckwargs
+                    )
+                elif is_dict:
+                    value = self.__follow_reference_dict(
                         target, fldname, *args, **ckwargs
                     )
                 else:
@@ -246,6 +263,9 @@ class Helper(object):
 
     @classmethod
     def from_json(cls, json_str, created=False, *args, **kwargs):
+        # Proposition: add a private method like from_json that allows
+        # dictionaries to be used as inputs to avoid having to use
+        # loads(dumps(data)) all the time
         """
         Decode from human-readable json.
 
@@ -267,18 +287,111 @@ class Helper(object):
                 dct.pop(name, None)
         from_son_result = cls._from_son(SON(dct), created=created)
 
+        atLeastOneReference = False
+
         for fldname, fld in cls._fields.items():
-            target = fld.field if isinstance(fld, db.ListField) else fld
+            if isinstance(fld, db.ListField):
+                target = fld.field
+                if not isinstance(target, db.ReferenceField) or \
+                        isinstance(target, FollowReferenceField):
+                    continue
 
-            if not isinstance(target, db.ReferenceField) or \
-                    isinstance(target, FollowReferenceField):
-                continue
+                atLeastOneReference = True
+                values = dct.get(fldname)
+                setattr(
+                    from_son_result, fldname, []
+                )
+                for value in values:
+                    valueDoc = value.as_doc()
+                    if 'id' not in valueDoc['$id']:
+                        valueDoc['$id']['id'] = str(ObjectId())
+                    getattr(from_son_result, fldname).append(
+                        target.document_type_obj.from_json(
+                            json.dumps(value.as_doc()['$id'])
+                        )
+                    )
+            elif isinstance(fld, db.DictField):
+                target = fld.field
+                if not isinstance(target, db.ReferenceField) or \
+                        isinstance(target, FollowReferenceField):
+                    continue
 
-            value = dct.get(fldname)
-            setattr(
-                from_son_result, fldname,
-                normalize_reference(getattr(value, "id", value), target)
-            )
+                atLeastOneReference = True
+                values = dct.get(fldname)
+                setattr(
+                    from_son_result, fldname, {}
+                )
+                for k, value in values.items():
+                    valueDoc = value.as_doc()
+                    if 'id' not in valueDoc['$id']:
+                        valueDoc['$id']['id'] = str(ObjectId())
+                    getattr(from_son_result, fldname)[k] = \
+                        target.document_type_obj.from_json(
+                            json.dumps(valueDoc['$id']))
+            else:
+                target = fld
+
+                if not isinstance(target, db.ReferenceField) or \
+                        isinstance(target, FollowReferenceField):
+                    continue
+
+                atLeastOneReference = True
+                value = dct.get(fldname)
+
+                try:
+                    valueDoc = value.as_doc()
+                    # If there is no ID in the JSON (aka the JSON was not saved
+                    # from mongoengine but rather created manually), create an
+                    # ObjectId on the fly
+                    if 'id' not in valueDoc['$id']:
+                        valueDoc['$id']['id'] = ObjectId()
+                    valueDoc['$id']['id'] = str(valueDoc['$id']['id'])
+                    setattr(
+                        from_son_result,
+                        fldname,
+                        target.document_type_obj.from_json(
+                            json.dumps(valueDoc['$id']))
+                    )
+                except TypeError:
+                    setattr(
+                        from_son_result, fldname,
+                        normalize_reference(
+                            getattr(value, "id", value), target)
+                    )
+
+        # All fields have been changed, because the document was loaded from a
+        # JSON file. However, mongoengine does not detect it automatically. In
+        # order for all fields to be saved, we set the _changed_fields variable
+        # manually
+        from_son_result._changed_fields = list(cls._fields.keys())
+
+        if atLeastOneReference:
+            # If the document contains at least one reference, override the
+            # save() method to save the referenced documents at the same time
+            # as the master document. Otherwise, the referenced documents would
+            # not be saved and the document would not be valid anymore after a
+            # save and load from the database.
+            def save(self, *args, **kwargs):
+                for fldname, fld in cls._fields.items():
+                    if isinstance(fld, (db.ReferenceField,
+                                        FollowReferenceField)):
+                        getattr(self, fldname).save(*args, **kwargs)
+                    elif isinstance(fld, db.fields.ComplexBaseField):
+                        isReferences = isinstance(
+                            fld.field, (db.ReferenceField,
+                                        FollowReferenceField))
+                        if isinstance(fld, db.DictField) and isReferences:
+                            field = getattr(self, fldname)
+                            for key, value in field.items():
+                                field[key].save(*args, **kwargs)
+                        elif isinstance(fld, db.ListField) and isReferences:
+                            field = getattr(self, fldname)
+                            for valueIndex in range(len(field)):
+                                field[valueIndex].save(*args, **kwargs)
+                super(self.__class__, self).save(*args, **kwargs)
+
+            from_son_result.save = types.MethodType(save, from_son_result)
+
         return from_son_result
 
 

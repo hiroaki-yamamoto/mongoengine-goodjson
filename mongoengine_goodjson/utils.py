@@ -30,7 +30,10 @@ def method_dispatch(func):
 @singledispatch
 def normalize_reference(ref_id, fld):
     """Normalize Reference."""
-    return ref_id and fld.to_python(ref_id) or None
+    # If fld has a "to_python" method (which should always be the case), call
+    # it. Else, simply use the value as is.
+    fld_to_python = getattr(fld, "to_python", lambda: fld)(ref_id)
+    return ref_id and fld_to_python or None
 
 
 @normalize_reference.register(dict)
