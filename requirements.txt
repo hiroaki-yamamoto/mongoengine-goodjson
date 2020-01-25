@@ -52,7 +52,7 @@ toml==0.10.0              # via tox
 tox==3.14.3
 urllib3==1.25.8           # via requests
 virtualenv==16.7.9        # via tox
-zipp==1.0.0               # via importlib-metadata
+zipp==2.0.1               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools==41.0.1        # via sphinx
