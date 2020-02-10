@@ -392,6 +392,21 @@ class CodeTest(TestCase):
         self.assertDictEqual(self.expected, self.encoder.default(self.data))
 
 
+class SONTest(TestCase):
+    """SON test."""
+
+    def setUp(self):
+        """Set up class."""
+        from bson.son import SON
+        self.encoder = GoodJSONEncoder()
+        self.expected = {"data": "test"}
+        self.data = SON(data={"data": "test"})
+
+    def test_son(self):
+        """SON data should be expected value"""
+        self.assertDictEqual(self.expected, self.encoder.default(self.data))
+
+
 class BinaryTest(TestCase):
     """Binary test."""
 
