@@ -34,8 +34,6 @@ jobs:
             ../cc-test-reporter before-build &&
             tox -p all;
             export EXIT_CODE=${?};
-            coverage erase &&
-            coverage combine &&
             coverage xml &&
             ../cc-test-reporter after-build --exit-code $EXIT_CODE -t coverage.py
       - persist_to_workspace:
