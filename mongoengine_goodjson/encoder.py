@@ -15,7 +15,7 @@ from .utils import method_dispatch, id_first
 
 from bson import (
     ObjectId, DBRef, RE_TYPE, Regex, MinKey, MaxKey, Timestamp, Code, Binary,
-    PY3
+    PY3, SON
 )
 from bson.py3compat import text_type, string_type
 
@@ -110,6 +110,10 @@ class GoodJSONEncoder(json.JSONEncoder):
     @default.register(Code)
     def __conv_code(self, obj):
         return {"code": str(obj), "scope": obj.scope}
+
+    @default.register(SON)
+    def _conv_son(self, obj):
+        return obj.to_dict()
 
     @default.register(Binary)
     def __conv_bin(self, obj):
