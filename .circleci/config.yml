@@ -8,7 +8,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
+            - ci-{{ .Branch }}-{{ checksum "poetry.lock" }}
       - run :
           name: "Run Venv"
           command: "python -m venv venv"
@@ -21,10 +21,10 @@ jobs:
           name: "Install Dependencies"
           command: |
             source ./venv/bin/activate &&
-            pip install -r requirements.txt &&
-            pip install twine bump
+            pip install poetry &&
+            poetry install
       - save_cache:
-          key: ci-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: ci-{{ .Branch }}-{{ checksum "poetry.lock" }}
           paths:
             - "./venv"
       - run:
