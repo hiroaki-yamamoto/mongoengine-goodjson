@@ -1,8 +1,0 @@
-coverage
-flake8
-flake8-docstrings
-mongoengine
-radon
-tox
-pip-tools
-sphinx
