@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  testdb:
+    image: mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test
+    tmpfs:
+      - /data/db
+  test:
+    build:
+      context: '.'
+    volumes:
+      - .:/opt/code
+    depends_on:
+      - testdb
