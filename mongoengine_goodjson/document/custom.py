@@ -9,7 +9,7 @@ from bson import SON, json_util
 class CustomDocumentBase(object):
     """Base document."""
 
-    def to_mongo(self, use_db_field=True, fields=None, to_json=False):
+    def to_mongo(self, use_db_field=True, fields=None, to_json=False) -> SON:
         """Return as SON data ready for use with MongoDB."""
         # Note: this function is copied from official repo, except
         # JSON serialization related stuff
@@ -63,8 +63,6 @@ class CustomDocumentBase(object):
                     data[field.db_field] = value
                 else:
                     data[field.name] = value
-        if not data.get("_id"):
-            data.pop("_id", None)
         # Only add _cls if allow_inheritance is True
         if not self._meta.get("allow_inheritance"):
             data.pop("_cls")

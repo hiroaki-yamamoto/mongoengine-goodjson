@@ -33,7 +33,8 @@ class NormalDocumentTest(TestCase):
 
     def setUp(self):
         """Set up."""
-        self.doc = NormalSchema(
+        self.model = NormalSchema
+        self.doc = self.model(
             uid=ObjectId(),
             name="Test",
         )
@@ -43,16 +44,17 @@ class NormalDocumentTest(TestCase):
             "name": self.doc.name,
         }
 
-    def test_serialization(self):
+    def test_encode(self):
         """Should be serialized."""
         dct = json.loads(self.doc.to_json())
         self.assertEqual(dct, self.expected_dict)
 
-    def test_deserializaton(self):
+    def test_decode(self):
         """Should be deserialized."""
-        doc = NormalSchema.from_json(json.dumps(self.expected_dict))
+        doc = self.model.from_json(json.dumps(self.expected_dict))
         # In pytohn checking equivalence between objects is impossible.
         # And therefore, it needs to convert into dict with to_mongo.
+        self.assertEqual(doc.uid, self.doc.uid)
         self.assertEqual(doc.to_mongo(), self.doc.to_mongo())
 
 
@@ -61,8 +63,9 @@ class NormalSchemaCastingTest(NormalDocumentTest):
 
     def setUp(self):
         """Set up."""
+        super().setUp()
         oid = str(ObjectId())
-        self.doc = NormalSchema(
+        self.doc = self.model(
             uid=oid,
             name="Test",
         )
@@ -83,7 +86,7 @@ class NormalSchemaInvalidCastingTest(TestCase):
         # self.doc.save()
         self.expected_dict = {"uid": {"$oid": oid}, "name": self.doc.name}
 
-    def test_serialization(self):
+    def test_encode(self):
         """Serialization should be failed."""
         with self.assertRaises(ValidationError) as e:
             self.doc.to_json()
@@ -95,12 +98,15 @@ class CustomSchemaTest(NormalDocumentTest):
 
     def setUp(self):
         """Set up."""
-        self.doc = CustomSchema(
+        super().setUp()
+        self.model = CustomSchema
+        self.doc = self.model(
             uid=ObjectId(),
             name="Test",
         )
         # self.doc.save()
         self.expected_dict = {
+            "id": None,
             "uid": str(self.doc.uid),
             "name": self.doc.name,
         }
@@ -111,13 +117,14 @@ class CustomSchemaCastingTest(CustomSchemaTest):
 
     def setUp(self):
         """Set up."""
+        super().setUp()
         oid = str(ObjectId())
-        self.doc = CustomSchema(
+        self.doc = self.model(
             uid=oid,
             name="Test",
         )
         # self.doc.save()
-        self.expected_dict = {"uid": oid, "name": self.doc.name}
+        self.expected_dict = {"id": None, "uid": oid, "name": self.doc.name}
 
 
 class CustomSchemaInvalidCastingTest(TestCase):
@@ -133,7 +140,7 @@ class CustomSchemaInvalidCastingTest(TestCase):
         # self.doc.save()
         self.expected_dict = {"uid": oid, "name": self.doc.name}
 
-    def test_serialization(self):
+    def test_encode(self):
         """Serialization should be failed."""
         with self.assertRaises(ValidationError) as e:
             self.doc.to_json()
