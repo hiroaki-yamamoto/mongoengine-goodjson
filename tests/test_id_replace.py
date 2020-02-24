@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 """ID replacement tests."""
-from datetime import datetime, timedelta
 import json
 from unittest import TestCase, skip
 
@@ -24,7 +23,7 @@ class HasIDSchema(Document):
     """ID Duplicated schema."""
 
     uid = ObjectIDField(primary_key=True)
-    id = ObjectIDField()
+    id_txt = StringField(db_field="id", required=True)
     name = StringField(required=True)
 
 
@@ -57,13 +56,10 @@ class IDDuplicateTest(IDReplaceTest):
         """Set up."""
         self.schema = HasIDSchema
         self.model = self.schema(
-            id=ObjectId.from_datetime(
-                datetime.utcnow() - timedelta(hours=2),
-            ),
-            uid=ObjectId(), name="Test",
+            id_txt="Test ID", uid=ObjectId(), name="Test",
         )
         self.exp = {
-            "id": str(self.model.id),
-            "uid": str(self.model.uid),
+            "id": self.model.id_txt,
+            "_id": str(self.model.uid),
             "name": "Test",
         }
