@@ -106,7 +106,6 @@ class CustomSchemaTest(NormalDocumentTest):
         )
         # self.doc.save()
         self.expected_dict = {
-            "id": None,
             "uid": str(self.doc.uid),
             "name": self.doc.name,
         }
@@ -124,7 +123,7 @@ class CustomSchemaCastingTest(CustomSchemaTest):
             name="Test",
         )
         # self.doc.save()
-        self.expected_dict = {"id": None, "uid": oid, "name": self.doc.name}
+        self.expected_dict = {"uid": oid, "name": self.doc.name}
 
 
 class CustomSchemaInvalidCastingTest(TestCase):

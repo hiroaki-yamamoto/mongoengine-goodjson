@@ -10,7 +10,7 @@ from mongoengine.base.fields import ObjectIdField
 class ObjectIDField(ObjectIdField):
     """Revised Object ID Field."""
 
-    def to_mongo(self, value: typing.Any, to_json=False):
+    def to_mongo(self, value: typing.Any) -> typing.Union[oid.ObjectId, str]:
         """Convert into Python ObjectID."""
         ret = value
         if not isinstance(value, oid.ObjectId):
@@ -18,6 +18,6 @@ class ObjectIDField(ObjectIdField):
                 ret = oid.ObjectId(str(value))
             except Exception as e:
                 self.error(str(e))
-        if to_json:
+        if getattr(self, "$$mode$$", None) == "json":
             ret = str(ret)
         return ret
