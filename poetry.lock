@@ -100,12 +100,11 @@ category = "main"
 description = "MongoEngine is a Python Object-Document Mapper for working with MongoDB."
 name = "mongoengine"
 optional = false
-python-versions = "*"
-version = "0.19.1"
+python-versions = ">=3.5"
+version = "0.20.0"
 
 [package.dependencies]
-pymongo = ">=3.4"
-six = ">=1.10.0"
+pymongo = ">=3.4,<4.0"
 
 [[package]]
 category = "dev"
@@ -210,7 +209,7 @@ python-versions = "*"
 version = "1.0.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
@@ -274,7 +273,7 @@ docs = ["sphinx (>=2.0.0,<3)", "sphinx-argparse (>=0.2.5,<1)", "sphinx-rtd-theme
 testing = ["pytest (>=4.0.0,<6)", "coverage (>=4.5.1,<6)", "pytest-mock (>=2.0.0,<3)", "pytest-env (>=0.6.2,<1)", "packaging (>=20.0)", "xonsh (>=0.9.13,<1)"]
 
 [metadata]
-content-hash = "9580025aa8b7e7b27089817692f8362e6bc0e3a8bfc00f8cfed90781458c69da"
+content-hash = "4452531986c6a07cf4b65cc55f0e3f76585f832a1052523bca7dfd4e63e9606d"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -347,8 +346,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 mongoengine = [
-    {file = "mongoengine-0.19.1-py2-none-any.whl", hash = "sha256:6796df3f7458fb1643812c0b58ccad201da0af935ddd4159604c5ca769b9abb6"},
-    {file = "mongoengine-0.19.1.tar.gz", hash = "sha256:65f6cc48cbaac5ecd518dcec725d9c312286796510a9d93a4388a53811a294b9"},
+    {file = "mongoengine-0.20.0-py3-none-any.whl", hash = "sha256:6e127f45f71c2bc5e72461ec297a0c20f04c3ee0bf6dd869e336226e325db6ef"},
+    {file = "mongoengine-0.20.0.tar.gz", hash = "sha256:db9e5d587e5d74e52851e0e4a53fd744725bfa9918ae6070139f5ba9c62c6edf"},
 ]
 mongomock = [
     {file = "mongomock-3.19.0-py2.py3-none-any.whl", hash = "sha256:8faaffd875732bf55e38e1420a1b7212dde8d446c5852afb4c0884c1369b328b"},
