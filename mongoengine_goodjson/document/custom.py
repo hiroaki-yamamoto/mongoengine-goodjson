@@ -35,4 +35,7 @@ class CustomDocumentBase(object):
         ret = json_util.dumps(
             self.to_mongo(use_db_field, raw=raw), *args, **kwargs,
         )
+        if not raw:
+            for (fldname, fld) in self._fields.items():
+                delattr(fld, "$$mode$$")
         return ret
