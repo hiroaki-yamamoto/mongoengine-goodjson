@@ -98,11 +98,11 @@ python-versions = "*"
 
 [[package]]
 name = "mongoengine"
-version = "0.21.0"
+version = "0.22.1"
 description = "MongoEngine is a Python Object-Document Mapper for working with MongoDB."
 category = "main"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.6"
 
 [package.dependencies]
 pymongo = ">=3.4,<4.0"
@@ -278,7 +278,7 @@ testing = ["coverage (>=5)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "24030a808e176a13b2dea8f34ab773ba03c55f04070a69dee465d491f1ca52e2"
+content-hash = "37d0c5888ab272459a3c5b9dee8563db5261f43406abaf9c3749ae395e6182b1"
 
 [metadata.files]
 appdirs = [
@@ -354,8 +354,8 @@ mccabe = [
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
 mongoengine = [
-    {file = "mongoengine-0.21.0-py3-none-any.whl", hash = "sha256:2680426385a03190e0494712081363fcc0c59bf9022a4f6033bcbb76a6f3e488"},
-    {file = "mongoengine-0.21.0.tar.gz", hash = "sha256:2ec7e4a8cedfffe9e1690ca920bfcb9778146945ab1ba62840a210c43ab7eff7"},
+    {file = "mongoengine-0.22.1-py3-none-any.whl", hash = "sha256:4d5efb8b6ddffc087d0741fe56fe30637b5629e33c8fae8de53a907ec20c43dd"},
+    {file = "mongoengine-0.22.1.tar.gz", hash = "sha256:620d13db551c849402eb3c362878934f5260ec0028fff2a5d81bf53b21d91572"},
 ]
 mongomock = [
     {file = "mongomock-3.20.0-py2.py3-none-any.whl", hash = "sha256:f9c60ba13cea86ce532cf39091191237eaaf5a6360371d43d3b1dc624cb559f1"},
