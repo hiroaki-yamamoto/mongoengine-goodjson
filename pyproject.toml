@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-mongoengine = "^0.20.0"
+mongoengine = "^0.23.0"
 
 [tool.poetry.dev-dependencies]
 tox = "^3.14.4"
