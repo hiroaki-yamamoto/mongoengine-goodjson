@@ -3,7 +3,12 @@
 
 """Follow Reference Field."""
 
+import typing
+
+from bson import DBRef
 from mongoengine.fields import ReferenceField
+
+from mongoengine_goodjson.document import Document
 
 
 class FollowReferenceField(ReferenceField):
@@ -27,3 +32,8 @@ class FollowReferenceField(ReferenceField):
         """
         kwargs.setdefault("num_access", 3)
         super().__init__(document_type, num_access=num_access, *args, **kwargs)
+
+    def to_mongo(self, docuemnt: Document) -> typing.Dict[str, typing.Any]:
+        """Serialize the reference into the document."""
+        _id = super().to_mongo(document)
+        return isinstance(_id, DBRef) and _id.as_doc() or document.as_doc()
