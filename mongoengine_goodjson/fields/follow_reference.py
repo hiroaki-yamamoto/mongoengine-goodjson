@@ -33,7 +33,7 @@ class FollowReferenceField(ReferenceField):
         kwargs.setdefault("num_access", 3)
         super().__init__(document_type, num_access=num_access, *args, **kwargs)
 
-    def to_mongo(self, docuemnt: Document) -> typing.Dict[str, typing.Any]:
+    def to_mongo(self, document: Document) -> typing.Dict[str, typing.Any]:
         """Serialize the reference into the document."""
         _id = super().to_mongo(document)
         return isinstance(_id, DBRef) and _id.as_doc() or document.as_doc()
