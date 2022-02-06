@@ -105,13 +105,14 @@ pymongo = ">=3.4,<4.0"
 
 [[package]]
 name = "mongomock"
-version = "3.23.0"
+version = "4.0.0"
 description = "Fake pymongo stub for testing simple MongoDB-dependent code"
 category = "dev"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
+packaging = "*"
 sentinels = "*"
 six = "*"
 
@@ -292,7 +293,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "11c1b4054717cdfdb7542beb45073ba513d27e7d802c4df47d6368011f0b38ad"
+content-hash = "60b1e32232a51bd324ae29d6c9398bdf590f8474cacd73c5a86fe102c7ed8884"
 
 [metadata.files]
 colorama = [
@@ -375,8 +376,8 @@ mongoengine = [
     {file = "mongoengine-0.23.1.tar.gz", hash = "sha256:de275e70cd58891dc46eef43369c522ce450dccb6d6f1979cbc9b93e6bdaf6cb"},
 ]
 mongomock = [
-    {file = "mongomock-3.23.0-py2.py3-none-any.whl", hash = "sha256:01ce0c4eb02b2eced0a30882412444eaf6de27a90f2502bee64e04e3b8ecdc90"},
-    {file = "mongomock-3.23.0.tar.gz", hash = "sha256:d9945e7c87c221aed47c6c10708376351a5f5ee48060943c56ba195be425b0dd"},
+    {file = "mongomock-4.0.0-py2.py3-none-any.whl", hash = "sha256:cac9c68dd7715b4ab6ae510c20b4676e5ce751f0a5434d5ad8236d974e2a2b69"},
+    {file = "mongomock-4.0.0.tar.gz", hash = "sha256:b1832c3748d47444c18867373e5cea754c2e6f644a0cfbfd667f178f68bdecfc"},
 ]
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
