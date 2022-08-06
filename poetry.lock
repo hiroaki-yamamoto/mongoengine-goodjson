@@ -39,7 +39,7 @@ testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-co
 
 [[package]]
 name = "flake8"
-version = "5.0.0"
+version = "5.0.4"
 description = "the modular source code checker: pep8 pyflakes and co"
 category = "dev"
 optional = false
@@ -160,7 +160,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "pycodestyle"
-version = "2.9.0"
+version = "2.9.1"
 description = "Python style guide checker"
 category = "dev"
 optional = false
@@ -272,20 +272,20 @@ testing = ["flaky (>=3.4.0)", "freezegun (>=0.3.11)", "pytest (>=4.0.0)", "pytes
 
 [[package]]
 name = "virtualenv"
-version = "20.16.2"
+version = "20.16.3"
 description = "Virtual Python Environment builder"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-distlib = ">=0.3.1,<1"
-filelock = ">=3.2,<4"
-platformdirs = ">=2,<3"
+distlib = ">=0.3.5,<1"
+filelock = ">=3.4.1,<4"
+platformdirs = ">=2.4,<3"
 
 [package.extras]
-docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sphinx-rtd-theme (>=0.4.3)", "towncrier (>=21.3)"]
-testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "packaging (>=20.0)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)"]
+docs = ["proselint (>=0.13)", "sphinx (>=5.1.1)", "sphinx-argparse (>=0.3.1)", "sphinx-rtd-theme (>=1)", "towncrier (>=21.9)"]
+testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=21.3)", "pytest (>=7.0.1)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.2)", "pytest-mock (>=3.6.1)", "pytest-randomly (>=3.10.3)", "pytest-timeout (>=2.1)"]
 
 [metadata]
 lock-version = "1.1"
@@ -349,8 +349,8 @@ filelock = [
     {file = "filelock-3.7.1.tar.gz", hash = "sha256:3a0fd85166ad9dbab54c9aec96737b744106dc5f15c0b09a6744a445299fcf04"},
 ]
 flake8 = [
-    {file = "flake8-5.0.0-py2.py3-none-any.whl", hash = "sha256:f44e470195849d0596cb488c7bd769086fcbe987c10cc9daae9a13b4136abb24"},
-    {file = "flake8-5.0.0.tar.gz", hash = "sha256:503b06b6795189e55298a70b695b1eb4f6b8d479fae81352fc97c72ca242509e"},
+    {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
+    {file = "flake8-5.0.4.tar.gz", hash = "sha256:6fbe320aad8d6b95cec8b8e47bc933004678dc63095be98528b7bdd2a9f510db"},
 ]
 flake8-commas = [
     {file = "flake8-commas-2.1.0.tar.gz", hash = "sha256:940441ab8ee544df564ae3b3f49f20462d75d5c7cac2463e0b27436e2050f263"},
@@ -393,8 +393,8 @@ py = [
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
 pycodestyle = [
-    {file = "pycodestyle-2.9.0-py2.py3-none-any.whl", hash = "sha256:289cdc0969d589d90752582bef6dff57c5fbc6949ee8b013ad6d6449a8ae9437"},
-    {file = "pycodestyle-2.9.0.tar.gz", hash = "sha256:beaba44501f89d785be791c9462553f06958a221d166c64e1f107320f839acc2"},
+    {file = "pycodestyle-2.9.1-py2.py3-none-any.whl", hash = "sha256:d1735fc58b418fd7c5f658d28d943854f8a849b01a5d0a1e6f3f3fdd0166804b"},
+    {file = "pycodestyle-2.9.1.tar.gz", hash = "sha256:2c9607871d58c76354b697b42f5d57e1ada7d261c261efac224b664affdc5785"},
 ]
 pydocstyle = [
     {file = "pydocstyle-6.1.1-py3-none-any.whl", hash = "sha256:6987826d6775056839940041beef5c08cc7e3d71d63149b48e36727f70144dc4"},
@@ -496,6 +496,6 @@ tox = [
     {file = "tox-3.25.1.tar.gz", hash = "sha256:c138327815f53bc6da4fe56baec5f25f00622ae69ef3fe4e1e385720e22486f9"},
 ]
 virtualenv = [
-    {file = "virtualenv-20.16.2-py2.py3-none-any.whl", hash = "sha256:635b272a8e2f77cb051946f46c60a54ace3cb5e25568228bd6b57fc70eca9ff3"},
-    {file = "virtualenv-20.16.2.tar.gz", hash = "sha256:0ef5be6d07181946891f5abc8047fda8bc2f0b4b9bf222c64e6e8963baee76db"},
+    {file = "virtualenv-20.16.3-py2.py3-none-any.whl", hash = "sha256:4193b7bc8a6cd23e4eb251ac64f29b4398ab2c233531e66e40b19a6b7b0d30c1"},
+    {file = "virtualenv-20.16.3.tar.gz", hash = "sha256:d86ea0bb50e06252d79e6c241507cb904fcd66090c3271381372d6221a3970f9"},
 ]
